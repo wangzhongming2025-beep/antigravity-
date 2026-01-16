@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Gym | VisionGuard AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+        }
+
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(120px) rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg) translateX(120px) rotate(-360deg);
+            }
+        }
+
+        .orbit-ball {
+            animation: orbit 4s linear infinite;
+            animation-play-state: paused;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        .breathe-circle {
+            animation: breathe 4s ease-in-out infinite;
+            animation-play-state: paused;
+        }
+
+        /* Reward Pop */
+        @keyframes pop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .pop-in {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+
+<body class="text-zinc-100 min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black">V
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">VisionGuard</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html"
+                        class="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</a>
+                    <button
+                        class="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-zinc-200 transition-colors"
+                        onclick="window.location.href='dashboard.html'">
+                        Exit Gym
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-6 mt-16 relative overflow-hidden">
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/20 blur-[120px] rounded-full -z-10">
+        </div>
+
+        <div class="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Sidebar: Routine Selector -->
+            <div class="glass rounded-3xl p-6 lg:col-span-1 h-fit">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                    Routines
+                </h2>
+                <div class="space-y-3">
+                    <button onclick="setRoutine('trace')"
+                        class="w-full text-left p-4 rounded-xl bg-zinc-800/50 border border-zinc-700 hover:bg-zinc-800 hover:border-cyan-500/50 transition-all group active-routine">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-cyan-400 group-hover:text-cyan-300">Circle Trace</span>
+                            <span class="text-xs bg-zinc-900 px-2 py-1 rounded text-zinc-500">2 min</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Follow the moving ball.</p>
+                    </button>
+
+                    <button onclick="setRoutine('focus')"
+                        class="w-full text-left p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-all group">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-purple-400 group-hover:text-purple-300">Focus Shift</span>
+                            <span class="text-xs bg-zinc-900 px-2 py-1 rounded text-zinc-500">1 min</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Coordinate near/far focus.</p>
+                    </button>
+
+                    <button onclick="setRoutine('blink')"
+                        class="w-full text-left p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-all group">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-emerald-400 group-hover:text-emerald-300">Deep Blinking</span>
+                            <span class="text-xs bg-zinc-900 px-2 py-1 rounded text-zinc-500">45 sec</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Refresh tear film.</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Stage -->
+            <div class="glass rounded-3xl p-8 lg:col-span-2 relative min-h-[500px] flex flex-col items-center justify-center text-center overflow-hidden"
+                id="stage-container">
+
+                <!-- Overlay: Start Screen -->
+                <div id="start-overlay"
+                    class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm rounded-3xl">
+                    <div class="w-20 h-20 bg-cyan-500 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                            class="text-black">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">Ready to Start?</h2>
+                    <p class="text-zinc-400 mb-8 max-w-xs">Sit comfortably. Keep your head still and move only your
+                        eyes.</p>
+                    <button onclick="startExercise()"
+                        class="bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">
+                        Start Session
+                    </button>
+                </div>
+
+                <!-- Reward Overlay (Hidden by default) -->
+                <div id="reward-overlay"
+                    class="hidden absolute inset-0 z-50 bg-black/80 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center">
+                    <div class="text-6xl mb-4 pop-in">🎉</div>
+                    <h2 class="text-3xl font-bold text-cyan-400 mb-2 pop-in">Great Job!</h2>
+                    <p class="text-zinc-300 mb-6 font-mono pop-in text-lg">+10 Credits Earned</p>
+                    <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"
+                        id="saving-spinner"></div>
+                    <button onclick="window.location.href='dashboard.html'" id="btn-home"
+                        class="hidden bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">
+                        Back to Dashboard
+                    </button>
+                </div>
+
+                <!-- Animation Stages -->
+                <div id="stage-trace" class="hidden w-full h-full absolute inset-0 flex items-center justify-center">
+                    <div class="w-2 h-2 bg-zinc-800 rounded-full absolute"></div>
+                    <div class="w-6 h-6 bg-cyan-400 rounded-full shadow-[0_0_30px_rgba(34,211,238,0.6)] orbit-ball">
+                    </div>
+                </div>
+
+                <div id="stage-focus" class="hidden w-full h-full absolute inset-0 flex items-center justify-center">
+                    <div
+                        class="w-32 h-32 border-4 border-purple-500 rounded-full breathe-circle flex items-center justify-center">
+                        <span class="text-xs font-mono text-purple-300 uppercase tracking-widest">Focus</span>
+                    </div>
+                </div>
+
+                <div id="stage-blink"
+                    class="hidden w-full h-full absolute inset-0 flex items-center justify-center flex-col gap-8">
+                    <h3 class="text-6xl font-black text-emerald-500" id="blink-text">OPEN</h3>
+                    <p class="text-zinc-500">Squeeze shut... and open wide.</p>
+                </div>
+
+                <!-- Timer & Controls -->
+                <div class="absolute bottom-8 w-full px-8 flex justify-between items-end">
+                    <div class="text-left">
+                        <p class="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-1">Status</p>
+                        <p id="status-text" class="text-xl font-bold text-cyan-400">Paused</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-1">Time Remaining</p>
+                        <p id="timer" class="text-4xl font-mono font-bold">02:00</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- Supabase Config ---
+        const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentRoutine = 'trace';
+        let isRunning = false;
+        let timerInterval;
+        let timeLeft = 120;
+
+        function setRoutine(routine) {
+            currentRoutine = routine;
+            document.querySelectorAll('.group').forEach(el => {
+                el.classList.remove('bg-zinc-800/50', 'border-cyan-500/50');
+                el.classList.add('bg-zinc-900');
+            });
+            // Simple visual reset (styling update can be enhanced)
+            stopExercise();
+            
+            if(routine === 'trace') timeLeft = 120; // 2 min
+            if(routine === 'focus') timeLeft = 60;  // 1 min
+            if(routine === 'blink') timeLeft = 45;  // 45 sec
+            
+            // For TEST purposes: Let's make one routine short to verify points logic easily
+            // Uncomment the line below to test logic quickly (5 seconds)
+            // if(routine === 'blink') timeLeft = 5; 
+
+            updateTimerDisplay();
+            document.getElementById('start-overlay').classList.remove('hidden');
+            document.getElementById('reward-overlay').classList.add('hidden');
+        }
+
+        function startExercise() {
+            isRunning = true;
+            document.getElementById('start-overlay').classList.add('hidden');
+            document.getElementById('status-text').innerText = 'Active Session';
+            
+            document.getElementById('stage-trace').classList.add('hidden');
+            document.getElementById('stage-focus').classList.add('hidden');
+            document.getElementById('stage-blink').classList.add('hidden');
+            
+            if(currentRoutine === 'trace') {
+                document.getElementById('stage-trace').classList.remove('hidden');
+                document.querySelector('.orbit-ball').style.animationPlayState = 'running';
+            } else if(currentRoutine === 'focus') {
+                document.getElementById('stage-focus').classList.remove('hidden');
+                document.querySelector('.breathe-circle').style.animationPlayState = 'running';
+            } else if(currentRoutine === 'blink') {
+                document.getElementById('stage-blink').classList.remove('hidden');
+                startBlinkLoop();
+            }
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if(timeLeft <= 0) {
+                    completeExercise();
+                }
+            }, 1000);
+        }
+
+        function stopExercise() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.querySelector('.orbit-ball').style.animationPlayState = 'paused';
+            document.querySelector('.breathe-circle').style.animationPlayState = 'paused';
+        }
+
+        async function completeExercise() {
+            stopExercise();
+            
+            // 1. Show Reward Screen
+            document.getElementById('reward-overlay').classList.remove('hidden');
+            document.getElementById('reward-overlay').classList.add('flex');
+            
+            // 2. Add Points in Background
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if(user) {
+                    // Fetch current credits
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('credits')
+                        .eq('id', user.id)
+                        .single();
+                    
+                    const newCredits = (profile?.credits || 0) + 10;
+                    
+                    // Update credits
+                    const { error } = await supabase
+                        .from('profiles')
+                        .update({ credits: newCredits })
+                        .eq('id', user.id);
+                        
+                    if(error) throw error;
+                    console.log('Credits updated to', newCredits);
+                }
+            } catch (err) {
+                console.error('Error saving credits:', err);
+                // Optionally show error text, but let's keep it positive for MVP
+            } finally {
+                // Remove spinner, show home button
+                document.getElementById('saving-spinner').classList.add('hidden');
+                document.getElementById('btn-home').classList.remove('hidden');
+                document.getElementById('btn-home').classList.add('block');
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }
+
+        function startBlinkLoop() {
+            const text = document.getElementById('blink-text');
+            let isOpen = true;
+            const blinkInterval = setInterval(() => {
+                if(!isRunning) { clearInterval(blinkInterval); return; }
+                isOpen = !isOpen;
+                text.innerText = isOpen ? 'OPEN' : 'SHUT';
+                text.className = isOpen ? 'text-6xl font-black text-emerald-500' : 'text-6xl font-black text-zinc-700';
+            }, 3000);
+        }
+        
+        // Init
+        updateTimerDisplay();
+    </script>
+</body>
+
+</html>

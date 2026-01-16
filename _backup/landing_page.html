@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionGuard AI | 您的智能视力守护专家</title>
+    <meta name="description" content="VisionGuard AI 是一款革命性的眼部健康监测工具，实时坐姿分析、眼球运动追踪，为您的视力保驾护航。">
+    <meta name="keywords"
+        content="glasses for nearsightedness, corrective lens for nearsightedness, nearsightedness vs farsightedness, myopia vs hyperopia, 视力保护, VisionGuard">
+    <meta name="google-site-verification" content="rnIog34Y6vIpr2joK4ePkph8nCdn555eBJlZDqiTI_4" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV10K6WLK7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-QV10K6WLK7');
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW failed', err));
+            });
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            scroll-behavior: smooth;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #22d3ee, #c084fc);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .btn-shadcn {
+            background: white;
+            color: black;
+            transition: all 0.2s;
+        }
+
+        .btn-shadcn:hover {
+            background: #e4e4e7;
+            transform: translateY(-1px);
+        }
+
+        /* --- Premium Micro-interactions --- */
+
+        /* 1. Global Smooth Transition */
+        button,
+        a,
+        .card,
+        .glass-card,
+        input {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 2. Hover Floating Effect (Lift up) */
+        .hover-float:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.3);
+        }
+
+        /* 3. Button Glow Effect */
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        /* 4. Glass Card Interactive */
+        .glass-card {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(180deg, rgba(24, 24, 27, 0.6) 0%, rgba(24, 24, 27, 0.9) 100%);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            background: linear-gradient(180deg, rgba(24, 24, 27, 0.8) 0%, rgba(24, 24, 27, 1) 100%);
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 5. Text Link Underline Animation */
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #06b6d4;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-shadcn-secondary {
+            background: #27272a;
+            color: white;
+            border: 1px solid #3f3f46;
+        }
+
+        .btn-shadcn-secondary:hover {
+            background: #3f3f46;
+        }
+    </style>
+</head>
+
+<body class="text-zinc-100 antialiased selection:bg-cyan-500/30">
+
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 glass">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center font-bold text-white">
+                    V</div>
+                <span class="font-bold text-lg tracking-tight">VisionGuard</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+                <a href="#features" class="hover:text-white transition-colors">Features</a>
+                <a href="#comparison" class="hover:text-white transition-colors">Vision Science</a>
+                <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
+                <a href="blog.html" class="hover:text-white transition-colors text-cyan-400">Academy</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="signInWithGoogle()"
+                    class="text-sm font-medium hover:text-white text-zinc-400">Login</button>
+                <a href="dashboard.html"
+                    class="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform">Get
+                    Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="pt-32 pb-16 px-6 relative overflow-hidden">
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-cyan-500/10 blur-[120px] rounded-full -z-10">
+        </div>
+
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-medium text-cyan-400 mb-6">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                    </span>
+                    AI-Powered Vision Protection
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
+                    Your AI Sentinel <br>
+                    <span class="text-gradient">Against Myopia.</span>
+                </h1>
+                <p class="text-lg text-zinc-400 mb-8 max-w-lg leading-relaxed">
+                    Stop eye strain before it starts. VisionGuard uses your camera to monitor safe screen distance and
+                    enforce the 20-20-20 rule—all locally, for free.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="window.location.href='dashboard.html'"
+                        class="btn-shadcn px-8 py-4 rounded-full text-base font-bold flex items-center justify-center gap-2">
+                        Start for Free
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </button>
+                    <button onclick="window.location.href='#comparison'"
+                        class="btn-shadcn-secondary px-8 py-4 rounded-full text-base font-bold">
+                        See How It Works
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative group">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000">
+                </div>
+                <div class="relative bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl">
+                    <div
+                        class="aspect-video bg-zinc-950 flex items-center justify-center text-zinc-800 overflow-hidden relative">
+                        <!-- Simulated UI -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <video autoplay loop muted playsinline class="w-full h-full object-cover opacity-50">
+                                <source
+                                    src="https://cdn.coverr.co/videos/coverr-working-on-laptop-outdoor-5374/1080p.mp4"
+                                    type="video/mp4">
+                            </video>
+                            <div
+                                class="absolute top-4 right-4 bg-black/80 backdrop-blur border border-zinc-700 rounded-lg px-3 py-1 flex items-center gap-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-xs font-mono text-green-400">AI ACTIVE</span>
+                            </div>
+                            <!-- Scanning Reticle -->
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-64 h-64 border-2 border-cyan-500/30 rounded-lg relative">
+                                    <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyan-500">
+                                    </div>
+                                    <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-cyan-500">
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-cyan-500">
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyan-500">
+                                    </div>
+                                    <div
+                                        class="absolute top-2 left-1/2 -translate-x-1/2 bg-cyan-500/20 text-cyan-400 text-[10px] px-2 py-0.5 rounded font-mono">
+                                        52 cm (Good)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Comparison Section (REBUILT) -->
+    <section id="comparison" class="py-24 bg-zinc-950 px-6 scroll-mt-20 border-t border-zinc-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+                <!-- Detailed Knowledge Base -->
+                <div>
+                    <span class="text-cyan-400 font-bold tracking-widest uppercase text-xs mb-2 block">Vision
+                        Science</span>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight">Myopia vs. <span
+                            class="text-purple-400">Hyperopia</span></h2>
+                    <p class="text-zinc-400 text-lg mb-8 leading-relaxed">Most vision problems stem from where light
+                        focuses in your eye. VisionGuard helps reduce the strain that accelerates these conditions.</p>
+
+                    <div class="space-y-6">
+                        <div
+                            class="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-purple-500/30 transition-colors">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                                <h3 class="font-bold text-white text-lg">Myopia (Nearsightedness)</h3>
+                            </div>
+                            <p class="text-zinc-400 text-sm">Light focuses <strong>in front</strong> of the retina.
+                                Objects far away look blurry. This is the #1 issue for screen users.</p>
+                        </div>
+                        <div
+                            class="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-cyan-500/30 transition-colors">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-2 h-2 rounded-full bg-cyan-500"></div>
+                                <h3 class="font-bold text-white text-lg">Hyperopia (Farsightedness)</h3>
+                            </div>
+                            <p class="text-zinc-400 text-sm">Light focuses <strong>behind</strong> the retina. Close
+                                objects (like phones) look blurry, causing massive eye strain.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Slider Component -->
+                <div class="relative group select-none">
+                    <div
+                        class="relative w-full aspect-[4/3] rounded-3xl overflow-hidden border border-zinc-700 shadow-2xl bg-black">
+                        <!-- Base Layer: Hyperopia (Blurry Near, Clear Far) -->
+                        <div class="absolute inset-0">
+                            <!-- Background: Clear Mountain -->
+                            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000&auto=format&fit=crop"
+                                class="w-full h-full object-cover" alt="Clear Nature">
+                            <!-- Foreground: Blurry Phone (Simulated) -->
+                            <div
+                                class="absolute bottom-10 right-10 w-48 h-64 bg-zinc-800/80 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center">
+                                <span class="text-white/50 font-bold text-2xl blur-[2px]">Blurry</span>
+                            </div>
+                            <div
+                                class="absolute top-4 right-4 bg-black/60 px-3 py-1 rounded text-cyan-400 text-xs font-bold border border-cyan-500/30">
+                                Hyperopia View
+                            </div>
+                        </div>
+
+                        <!-- Top Layer: Myopia (Blurry Far, Clear Near) - Clipped -->
+                        <div id="compare-overlay" class="absolute inset-0 w-full h-full bg-black overflow-hidden"
+                            style="clip-path: inset(0 50% 0 0);">
+                            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000&auto=format&fit=crop"
+                                class="w-full h-full object-cover blur-[8px]" alt="Blurry Nature">
+                            <!-- Foreground: Clear Phone -->
+                            <div
+                                class="absolute bottom-10 right-10 w-48 h-64 bg-zinc-900 rounded-xl border border-zinc-700 flex items-center justify-center shadow-2xl">
+                                <span class="text-white font-bold text-2xl">Clear</span>
+                            </div>
+                            <div
+                                class="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded text-purple-400 text-xs font-bold border border-purple-500/30">
+                                Myopia View
+                            </div>
+                        </div>
+
+                        <!-- Slider Thumb -->
+                        <div id="compare-handle"
+                            class="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center"
+                            style="left: 50%">
+                            <div
+                                class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl text-zinc-900 transform hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m9 18 6-6-6-6" />
+                                    <path d="m15 18 6-6-6-6" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Invisible Range Input -->
+                        <input type="range" min="0" max="100" value="50" id="vision-slider"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30 m-0 p-0">
+                    </div>
+                    <p class="mt-4 text-center text-zinc-500 text-sm flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3 4 7l4 4" />
+                            <path d="M4 7h16" />
+                            <path d="m16 21 4-4-4-4" />
+                            <path d="M20 17H4" />
+                        </svg>
+                        Drag to compare visual experiences
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-24 px-6 border-t border-zinc-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">Why VisionGuard?</h2>
+                <p class="text-zinc-400">Essential tools for the digital age.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:bg-zinc-900 transition-colors">
+                    <div
+                        class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 mb-4 text-xl">
+                        📏</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Distance Monitor</h3>
+                    <p class="text-zinc-400 text-sm">Real-time alerts when you sit too close.</p>
+                </div>
+                <div class="p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:bg-zinc-900 transition-colors">
+                    <div
+                        class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-4 text-xl">
+                        ⏳</div>
+                    <h3 class="text-xl font-bold text-white mb-2">20-20-20 Timer</h3>
+                    <p class="text-zinc-400 text-sm">Smart breaks to refresh your eyes.</p>
+                </div>
+                <div
+                    class="p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:bg-zinc-900 transition-colors group">
+                    <div
+                        class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 mb-4 text-xl group-hover:scale-110 transition-transform">
+                        🩺</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Self-Check Toolkit</h3>
+                    <div class="space-y-2 mt-4">
+                        <a href="color_test.html"
+                            class="block text-sm text-zinc-400 hover:text-cyan-400 transition-colors">→ Color Blindness
+                            Test</a>
+                        <a href="astigmatism_test.html"
+                            class="block text-sm text-zinc-400 hover:text-cyan-400 transition-colors">→ Astigmatism
+                            Check</a>
+                        <a href="vision_chart.html"
+                            class="block text-sm text-zinc-400 hover:text-cyan-400 transition-colors">→ Online Snellen
+                            Chart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Script -->
+    <script>
+        const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function signInWithGoogle() {
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.href.split('#')[0] }
+            });
+            if (error) alert('Login failed: ' + error.message);
+        }
+
+        // --- SLIDER LOGIC ---
+        const slider = document.getElementById('vision-slider');
+        const overlay = document.getElementById('compare-overlay');
+        const handle = document.getElementById('compare-handle');
+
+        if (slider && overlay && handle) {
+            slider.addEventListener('input', (e) => {
+                const val = e.target.value; // 0 to 100
+                // We clip from the right side.
+                // 100% means full image (0% clipped). 0% means hidden (100% clipped).
+                // But logically, if slider is at 50%, we want 50% width.
+                // inset(0 50% 0 0) means clip 50% from right.
+                const clipAmount = 100 - val;
+                overlay.style.clipPath = `inset(0 ${clipAmount}% 0 0)`;
+                handle.style.left = `${val}%`;
+            });
+        }
+    </script>
+</body>
+
+</html>

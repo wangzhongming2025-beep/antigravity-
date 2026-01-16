@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线视力表 (Snellen Chart) | VisionGuard AI</title>
+    <meta name="description" content="免费在线视力测试表。在没有任何工具的情况下，通过浏览器快速自测视力水平。">
+    <meta name="keywords" content="在线视力表, 视力测试, 视力检查, 20/20 vision check">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "这个在线视力表准吗？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "本测试仅供初步筛查。虽然我们根据一般屏幕比例进行了校准，但受限于每台设备的尺寸和分辨率，结果仅供参考，不能替代医生的专业诊断。"
+        }
+      }]
+    }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #e4e4e7;
+        }
+
+        /* Only keep the paper style, let Tailwind handle the rest */
+        .chart-paper {
+            background: white;
+            padding: 4rem 2rem;
+            border-radius: 4px;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 font-bold text-white text-xl cursor-pointer"
+                onclick="location.href='index.html'">
+                <span class="text-cyan-400">V</span>isionGuard
+            </div>
+            <div class="flex gap-6 text-sm">
+                <a href="dashboard.html" class="nav-link text-zinc-400 hover:text-white">工作台</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-32 px-6">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-bold text-white mb-4">在线标准视力表</h1>
+            <p class="text-zinc-400">
+                请坐在距离屏幕 <strong>3米 (约10英尺)</strong> 的地方。 <br>
+                遮住一只眼睛，阅读你能看清的最小一行。
+            </p>
+        </div>
+
+        <div class="chart-paper mb-12 flex flex-col items-center">
+            <!-- Row 1: E (80px) -->
+            <div class="text-black font-black leading-none text-[80px] mb-12 select-none"
+                style="font-family: Arial, sans-serif;">
+                E
+            </div>
+
+            <!-- Row 2: F P (60px) -->
+            <div class="text-black font-black leading-none text-[60px] mb-10 tracking-[0.4em] indent-[0.4em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                F P
+            </div>
+
+            <!-- Row 3: T O Z (45px) -->
+            <div class="text-black font-black leading-none text-[45px] mb-8 tracking-[0.4em] indent-[0.4em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                T O Z
+            </div>
+
+            <!-- Row 4: L P E D (35px) -->
+            <div class="text-black font-black leading-none text-[35px] mb-6 tracking-[0.3em] indent-[0.3em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                L P E D
+            </div>
+
+            <!-- Row 5: P E C F D (25px) -->
+            <div class="text-black font-black leading-none text-[25px] mb-5 tracking-[0.3em] indent-[0.3em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                P E C F D
+            </div>
+
+            <!-- Row 6: E D F C Z P (18px) -->
+            <div class="text-black font-black leading-none text-[18px] mb-4 tracking-[0.2em] indent-[0.2em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                E D F C Z P
+            </div>
+
+            <!-- Row 7: F E L O P Z D (14px) -->
+            <div class="text-black font-black leading-none text-[14px] mb-3 tracking-[0.2em] indent-[0.2em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                F E L O P Z D
+            </div>
+
+            <!-- Row 8: D E F P O T E C (12px) -->
+            <div class="text-black font-black leading-none text-[12px] mb-0 tracking-[0.2em] indent-[0.2em] whitespace-nowrap select-none"
+                style="font-family: Arial, sans-serif;">
+                D E F P O T E C
+            </div>
+
+            <div
+                class="mt-8 border-t border-gray-300 pt-2 text-xs text-gray-400 font-sans font-normal w-full text-center">
+                标准比例 (针对 1080p 桌面显示器校准)
+            </div>
+        </div>
+
+        <div class="text-center pb-20">
+            <p class="font-bold text-white mb-4">结果解读：</p>
+            <div
+                class="inline-block text-left bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-sm text-zinc-400">
+                <p class="mb-2">第1行看不清: 视力极差 (需立即就医)</p>
+                <p class="mb-2">能看清第4行: 20/50 (约为 0.4 视力，美国驾照最低标准)</p>
+                <p class="mb-2">能看清第8行: 20/20 (约为 1.0 正常视力)</p>
+                <p class="mt-4 text-cyan-400">如果您无法看清第5行及以下内容，建议进行专业检查。</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV10K6WLK7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-QV10K6WLK7');
+    </script>
+</body>
+
+</html>

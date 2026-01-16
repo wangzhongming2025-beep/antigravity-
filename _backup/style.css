@@ -1,0 +1,281 @@
+:root {
+    --primary-color: #2563eb;
+    --bg-color: #f3f4f6;
+    --sidebar-width: 400px;
+    --paper-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-paper: 'Noto Serif SC', 'Songti SC', serif;
+    /* Serif looks more like official exams */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-ui);
+    background-color: var(--bg-color);
+    height: 100vh;
+    overflow: hidden;
+    color: #1f2937;
+}
+
+/* App Layout */
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar Editor */
+.editor-pane {
+    width: var(--sidebar-width);
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.02);
+    z-index: 10;
+}
+
+.editor-header {
+    margin-bottom: 2rem;
+}
+
+.editor-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.editor-header p {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+.control-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.control-group input[type="text"],
+.control-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.control-group input[type="text"]:focus,
+.control-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.control-group textarea {
+    height: 300px;
+    resize: none;
+    line-height: 1.5;
+}
+
+.actions {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: #1d4ed8;
+}
+
+.btn.secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn.secondary:hover {
+    background-color: #e5e7eb;
+}
+
+.app-footer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+}
+
+/* Preview Pane */
+.preview-pane {
+    flex: 1;
+    background-color: #e5e5e5;
+    /* Contrast from paper */
+    overflow-y: auto;
+    padding: 3rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* A4 Paper Simulation */
+.paper.a4 {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    padding: 20mm;
+    box-shadow: var(--paper-shadow);
+    margin-bottom: 3rem;
+    position: relative;
+    font-family: var(--font-paper);
+}
+
+.paper-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.paper-header h1 {
+    font-size: 24pt;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.paper-header h2 {
+    font-size: 16pt;
+    font-weight: normal;
+    margin-bottom: 1.5rem;
+}
+
+.paper-info {
+    display: flex;
+    justify-content: space-around;
+    font-size: 11pt;
+}
+
+.paper-body {
+    font-size: 10.5pt;
+    /* Standard print size approx */
+    line-height: 1.6;
+}
+
+.empty-state {
+    text-align: center;
+    color: #9ca3af;
+    padding: 4rem 0;
+    font-style: italic;
+}
+
+/* Exam Content Styles */
+.question-item {
+    margin-bottom: 1.5rem;
+    page-break-inside: avoid;
+    /* Prevent splitting questions across pages */
+}
+
+.q-text {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.q-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 columns for A, B, C, D default */
+    gap: 0.5rem;
+    padding-left: 1rem;
+}
+
+.q-option {
+    /* Basic option style */
+    padding: 0.25rem 0;
+}
+
+/* Two Column Mode */
+.paper.two-cols .paper-body {
+    column-count: 2;
+    column-gap: 2rem;
+    column-rule: 1px solid #e5e7eb;
+}
+
+.paper.two-cols .q-options {
+    grid-template-columns: repeat(2, 1fr);
+    /* Reduce option columns in 2-col layout */
+}
+
+/* PRINT STYLES - The Magic Part */
+@media print {
+    @page {
+        size: A4;
+        margin: 15mm;
+        /* Set print margins at page level */
+    }
+
+    body {
+        height: auto;
+        overflow: visible;
+        background: white;
+    }
+
+    .app-container {
+        display: block;
+        /* Break flex layout */
+        height: auto;
+    }
+
+    .editor-pane {
+        display: none !important;
+        /* Hide editor */
+    }
+
+    .preview-pane {
+        display: block;
+        padding: 0;
+        background: white;
+        overflow: visible;
+        height: auto;
+    }
+
+    .paper.a4 {
+        width: 100%;
+        min-height: auto;
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+        /* Rely on @page margins */
+    }
+
+    /* Print Optimizations */
+    .paper-header {
+        margin-bottom: 1rem;
+    }
+}

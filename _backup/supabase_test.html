@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 连接测试</title>
+    <!-- 引入 Supabase 客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f0f9ff;
+            color: #334155;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #0ea5e9;
+            margin-top: 0;
+        }
+
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🔌 Supabase 连接测试</h1>
+
+        <p>正在尝试连接到你的数据库...</p>
+
+        <div id="status" class="status loading">准备测试...</div>
+
+        <button onclick="testConnection()">再次测试</button>
+    </div>
+
+    <script>
+        // 你的配置信息
+        const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
+        // 注意：这里需要填入完整的 anon key，通常是以 eyJ 开头的长字符串
+        // 用户提供的似乎有些短，可能是 publishable token 或者截断了
+        // 我们先试着用用户给的这个，如果报错就知道是 Key 不对了
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
+
+        // 初始化客户端
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function testConnection() {
+            const statusEl = document.getElementById('status');
+            statusEl.className = 'status loading';
+            statusEl.textContent = '正在连接 Supabase...\n尝试向 feedback 表写入数据...';
+
+            try {
+                // 尝试写入一条测试数据
+                const { data, error } = await supabase
+                    .from('feedback')
+                    .insert([
+                        { content: '这是一条来自本地的测试数据 ' + new Date().toLocaleString() }
+                    ])
+                    .select();
+
+                if (error) {
+                    throw error;
+                }
+
+                statusEl.className = 'status success';
+                statusEl.textContent = '✅ 成功！\n\n写入数据成功：\n' + JSON.stringify(data, null, 2);
+                console.log('Success:', data);
+
+            } catch (err) {
+                statusEl.className = 'status error';
+                console.error('Error:', err);
+
+                let errorMsg = '❌ 失败：\n' + err.message;
+
+                if (err.message.includes('apikey')) {
+                    errorMsg += '\n\n【排查建议】\nKey 可能不对。通常 Anon Key 是以 "eyJ" 开头的一长串字符（约150个字符以上）。\n你刚才给我的看起来像是另一种格式。请回到 Project Settings -> API 页面，复制那个 "anon"public 下面的长字符串。';
+                }
+                else if (err.code === '42501' || err.message.includes('row-level security')) {
+                    errorMsg += '\n\n【排查建议】\n依然是 RLS 权限锁的问题。\n请回到 Supabase 网站 -> Table Editor -> 此时把鼠标移到 feedback 表名上 -> 点击 Edit Table -> 取消勾选 "Enable Row Level Security" ->保存。';
+                }
+                else if (err.code === '42P01') { // relation does not exist
+                    errorMsg += '\n\n【排查建议】\n找不到 "feedback" 表。\n请确认你已经创建了一个名为 "feedback" 的 Table。';
+                }
+
+                statusEl.textContent = errorMsg;
+            }
+        }
+
+        // 自动运行一次
+        testConnection();
+    </script>
+</body>
+
+</html>

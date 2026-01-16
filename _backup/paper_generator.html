@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能试卷生成工具</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for premium feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar / Editor -->
+        <aside class="editor-pane">
+            <header class="editor-header">
+                <h1>试卷生成器</h1>
+                <p>粘贴题目，一键排版</p>
+            </header>
+
+            <div class="control-group">
+                <label for="exam-title">试卷标题</label>
+                <input type="text" id="exam-title" value="2024年第一学期期末考试" placeholder="输入试卷主标题">
+            </div>
+
+            <div class="control-group">
+                <label for="exam-subtitle">副标题 (可选)</label>
+                <input type="text" id="exam-subtitle" value="语文试卷" placeholder="如：语文试卷 / 数学测试">
+            </div>
+
+            <div class="control-group">
+                <label>原文内容</label>
+                <textarea id="raw-input" placeholder="请在此粘贴题目文本...
+例如：
+1. 这里是第一道选择题？
+A. 选项一
+B. 选项二
+C. 选项三
+D. 选项四
+
+2. 这里是第二道题目..."></textarea>
+            </div>
+
+            <div class="control-group">
+                <label>布局设置</label>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="chk-two-cols">
+                    <label for="chk-two-cols" style="display:inline; font-weight:normal;">双栏排版 (A3/A4横向模式常用)</label>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="btn-preview" class="btn primary">生成预览</button>
+                <button id="btn-print" class="btn secondary">打印试卷</button>
+            </div>
+
+            <footer class="app-footer">
+                <p>支持自动识别常见题号格式</p>
+            </footer>
+        </aside>
+
+        <!-- Main / Preview -->
+        <main class="preview-pane">
+            <div id="paper-container" class="paper a4">
+                <div class="page-layout-wrapper">
+                    <!-- SEALED LINE (Left Sidebar) -->
+                    <div class="sealed-line-container">
+                        <div class="sealed-line-content">
+                            <div class="seal-text">装</div>
+                            <div class="seal-text">订</div>
+                            <div class="seal-text">线</div>
+                            <div class="seal-info-group">
+                                <span>学校 ____________________</span>
+                                <span>班级 ____________________</span>
+                                <span>姓名 ____________________</span>
+                                <span>考号 ____________________</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MAIN CONTENT (Right Side) -->
+                    <div class="paper-main">
+                        <!-- Header Section -->
+                        <div class="paper-header-complex">
+                            <div class="header-top-row">
+                                <h2 class="term-info" id="term-info">(2023—2024) 学年度第二学期第一阶段（期中）</h2>
+                            </div>
+                            <h1 class="main-title" id="paper-title">六年级数学答题卡</h1>
+
+                            <div class="info-bar-row">
+                                <div class="student-info-cells">
+                                    <div class="cell-label">姓名</div>
+                                    <div class="cell-input"></div>
+                                    <div class="cell-label">准考证号</div>
+                                    <div class="cell-input-grid">
+                                        <!-- 8 boxes for ID -->
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="barcode-area">
+                                    条形码粘贴区（居中）
+                                </div>
+                            </div>
+
+                            <div class="instructions-row">
+                                <div class="absent-section">
+                                    <div class="absent-title">缺考</div>
+                                    <div class="absent-box"></div>
+                                    <div class="absent-label">违纪</div>
+                                    <div class="absent-box"></div>
+                                </div>
+                                <div class="notice-section">
+                                    <h4>注意事项</h4>
+                                    <ol>
+                                        <li>答题前，考生先将自己的姓名、准考证号填写清楚，并认真核对条形码上的准考证号、姓名及科目。</li>
+                                        <li>选择题必须使用2B铅笔填涂；非选择题必须使用0.5毫米黑色字迹的签字笔书写，字体工整、笔迹清楚。</li>
+                                        <li>请按照题号顺序在各题目的答题区域内作答，超出答题区域书写的答案无效。</li>
+                                        <li>保持卡面清洁，不折叠，不要弄破。</li>
+                                    </ol>
+                                </div>
+                                <div class="sample-section">
+                                    <div>填涂样例</div>
+                                    <div class="sample-icons">
+                                        <div class="icon-group"><span class="box checked"></span> <span>正确填涂</span>
+                                        </div>
+                                        <div class="icon-group"><span class="box error1"></span> <span>错误填涂</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content Rendered Here -->
+                        <div id="paper-content" class="paper-body">
+                            <div class="empty-state">
+                                请在左侧输入题目并点击“生成预览”
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="paper-footer">
+                            <span id="footer-page">六年级数学答题卡 第 1 页 (共 4 页)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

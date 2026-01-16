@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3 任务海报</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+        }
+
+        .glass-card {
+            background: rgba(16, 185, 129, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+
+<body class="flex justify-center items-center min-h-screen bg-zinc-900 overflow-hidden">
+
+    <!-- Poster Container -->
+    <div class="relative w-[450px] h-[800px] bg-black overflow-hidden shadow-2xl flex flex-col group">
+
+        <!-- Background -->
+        <div class="absolute inset-0 z-0">
+            <img src="assets/day3_editor.png"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="relative z-10 pt-16 px-8">
+            <div class="flex items-center gap-3 mb-2">
+                <span
+                    class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 font-mono">03</span>
+                <div class="h-12 w-px bg-white/30"></div>
+                <div class="text-white">
+                    <p class="text-sm font-bold tracking-[0.3em] uppercase text-emerald-400">Execution</p>
+                    <p class="text-xl font-bold">第一篇初稿</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task List area -->
+        <div class="relative z-10 mt-auto p-8 pb-12">
+
+            <div class="space-y-4">
+                <!-- Task 1 -->
+                <div class="glass-card p-4 rounded-xl flex items-start gap-4">
+                    <div
+                        class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/30">
+                        1</div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm mb-1">寻找对标 (Benchmark)</h3>
+                        <p class="text-xs text-zinc-400">在小红书找到 1 篇你觉得“我能写得更好”的爆款笔记。</p>
+                    </div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="glass-card p-4 rounded-xl flex items-start gap-4">
+                    <div
+                        class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/30">
+                        2</div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm mb-1">使用 AI 洗稿工具</h3>
+                        <p class="text-xs text-zinc-400">将对标文案复制进 <span class="text-emerald-300">AI 洗稿机</span>，生成 5
+                            个新标题。</p>
+                    </div>
+                </div>
+
+                <!-- Task 3 -->
+                <div
+                    class="glass-card p-4 rounded-xl flex items-start gap-4 ring-1 ring-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                    <div
+                        class="w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-sm shrink-0">
+                        3</div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm mb-1">完成 300 字初稿</h3>
+                        <p class="text-xs text-zinc-400">不要纠结完美。写完，截图发群打卡！</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 flex justify-between items-end border-t border-white/10 pt-6">
+                <div>
+                    <p class="text-[10px] text-emerald-500/60 font-mono mb-1">TOOL ACCESS</p>
+                    <p class="text-xs text-zinc-400">Code: <span class="text-white font-mono">vip888</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-zinc-600 font-mono tracking-widest">XIAOHONGSHU CAMP</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

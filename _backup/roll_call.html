@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机点名系统</title>
+    <link rel="stylesheet" href="roll_call.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1><span class="icon">🔥</span> 乾坤圈·点名 <span class="icon">🔥</span></h1>
+            <p>我命由我不由天！ <span class="highlight">是他是他就是他！</span></p>
+        </header>
+
+        <!-- Main Stage -->
+        <div class="card main-stage">
+            <div class="name-display-area">
+                <div id="display-name" class="display-text">魔丸降世</div>
+            </div>
+
+            <div class="control-bar">
+                <button id="btn-start" class="btn btn-primary">
+                    <i class="fas fa-play"></i> 开始点名
+                </button>
+                <button id="btn-stop" class="btn btn-danger" disabled>
+                    <i class="fas fa-stop"></i> 停止
+                </button>
+                <button id="btn-reset" class="btn btn-neutral">
+                    <i class="fas fa-sync-alt"></i> 重置
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Row -->
+        <div class="dashboard-row">
+            <!-- Stats Card -->
+            <div class="card stats-card">
+                <div class="card-title"><i class="fas fa-chart-bar" style="color:#00c853;"></i> 统计信息</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">总人数</div>
+                        <div class="stat-value text-primary" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">已点名</div>
+                        <div class="stat-value text-success" id="stat-called">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Card -->
+            <div class="card history-card">
+                <div class="card-title"><i class="fas fa-history" style="color:#e91e63;"></i> 最近点名</div>
+                <div id="history-list" class="history-list">
+                    <span class="placeholder-text">暂无记录</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Section -->
+        <div class="card management-card">
+            <div class="card-header-collapsible" id="toggle-mgmt">
+                <div class="card-title"><i class="fas fa-users" style="color:#6200ea;"></i> 班级名单</div>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+
+            <div class="mgmt-content" id="mgmt-body">
+                <!-- Import Area -->
+                <div class="import-section">
+                    <h4><i class="fas fa-file-upload"></i> 导入自定义名单</h4>
+                    <p class="sub-label">上传文本文件 (.txt) 或直接粘贴</p>
+
+                    <div class="file-input-wrapper">
+                        <input type="file" id="file-upload" accept=".txt">
+                    </div>
+
+                    <div class="text-input-wrapper">
+                        <textarea id="input-names" placeholder="请输入学生姓名，每行一个..."></textarea>
+                    </div>
+
+                    <div class="mgmt-actions">
+                        <button id="btn-import" class="btn btn-success btn-sm">
+                            <i class="fas fa-check"></i> 导入名单
+                        </button>
+                        <button id="btn-clear" class="btn btn-neutral btn-sm">
+                            <i class="fas fa-trash"></i> 清空
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <!-- List Grid -->
+                <div id="student-grid" class="student-grid">
+                    <!-- Names rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="roll_call.js"></script>
+</body>
+
+</html>

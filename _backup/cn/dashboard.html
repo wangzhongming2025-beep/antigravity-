@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<!-- Same Head & Styles as before -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 | VisionGuard AI (国内版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background-color: #09090b;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+    </style>
+</head>
+
+<body class="text-zinc-100 min-h-screen">
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-full w-64 glass border-r border-zinc-800 z-50 hidden lg:block">
+        <div class="p-6">
+            <div class="flex items-center gap-2 mb-10">
+                <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black">V
+                </div>
+                <span class="text-xl font-bold">VisionGuard</span>
+            </div>
+
+            <!-- Nav Items -->
+            <nav class="space-y-1">
+                <a href="#"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg bg-zinc-800 text-cyan-400 font-medium">概览</a>
+                <a href="index.html"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white">AI 侦探</a>
+                <a href="#" onclick="upgradeToPro()"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white">会员中心</a>
+            </nav>
+        </div>
+
+        <!-- User Section -->
+        <div class="absolute bottom-0 w-full p-6 border-t border-zinc-800">
+            <div class="flex items-center gap-3 mb-4">
+                <img id="user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest"
+                    class="w-10 h-10 rounded-full border border-zinc-700">
+                <div class="overflow-hidden relative w-full">
+                    <p id="user-email" class="text-sm font-bold text-cyan-400 cursor-pointer hover:underline truncate"
+                        onclick="createLocalAccount()">点击生成 ID</p>
+                    <button id="copy-id-btn" onclick="copyUserId()"
+                        class="hidden text-xs text-zinc-500 mt-1 hover:text-white">[ 复制 ID ]</button>
+                    <p id="user-plan" class="text-xs text-zinc-500 mt-1">体验版</p>
+                </div>
+            </div>
+            <button onclick="logout()"
+                class="w-full px-4 py-2 text-xs font-semibold text-zinc-400 border border-zinc-800 rounded-md">重新开始</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 p-4 md:p-10">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold">欢迎回来</h1>
+                <p class="text-zinc-400">您的今日护眼数据。</p>
+            </div>
+            <div class="flex gap-3">
+                <div class="glass px-4 py-2 rounded-xl flex items-center gap-2 border-cyan-500/20">
+                    <span class="text-cyan-400 font-bold" id="credit-balance">0</span>
+                    <span class="text-xs text-zinc-500 font-bold">积分</span>
+                </div>
+                <button onclick="upgradeToPro()"
+                    class="bg-white text-black px-4 py-2 rounded-xl text-sm font-bold hover:bg-cyan-400">会员充值</button>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="glass p-6 rounded-3xl stat-card">
+                <p class="text-zinc-500 text-sm mb-1">健康评分</p>
+                <span class="text-4xl font-bold">--</span>
+            </div>
+            <div class="glass p-6 rounded-3xl stat-card">
+                <p class="text-zinc-500 text-sm mb-1">平均距离</p>
+                <span class="text-4xl font-bold">-- <span class="text-lg">CM</span></span>
+            </div>
+            <div class="glass p-6 rounded-3xl stat-card">
+                <p class="text-zinc-500 text-sm mb-1">休息次数</p>
+                <span class="text-4xl font-bold">0</span>
+            </div>
+        </div>
+
+        <!-- Tools -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="glass p-8 rounded-3xl">
+                <h2 class="text-xl font-bold mb-6">功能箱</h2>
+                <div class="space-y-4">
+                    <div onclick="window.location.href='index.html'"
+                        class="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900 cursor-pointer hover:bg-zinc-800">
+                        <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-xl flex items-center justify-center">
+                            📷</div>
+                        <div>
+                            <p class="font-bold">启动 AI 监控</p>
+                            <p class="text-xs text-zinc-500">实时坐姿距离检测</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div onclick="window.location.href='color_test.html'"
+                            class="p-4 bg-zinc-900 rounded-2xl text-center cursor-pointer hover:bg-zinc-800">🎨 色盲</div>
+                        <div onclick="window.location.href='vision_chart.html'"
+                            class="p-4 bg-zinc-900 rounded-2xl text-center cursor-pointer hover:bg-zinc-800">📏 视力</div>
+                        <div onclick="window.location.href='astigmatism_test.html'"
+                            class="p-4 bg-zinc-900 rounded-2xl text-center cursor-pointer hover:bg-zinc-800">👁️ 散光
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-3xl relative overflow-hidden" onclick="upgradeToPro()">
+                <div class="relative z-10">
+                    <h2 class="text-xl font-bold mb-4">数据分析</h2>
+                    <div
+                        class="aspect-video bg-zinc-800/30 rounded-2xl flex items-center justify-center border border-dashed border-zinc-700">
+                        <p class="text-xs text-zinc-500">🔒 需要 PRO 会员解锁</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- WeChat Modal -->
+    <div id="wechat-modal" class="fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center p-4"
+        onclick="this.style.display='none'">
+        <div class="bg-zinc-900 border border-zinc-700 p-8 rounded-3xl max-w-sm w-full text-center relative"
+            onclick="event.stopPropagation()">
+            <h3 class="text-xl font-bold text-white mb-2">联系客服充值</h3>
+            <p class="text-zinc-400 text-sm mb-4">发送您的 ID 给客服即可立刻开通</p>
+            <div class="bg-white p-2 rounded-xl inline-block mb-4">
+                <img src="wechat_qr.png" class="w-40 h-40 object-contain">
+            </div>
+            <div class="bg-zinc-800 p-3 rounded-lg mb-4 cursor-pointer"
+                onclick="navigator.clipboard.writeText('lwdz2026'); alert('微信号已复制')">
+                <p class="text-cyan-400 font-mono font-bold text-xl">lwdz2026</p>
+                <p class="text-[10px] text-zinc-500">点击复制微信号</p>
+            </div>
+            <button onclick="document.getElementById('wechat-modal').style.display='none'"
+                class="w-full bg-cyan-600 text-white py-3 rounded-xl font-bold">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 100% RELIABLE LOCAL ID SYSTEM ---
+        let CURRENT_ID = localStorage.getItem('vision_id');
+
+        // Config (Still needed for fetching credits, but failure is soft)
+        const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTpLP_HKMq2GKWwfuMoTA';
+
+        function init() {
+            if (CURRENT_ID) {
+                renderUser(CURRENT_ID);
+                fetchStats(CURRENT_ID);
+            }
+        }
+
+        function createLocalAccount() {
+            // Generate a fake-looking UUID
+            const newId = crypto.randomUUID ? crypto.randomUUID() : 'user_' + Date.now();
+            localStorage.setItem('vision_id', newId);
+            CURRENT_ID = newId;
+            renderUser(newId);
+            alert('账号已生成！\n请复制 ID 发给客服进行充值。');
+        }
+
+        function renderUser(id) {
+            const displayId = id.slice(0, 6) + '...';
+            const emailEl = document.getElementById('user-email');
+
+            emailEl.innerText = 'ID: ' + displayId;
+            emailEl.onclick = copyUserId; // Click text to copy
+            emailEl.classList.remove('text-cyan-400'); // Remove link style
+
+            document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${id}`;
+            document.getElementById('copy-id-btn').classList.remove('hidden');
+        }
+
+        async function copyUserId() {
+            if (!CURRENT_ID) return;
+            try {
+                await navigator.clipboard.writeText(CURRENT_ID);
+                alert('完整 ID 已复制: \n' + CURRENT_ID);
+            } catch (e) {
+                prompt('请手动复制:', CURRENT_ID);
+            }
+        }
+
+        function logout() {
+            if (confirm('清除本地账号？')) {
+                localStorage.removeItem('vision_id');
+                location.reload();
+            }
+        }
+
+        function upgradeToPro() {
+            document.getElementById('wechat-modal').style.display = 'flex';
+        }
+
+        // Try to fetch credits via simple REST (No Auth)
+        async function fetchStats(id) {
+            try {
+                // We use 'select' on profiles. 
+                // Note: Unless RLS allows public select, this might need an update in Supabase later.
+                // For now, we assume Admin Console created the record, so it might exist.
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${id}&select=credits,is_pro`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        const profile = data[0];
+                        document.getElementById('credit-balance').innerText = profile.credits;
+                        if (profile.is_pro) {
+                            document.getElementById('user-plan').innerText = '💎 PRO 会员';
+                            document.getElementById('user-plan').className = 'text-xs text-purple-400 font-bold mt-1';
+                        }
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

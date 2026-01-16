@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VisionGuard AI - 您的个人视力健康助手。利用 AI 实时监测坐姿、提供护眼休息提醒和各种视力自测工具。">
+    <meta name="keywords" content="视力保护, 护眼软件, AI 眼球追踪, 20-20-20 法则, 视力自测, 预防近视">
+    <title>愿景卫士 VisionGuard AI - 专业视力健康中心</title>
+    <!-- Use BootCDN for Tailwind (Faster in China) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- System Fonts for Speed -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #22d3ee, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .btn-shadcn {
+            background: white;
+            color: black;
+            transition: all 0.2s;
+        }
+
+        .btn-shadcn:hover {
+            background: #e4e4e7;
+            transform: translateY(-1px);
+        }
+
+        /* --- Premium Micro-interactions --- */
+        button,
+        a,
+        .card,
+        .glass-card,
+        input {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-float:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.3);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #06b6d4;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-shadcn-secondary {
+            background: #27272a;
+            color: white;
+            border: 1px solid #3f3f46;
+        }
+
+        .btn-shadcn-secondary:hover {
+            background: #3f3f46;
+        }
+    </style>
+
+    <!-- Local Supabase or placeholder for now -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Placeholder for Auth Logic in CN version if needed later
+        function showWeChat() {
+            alert('请添加官方客服微信：lwdz2026\n(老王队长的拼音首字母+2026)\n备注“试用”即可免费领取 Pro 账号');
+        }
+    </script>
+</head>
+
+<body class="text-zinc-100 antialiased selection:bg-cyan-500/30">
+
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 glass">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center font-bold text-white">
+                    V</div>
+                <span class="font-bold text-lg tracking-tight">VisionGuard</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+                <a href="#features" class="hover:text-white transition-colors">核心功能</a>
+                <a href="#comparison" class="hover:text-white transition-colors">视觉原理</a>
+                <a href="blog.html" class="hover:text-white transition-colors text-cyan-400">护眼学院</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="showWeChat()" class="text-sm font-medium hover:text-white text-zinc-400">登录</button>
+                <a href="dashboard.html"
+                    class="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform">
+                    免费试用
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="pt-32 pb-16 px-6 relative overflow-hidden">
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-cyan-500/10 blur-[120px] rounded-full -z-10">
+        </div>
+
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-medium text-cyan-400 mb-6">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                    </span>
+                    AI 驱动的视力保护系统
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
+                    您的 AI 视力 <br>
+                    <span class="text-gradient">健康守卫者。</span>
+                </h1>
+                <p class="text-lg text-zinc-400 mb-8 max-w-lg leading-relaxed">
+                    在视力受损前采取行动。VisionGuard 利用摄像头实时监测屏幕距离，强制执行 20-20-20 护眼法则——完全本地运行，无需任何外设。
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="window.location.href='dashboard.html'"
+                        class="btn-shadcn px-8 py-4 rounded-full text-base font-bold flex items-center justify-center gap-2">
+                        立即开始 (国内极速版)
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </button>
+                    <button onclick="window.location.href='#comparison'"
+                        class="btn-shadcn-secondary px-8 py-4 rounded-full text-base font-bold">
+                        查看原理
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative group">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000">
+                </div>
+                <div class="relative bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl">
+                    <div
+                        class="aspect-video bg-zinc-950 flex items-center justify-center text-zinc-800 overflow-hidden relative">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <!-- Use a static image or local video if possible, trying remote CDN video but safe -->
+                            <video autoplay loop muted playsinline class="w-full h-full object-cover opacity-50">
+                                <source
+                                    src="https://cdn.coverr.co/videos/coverr-working-on-laptop-outdoor-5374/1080p.mp4"
+                                    type="video/mp4">
+                            </video>
+                            <div
+                                class="absolute top-4 right-4 bg-black/80 backdrop-blur border border-zinc-700 rounded-lg px-3 py-1 flex items-center gap-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-xs font-mono text-green-400">AI 运行中</span>
+                            </div>
+                            <!-- Scanning Reticle -->
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-64 h-64 border-2 border-cyan-500/30 rounded-lg relative">
+                                    <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyan-500">
+                                    </div>
+                                    <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-cyan-500">
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-cyan-500">
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyan-500">
+                                    </div>
+                                    <div
+                                        class="absolute top-2 left-1/2 -translate-x-1/2 bg-cyan-500/20 text-cyan-400 text-[10px] px-2 py-0.5 rounded font-mono">
+                                        52 cm (良好)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Comparison Section -->
+    <section id="comparison" class="py-24 bg-zinc-950 px-6 scroll-mt-20 border-t border-zinc-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <!-- Detailed Knowledge Base -->
+                <div>
+                    <span class="text-cyan-400 font-bold tracking-widest uppercase text-xs mb-2 block">视觉科学</span>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight">近视 vs. <span
+                            class="text-purple-400">远视</span></h2>
+                    <p class="text-zinc-400 text-lg mb-8 leading-relaxed">大多数视力问题源于眼睛聚焦能力的疲劳。VisionGuard
+                        帮助从源头减少这些不可逆的损伤。</p>
+
+                    <div class="space-y-6">
+                        <div
+                            class="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-purple-500/30 transition-colors">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                                <h3 class="font-bold text-white text-lg">近视 (Myopia)</h3>
+                            </div>
+                            <p class="text-zinc-400 text-sm">
+                                光线聚焦在视网膜<strong>前方</strong>。远处的物体看起来模糊。这是长期近距离用眼（如手机、电脑）的主要后果。</p>
+                        </div>
+                        <div
+                            class="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-cyan-500/30 transition-colors">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-2 h-2 rounded-full bg-cyan-500"></div>
+                                <h3 class="font-bold text-white text-lg">远视 (Hyperopia)</h3>
+                            </div>
+                            <p class="text-zinc-400 text-sm">光线聚焦在视网膜<strong>后方</strong>。近处的物体看起来模糊，虽然少见，但更容易引起头痛和视疲劳。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Slider Component -->
+                <div class="relative group select-none">
+                    <div
+                        class="relative w-full aspect-[4/3] rounded-3xl overflow-hidden border border-zinc-700 shadow-2xl bg-black">
+                        <!-- Base Layer: Hyperopia -->
+                        <div class="absolute inset-0">
+                            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000&auto=format&fit=crop"
+                                class="w-full h-full object-cover" alt="Clear Nature">
+                            <!-- Blurry Phone -->
+                            <div
+                                class="absolute bottom-10 right-10 w-48 h-64 bg-zinc-800/80 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center">
+                                <span class="text-white/50 font-bold text-2xl blur-[2px]">模糊 (Blurry)</span>
+                            </div>
+                            <div
+                                class="absolute top-4 right-4 bg-black/60 px-3 py-1 rounded text-cyan-400 text-xs font-bold border border-cyan-500/30">
+                                远视视角</div>
+                        </div>
+
+                        <!-- Top Layer: Myopia - Clipped -->
+                        <div id="compare-overlay" class="absolute inset-0 w-full h-full bg-black overflow-hidden"
+                            style="clip-path: inset(0 50% 0 0);">
+                            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000&auto=format&fit=crop"
+                                class="w-full h-full object-cover blur-[8px]" alt="Blurry Nature">
+                            <!-- Clear Phone -->
+                            <div
+                                class="absolute bottom-10 right-10 w-48 h-64 bg-zinc-900 rounded-xl border border-zinc-700 flex items-center justify-center shadow-2xl">
+                                <span class="text-white font-bold text-2xl">清晰 (Clear)</span>
+                            </div>
+                            <div
+                                class="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded text-purple-400 text-xs font-bold border border-purple-500/30">
+                                近视视角</div>
+                        </div>
+
+                        <!-- Slider Thumb -->
+                        <div id="compare-handle"
+                            class="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20 shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center"
+                            style="left: 50%">
+                            <div
+                                class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl text-zinc-900 transform hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m9 18 6-6-6-6" />
+                                    <path d="m15 18 6-6-6-6" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Invisible Range Input -->
+                        <input type="range" min="0" max="100" value="50" id="vision-slider"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30 m-0 p-0">
+                    </div>
+                    <p class="mt-4 text-center text-zinc-500 text-sm flex items-center justify-center gap-2">
+                        ← 左右拖动滑块对比视觉体验 →
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-24 px-6 border-t border-zinc-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">为什么选择 VisionGuard?</h2>
+                <p class="text-zinc-400">数字时代的必备护眼工具。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:bg-zinc-900 transition-colors">
+                    <div
+                        class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 mb-4 text-xl">
+                        📏</div>
+                    <h3 class="text-xl font-bold text-white mb-2">距离监控</h3>
+                    <p class="text-zinc-400 text-sm">利用摄像头实时分析面部距离，离屏幕太近时自动模糊屏幕或发出警报。</p>
+                </div>
+                <div class="p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:bg-zinc-900 transition-colors">
+                    <div
+                        class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-4 text-xl">
+                        ⏳</div>
+                    <h3 class="text-xl font-bold text-white mb-2">20-20-20 计时器</h3>
+                    <p class="text-zinc-400 text-sm">遵循国际通用的 20-20-20 法则：每 20 分钟远眺 20 英尺外 20 秒。</p>
+                </div>
+                <div
+                    class="p-8 bg-zinc-900/50 border border-zinc-800 rounded-3xl hover:bg-zinc-900 transition-colors group">
+                    <div
+                        class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 mb-4 text-xl group-hover:scale-110 transition-transform">
+                        🩺</div>
+                    <h3 class="text-xl font-bold text-white mb-2">自测工具箱</h3>
+                    <div class="space-y-2 mt-4">
+                        <a href="color_test.html"
+                            class="block text-sm text-zinc-400 hover:text-cyan-400 transition-colors">→ 色盲/色弱测试</a>
+                        <a href="astigmatism_test.html"
+                            class="block text-sm text-zinc-400 hover:text-cyan-400 transition-colors">→ 散光筛查</a>
+                        <a href="vision_chart.html"
+                            class="block text-sm text-zinc-400 hover:text-cyan-400 transition-colors">→ 在线标准视力表</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 border-t border-zinc-900 text-center text-zinc-500 text-sm">
+        <p>© 2024 VisionGuard AI. 守护您的视界。</p>
+    </footer>
+
+    <!-- WeChat Modal -->
+    <div id="wechat-modal"
+        class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md hidden items-center justify-center p-4">
+        <div
+            class="bg-zinc-900 border border-zinc-700 p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+            <button onclick="document.getElementById('wechat-modal').style.display='none'"
+                class="absolute top-4 right-4 text-zinc-500 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+
+            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"
+                    class="text-green-500">
+                    <path
+                        d="M8.5,13.5A2.5,2.5 0 0,0 11,11A2.5,2.5 0 0,0 8.5,8.5A2.5,2.5 0 0,0 6,11A2.5,2.5 0 0,0 8.5,13.5M16.5,14.5A2,2 0 0,0 18.5,12.5A2,2 0 0,0 16.5,10.5A2,2 0 0,0 14.5,12.5A2,2 0 0,0 16.5,14.5M13,17H18V14.5L22,18.5V6H12V13.8C12.3,13.9 12.7,14 13,14.2V17M11.3,15.6L12.7,17L13.1,15.2C12.3,15.5 11.5,16 10.8,16.5L8,19V16H2V2H17V5.5C18,5.2 19,5 20,5V1A1,1 0 0,0 19,0H1A1,1 0 0,0 0,1V17A1,1 0 0,0 1,18H7V21L11.3,15.6Z" />
+                </svg>
+            </div>
+
+            <h3 class="text-xl font-bold mb-2 text-white">联系官方客服</h3>
+            <p class="text-zinc-400 text-sm mb-6">添加微信获取永久会员兑换码</p>
+
+            <div class="bg-white p-2 rounded-xl inline-block mb-6 relative group">
+                <img src="wechat_qr.png" alt="WeChat QR" class="w-40 h-40 object-contain rounded-lg">
+                <!-- Scan Hint -->
+                <div class="absolute -bottom-6 left-0 w-full text-center">
+                    <p class="text-[10px] text-zinc-500 mt-1">扫一扫上面的二维码图案，加我为朋友。</p>
+                </div>
+            </div>
+
+            <div class="bg-zinc-800/50 rounded-xl p-4 mb-2 mt-4 border border-zinc-700/50">
+                <p class="text-sm text-zinc-400 mb-1">微信号</p>
+                <div class="flex items-center justify-center gap-2 cursor-pointer hover:text-cyan-400 transition-colors"
+                    onclick="navigator.clipboard.writeText('lwdz2026'); alert('微信号已复制！')">
+                    <span class="text-xl font-bold text-white tracking-wide font-mono">lwdz2026</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                </div>
+                <p class="text-[10px] text-zinc-500 mt-1">(老王队长的拼音首字母+2026)</p>
+            </div>
+
+            <button onclick="document.getElementById('wechat-modal').style.display='none'"
+                class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl mt-4 transition-colors">
+                我知道了
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- SLIDER LOGIC ---
+        const slider = document.getElementById('vision-slider');
+        const overlay = document.getElementById('compare-overlay');
+        const handle = document.getElementById('compare-handle');
+
+        if (slider && overlay && handle) {
+            slider.addEventListener('input', (e) => {
+                const val = e.target.value;
+                const clipAmount = 100 - val;
+                overlay.style.clipPath = `inset(0 ${clipAmount}% 0 0)`;
+                handle.style.left = `${val}%`;
+            });
+        }
+
+        // Modal Logic
+        function showWeChat() {
+            document.getElementById('wechat-modal').style.display = 'flex';
+        }
+    </script>
+</body>
+
+</html>

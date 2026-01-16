@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 视力侦探 - 产品详情海报</title>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --accent: #7000ff;
+            --bg: #05070a;
+            --text: #e0e6ed;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .poster {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 10%, rgba(0, 242, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(112, 0, 255, 0.08) 0%, transparent 40%);
+            padding: 80px 40px;
+            position: relative;
+        }
+
+        /* 标题区 */
+        header {
+            text-align: center;
+            margin-bottom: 100px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .logo-box {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            opacity: 0.6;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* 核心展示区 */
+        .hero-section {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 120px;
+        }
+
+        .hero-image {
+            flex: 1;
+            height: 500px;
+            border-radius: 40px;
+            background: var(--glass);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eye-pulse {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        .eye-pulse::after {
+            content: 'AI';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .tagline {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 30px;
+        }
+
+        .tagline span {
+            color: var(--primary);
+        }
+
+        /* 4大特征网格 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--glass);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .f-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .f-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .f-desc {
+            font-size: 16px;
+            opacity: 0.7;
+            line-height: 1.8;
+        }
+
+        /* 诊断卡片 */
+        .report-demo {
+            margin-top: 100px;
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(112, 0, 255, 0.1));
+            padding: 60px;
+            border-radius: 50px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rd-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .rd-desc {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 18px;
+            opacity: 0.8;
+        }
+
+        /* 页脚 */
+        footer {
+            margin-top: 100px;
+            text-align: center;
+            border-top: 1px solid var(--glass);
+            padding-top: 40px;
+        }
+
+        .contact {
+            font-size: 14px;
+            opacity: 0.4;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 50px rgba(0, 242, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 242, 255, 0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="poster">
+        <header>
+            <div class="logo-box">👁️</div>
+            <h1>AI 视力侦探</h1>
+            <p class="subtitle">AI VISION DETECTIVE PRO LAB</p>
+        </header>
+
+        <section class="hero-section">
+            <div class="hero-text">
+                <div class="tagline">
+                    不仅仅是提醒，<br>更是你的<span>私享护眼专家</span>。
+                </div>
+                <p style="font-size: 18px; opacity: 0.6; margin-bottom: 40px;">自研毫秒级神经网络算法，实时监测 <span>测距、坐姿、眨眼、光照</span>
+                    四大核心指标，构建全场景护眼闭环。</p>
+                <div style="display:flex; gap: 20px;">
+                    <button
+                        style="background:var(--primary); color:#000; border:none; padding:15px 35px; border-radius:15px; font-weight:bold;">立即体验</button>
+                    <button
+                        style="background:transparent; color:#fff; border:1px solid #fff; padding:15px 35px; border-radius:15px; font-weight:bold;">算法白皮书</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="eye-pulse"></div>
+            </div>
+        </section>
+
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="f-icon">🔍</div>
+                <div class="f-title">AI 精准监测</div>
+                <div class="f-desc">基于 Mediapipe 顶级人脸关键点识别技术，测距精度误差小于 1cm，实时感知用眼疲劳风险。</div>
+            </div>
+            <div class="feature-card">
+                <div class="f-icon">📐</div>
+                <div class="f-title">坐姿哨兵系统</div>
+                <div class="f-desc">针对低头、斜视、驼背等不良倾向，系统将在 0.5s 内触发语音反馈，守护青少年颈椎健康。</div>
+            </div>
+            <div class="feature-card">
+                <div class="f-icon">🧘</div>
+                <div class="f-title">数字化眼球操</div>
+                <div class="f-desc">内置科学引导的交互式眼球动作捕捉，在趣味互动中拉伸眼肌，快速缓解视觉神经压力。</div>
+            </div>
+            <div class="feature-card">
+                <div class="f-icon">统计</div>
+                <div class="f-title">专业健康周报</div>
+                <div class="f-desc">自动聚合监测数据，生成多维分析报表，精准定位疲劳高峰期，提供个性化改善建议。</div>
+            </div>
+        </section>
+
+        <section class="report-demo">
+            <div class="rd-title">守护视力，就是守护灵感。</div>
+            <div class="rd-desc">AI 视力侦探 Lab 现已全面接入网页端，无需下载即可享受企业级的视力保护。</div>
+        </section>
+
+        <footer>
+            <div class="contact">Copyright © 2026 AI Vision Detective Lab. All Rights Reserved.</div>
+        </footer>
+    </div>
+
+</body>
+
+</html>
