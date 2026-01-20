@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>舒尔特方格专注力训练 - VisionGuard AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .font-mono-tech {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .grid-cell:active {
+            transform: scale(0.9);
+        }
+
+        .cell-correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .cell-wrong {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #22d3ee, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Mode Toggle Animation */
+        .toggle-dot {
+            transition: all 0.3s ease-in-out;
+        }
+
+        input:checked~.toggle-bg {
+            background-color: #06b6d4;
+        }
+
+        input:checked~.toggle-dot {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Header -->
+    <header class="w-full max-w-md pt-8 mb-8 flex flex-col items-center">
+        <div class="flex justify-between w-full items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 rounded bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center font-bold text-white text-xs">
+                    S</div>
+                <h1 class="text-sm font-black uppercase tracking-widest text-zinc-400">专注力训练</h1>
+            </div>
+            <div id="next-num-display"
+                class="bg-zinc-900 px-4 py-1 rounded-full border border-zinc-800 text-xs font-bold text-cyan-400">
+                目标数字: <span id="target-ptr" class="text-lg ml-1">1</span>
+            </div>
+        </div>
+
+        <div class="text-6xl font-black font-mono-tech tabular-nums tracking-tighter text-white mb-2"
+            id="timer-display">
+            00.000
+        </div>
+        <p class="text-[10px] text-zinc-600 font-mono tracking-widest uppercase">Visual Scanning Efficiency</p>
+    </header>
+
+    <!-- Main Game Grid -->
+    <main
+        class="w-full max-w-[400px] aspect-square p-2 glass-panel rounded-3xl border border-white/5 shadow-2xl relative">
+        <div id="game-grid" class="grid grid-cols-5 gap-2 w-full h-full">
+            <!-- Grid cells injected by JS -->
+        </div>
+
+        <!-- Start Overlay -->
+        <div id="start-overlay"
+            class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 backdrop-blur rounded-3xl">
+            <div
+                class="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mb-6 border border-cyan-500/20">
+                <span class="text-4xl">⚡</span>
+            </div>
+            <h2 class="text-2xl font-black text-white mb-2">飞行员心理测试</h2>
+            <p class="text-zinc-500 text-xs mb-10 px-12 text-center">
+                按生理顺序依次寻找 1-25
+                <br>练就过目不忘的“扫描眼”
+            </p>
+            <button onclick="startGame()"
+                class="px-12 py-4 bg-white text-black rounded-full font-black hover:scale-105 active:scale-95 transition-all shadow-xl">
+                开始扫描
+            </button>
+        </div>
+    </main>
+
+    <!-- Mode Selector -->
+    <div class="mt-8 flex items-center gap-4 bg-zinc-900/50 p-2 rounded-2xl border border-white/5">
+        <span class="text-xs font-bold text-zinc-500 ml-2">动态模式 (洗牌)</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="dynamic-mode" class="sr-only" onchange="resetGame()">
+            <div class="toggle-bg w-12 h-6 bg-zinc-700 rounded-full transition-colors"></div>
+            <div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition-transform">
+            </div>
+        </label>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div class="w-full max-w-sm glass-panel p-8 rounded-[40px] text-center border-t border-white/20">
+            <div class="text-[10px] text-zinc-500 uppercase tracking-widest mb-2 font-mono">Mission Complete</div>
+            <h3 class="text-5xl font-black font-mono-tech mb-6 tabular-nums" id="final-time">--.---</h3>
+
+            <div class="py-4 border-y border-white/5 mb-8">
+                <span class="text-xs text-zinc-500 block mb-1">获得军衔/评价</span>
+                <span class="text-3xl font-black rank-badge" id="rank-name">新兵蛋子</span>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="startGame()"
+                    class="w-full bg-cyan-500 text-black py-4 rounded-2xl font-black hover:bg-cyan-400 transition-colors">再次挑战</button>
+                <button onclick="location.href='index.html'"
+                    class="w-full bg-zinc-800 text-white py-4 rounded-2xl font-black hover:bg-zinc-700 transition-colors">返回主舱</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            current: 1,
+            startTime: null,
+            timerInterval: null,
+            isDynamic: false,
+            numbers: [],
+            isRunning: false
+        };
+
+        const gridElement = document.getElementById('game-grid');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createGrid() {
+            gridElement.innerHTML = '';
+            // Generate numbers 1-25
+            if (gameState.numbers.length === 0) {
+                for (let i = 1; i <= 25; i++) gameState.numbers.push(i);
+            }
+            shuffle(gameState.numbers);
+
+            gameState.numbers.forEach(num => {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell bg-zinc-900 border border-zinc-800 rounded-2xl text-2xl md:text-3xl';
+                cell.innerText = num;
+                cell.dataset.num = num;
+                cell.onclick = () => handleCellClick(num, cell);
+                gridElement.appendChild(cell);
+            });
+        }
+
+        function handleCellClick(num, element) {
+            if (!gameState.isRunning) return;
+
+            if (num === gameState.current) {
+                // Correct
+                element.classList.add('cell-correct');
+                element.classList.remove('bg-zinc-900');
+
+                if (gameState.current === 25) {
+                    endGame();
+                    return;
+                }
+
+                gameState.current++;
+                document.getElementById('target-ptr').innerText = gameState.current;
+
+                if (document.getElementById('dynamic-mode').checked) {
+                    setTimeout(() => renderCurrentState(), 50); // Small delay for visual feedback
+                }
+            } else {
+                // Wrong
+                element.classList.add('cell-wrong');
+                setTimeout(() => element.classList.remove('cell-wrong'), 300);
+            }
+        }
+
+        function renderCurrentState() {
+            // In dynamic mode, we re-shuffle everything except correctly clicked (visual-only correctly clicked)
+            // Wait, standard dynamic schulter usually shuffles EVERYTHING but hides the correctly clicked numbers
+            // or just moves them. Let's move everything.
+            createGrid();
+            // Re-apply "correct" highlights if needed? Not necessary if we keep current pointer
+            // To make it clear, we clear background color on re-shuffle
+        }
+
+        function startGame() {
+            gameState.current = 1;
+            gameState.isRunning = true;
+            gameState.numbers = [];
+            document.getElementById('target-ptr').innerText = '1';
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('start-overlay').classList.add('hidden');
+
+            createGrid();
+
+            gameState.startTime = performance.now();
+            gameState.timerInterval = setInterval(updateTimer, 10);
+        }
+
+        function updateTimer() {
+            const now = performance.now();
+            const diff = now - gameState.startTime;
+            const seconds = (diff / 1000).toFixed(3);
+            document.getElementById('timer-display').innerText = seconds.padStart(6, '0');
+        }
+
+        function endGame() {
+            clearInterval(gameState.timerInterval);
+            gameState.isRunning = false;
+
+            const time = parseFloat(document.getElementById('timer-display').innerText);
+            document.getElementById('final-time').innerText = time.toFixed(3);
+
+            let rank = "";
+            if (time < 12) rank = "通灵神级 (God-Tier)";
+            else if (time < 18) rank = "幽灵机师 (Ace Pilot)";
+            else if (time < 25) rank = "精锐搜索者 (Elite)";
+            else if (time < 40) rank = "合格战士 (Certified)";
+            else rank = "新兵蛋子 (Rookie)";
+
+            document.getElementById('rank-name').innerText = rank;
+            document.getElementById('result-modal').classList.remove('hidden');
+        }
+
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            document.getElementById('timer-display').innerText = '00.000';
+            document.getElementById('start-overlay').classList.remove('hidden');
+            gameState.isRunning = false;
+        }
+
+        window.onload = () => createGrid();
+    </script>
+</body>
+
+</html>
