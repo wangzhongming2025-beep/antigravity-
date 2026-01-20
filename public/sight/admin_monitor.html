@@ -139,6 +139,7 @@
                 const trainees = await tRes.json();
 
                 if (trainees.error) throw new Error(`学员表错误: ${trainees.error.message}`);
+                if (!Array.isArray(trainees)) throw new Error('学员表返回格式错误 (非数组)');
                 document.getElementById('total-trainees').innerText = trainees.length;
 
                 // 2. Fetch Today's Logs
@@ -148,6 +149,7 @@
                 });
                 const logs = await lRes.json();
                 if (logs.error) throw new Error(`记录表错误: ${logs.error.message}`);
+                if (!Array.isArray(logs)) throw new Error('记录表返回格式错误 (非数组)');
 
                 // 3. Map logs to trainees
                 tbody.innerHTML = '';
@@ -194,8 +196,10 @@
                 document.getElementById('today-active').innerText = activeCount;
 
             } catch (e) {
-                console.error(e);
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-20 text-center text-red-500 font-bold">同步失败: 检查网络连接或权限库配置</td></tr>`;
+                console.error('Refresh failed:', e);
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-20 text-center text-red-500 font-bold">同步失败: ${e.message}</td></tr>`;
+                document.getElementById('total-trainees').innerText = 'Error';
+                document.getElementById('today-active').innerText = 'Error';
             }
         }
 
