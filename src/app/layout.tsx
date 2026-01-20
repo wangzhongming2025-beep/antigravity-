@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
-  title: "VisionGuard AI | Professional Eye Health Sentinel",
-  description: "Advanced AI-powered eye protection. Monitor screen distance, posture, and eye strain in real-time.",
+  title: "VisionGuard AI: Professional Eye Health - sighthealthpro.com",
+  description: "Professional AI-powered eye health protection. Monitor screen distance, posture, and digital eye strain in real-time to prevent myopia. sighthealthpro.com",
 };
 
 export default function RootLayout({

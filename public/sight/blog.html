@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视力科学博客 | VisionGuard AI</title>
+    <title>Vision Science & Health Blog - sighthealthpro.com</title>
     <meta name="description"
-        content="Expert insights on eye health, myopia prevention, and the 20-20-20 rule for programmers and children.">
+        content="Read expert insights on eye health, myopia management, astigmatism, and amblyopia. Learn from evidence-based guides at sighthealthpro.com.">
+    <meta name="keywords"
+        content="eye health blog, myopia management guide, astigmatism test, lazy eye surgery, sighthealthpro.com">
+    <link rel="canonical" href="https://sighthealthpro.com/sight/blog.html" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;600;800&display=swap"
@@ -34,57 +37,32 @@
             transform: translateY(-5px);
             box-shadow: 0 20px 40px -10px rgba(0, 242, 255, 0.1);
         }
-
-        .prose p {
-            margin-bottom: 1.5rem;
-            line-height: 1.8;
-            color: #a1a1aa;
-        }
-
-        .prose h3 {
-            color: #fff;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .prose ul {
-            list-style-type: disc;
-            padding-left: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #a1a1aa;
-        }
-
-        .prose li {
-            margin-bottom: 0.5rem;
-        }
     </style>
 </head>
 
 <body class="antialiased min-h-screen flex flex-col">
 
     <!-- Nav -->
-    <nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+    <nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10 font-sans">
         <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <a href="index.html"
-                    class="sans text-zinc-400 hover:text-white transition-colors flex items-center gap-1 text-sm">
+                    class="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 text-sm font-medium">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m15 18-6-6 6-6" />
                     </svg>
-                    返回
+                    Back
                 </a>
                 <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
-                <a href="index.html" class="sans font-bold text-xl tracking-tight text-white flex items-center gap-2">
+                <a href="/" class="font-bold text-xl tracking-tight text-white flex items-center gap-2">
                     <div class="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center text-black text-xs">V</div>
                     VisionGuard
                 </a>
             </div>
-            <div class="flex gap-6 text-sm font-medium sans">
-                <a href="index.html" class="text-zinc-400 hover:text-white transition-colors">Home</a>
-                <a href="#" class="text-white">Blog</a>
+            <div class="flex gap-6 text-sm font-medium">
+                <a href="/" class="text-zinc-400 hover:text-white transition-colors">Home</a>
+                <a href="#" class="text-white border-b border-cyan-500">Blog</a>
             </div>
         </div>
     </nav>
@@ -92,204 +70,134 @@
     <!-- Header -->
     <header class="py-20 px-6 bg-gradient-to-b from-black to-zinc-900 border-b border-white/5">
         <div class="max-w-3xl mx-auto text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6">Vision Science & Health</h1>
-            <p class="text-lg text-zinc-400 sans max-w-xl mx-auto">
-                Evidence-based guides to protecting your eyesight in the digital age. Curated for developers, students,
-                and parents.
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6">Vision Science Academy</h1>
+            <p class="text-lg text-zinc-400 sans max-w-2xl mx-auto leading-relaxed">
+                Empowering your visual health with evidence-based research. Deep dives into myopia control, refractive
+                correction, and ocular wellness.
             </p>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="flex-grow py-16 px-6">
-        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <!-- Article 0: Myopia Management -->
+            <!-- New Article 1: Myopia -->
             <article
                 class="article-card bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
-                onclick="window.location.href='article_myopia_management.html'">
+                onclick="window.location.href='article-myopia-solutions.html'">
                 <div class="h-48 bg-zinc-800 relative overflow-hidden">
                     <img src="https://images.unsplash.com/photo-1576091160550-21735999adbe?q=80&w=800&auto=format&fit=crop"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
-                    <div
-                        class="absolute top-4 left-4 bg-purple-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded tracking-widest sans">
-                        Trending</div>
-                </div>
-                <div class="p-8 flex-grow flex flex-col">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span
-                            class="px-2 py-1 rounded bg-purple-500/10 text-purple-400 text-xs font-bold sans uppercase">Myopia
-                            Control</span>
-                        <span class="text-zinc-500 text-xs sans">6 min read</span>
-                    </div>
-                    <h2
-                        class="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-purple-400 transition-colors sans">
-                        近视管理全攻略：如何有效延缓度数增长</h2>
-                    <p class="text-zinc-400 text-sm mb-6 line-clamp-3 sans">
-                        针对家长和成人的权威指南。深入探讨 OK 镜、离焦镜片、低浓度阿托品及 AI 坐姿监测在近视防控中的作用。
-                    </p>
-                    <span
-                        class="mt-auto text-purple-400 font-bold text-sm sans flex items-center gap-1 group-hover:gap-2 transition-all">
-                        延缓增长 →
-                    </span>
-                </div>
-            </article>
-
-            <!-- Article 3: Astigmatism (New) -->
-            <article
-                class="article-card bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
-                onclick="window.location.href='article_astigmatism.html'">
-                <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?q=80&w=800&auto=format&fit=crop"
+                        alt="Specialized Myopia Management Lenses"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
                     <div
                         class="absolute top-4 left-4 bg-cyan-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded tracking-widest sans">
-                        Essential</div>
+                        New</div>
                 </div>
-                <div class="p-8 flex-grow flex flex-col">
+                <div class="p-6 flex-grow flex flex-col">
                     <div class="flex items-center gap-2 mb-4">
                         <span
-                            class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 text-xs font-bold sans uppercase">Astigmatism</span>
-                        <span class="text-zinc-500 text-xs sans">5 min read</span>
+                            class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 text-[10px] font-bold sans uppercase">Myopia
+                            Care</span>
+                        <span class="text-zinc-500 text-[10px] sans uppercase">12 min read</span>
                     </div>
-                    <h2
-                        class="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-cyan-400 transition-colors sans">
-                        散光眼怎么办？深度解析原因与矫正方案</h2>
-                    <p class="text-zinc-400 text-sm mb-6 line-clamp-3 sans">
-                        看东西重影？夜间畏光？本文带你了解散光的成因，以及如何通过科学手段恢复清晰视野。
-                    </p>
+                    <h2 class="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors sans">
+                        Glasses for Nearsightedness & Ortho-K Lenses</h2>
+                    <p class="text-zinc-500 text-sm mb-6 line-clamp-3 sans">The ultimate guide to myopia management near
+                        me, corrective lenses, and Ortho-K cost analysis.</p>
                     <span
-                        class="mt-auto text-cyan-400 font-bold text-sm sans flex items-center gap-1 group-hover:gap-2 transition-all">
-                        查看详情 →
-                    </span>
+                        class="mt-auto text-cyan-400 font-bold text-xs uppercase tracking-widest flex items-center gap-2 sans">Read
+                        Article →</span>
                 </div>
             </article>
 
-            <!-- Article 4: Amblyopia (New) -->
+            <!-- New Article 2: Astigmatism -->
             <article
                 class="article-card bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
-                onclick="window.location.href='article_amblyopia.html'">
+                onclick="window.location.href='article-astigmatism-lights.html'">
                 <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                    <div
-                        class="w-full h-full bg-gradient-to-br from-amber-600/20 to-black flex items-center justify-center text-4xl">
-                        👶
-                    </div>
+                    <img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?q=80&w=800&auto=format&fit=crop"
+                        alt="Astigmatism lights visualization at night"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                    <div
+                        class="absolute top-4 left-4 bg-pink-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded tracking-widest sans">
+                        Hot</div>
                 </div>
-                <div class="p-8 flex-grow flex flex-col">
+                <div class="p-6 flex-grow flex flex-col">
                     <div class="flex items-center gap-2 mb-4">
                         <span
-                            class="px-2 py-1 rounded bg-amber-500/10 text-amber-400 text-xs font-bold sans uppercase">Pediatric</span>
-                        <span class="text-zinc-500 text-xs sans">7 min read</span>
+                            class="px-2 py-1 rounded bg-pink-500/10 text-pink-400 text-[10px] font-bold sans uppercase">Optics</span>
+                        <span class="text-zinc-500 text-[10px] sans uppercase">11 min read</span>
                     </div>
-                    <h2
-                        class="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-amber-400 transition-colors sans">
-                        什么是弱视？抓住 6 岁黄金治疗期</h2>
-                    <p class="text-zinc-400 text-sm mb-6 line-clamp-3 sans">
-                        弱视俗称“懒惰眼”，是儿童发育期的头号视力杀手。了解为何遮盖疗法是目前的黄金准则。
-                    </p>
+                    <h2 class="text-xl font-bold text-white mb-3 group-hover:text-pink-400 transition-colors sans">
+                        Blurry Lights? Essential Guide to Astigmatism</h2>
+                    <p class="text-zinc-500 text-sm mb-6 line-clamp-3 sans">Take an astigmatism test, understand blurry
+                        lights, and find the best corrective lenses.</p>
                     <span
-                        class="mt-auto text-amber-400 font-bold text-sm sans flex items-center gap-1 group-hover:gap-2 transition-all">
-                        守护未来 →
-                    </span>
+                        class="mt-auto text-pink-400 font-bold text-xs uppercase tracking-widest flex items-center gap-2 sans">Read
+                        Article →</span>
                 </div>
             </article>
 
-            <!-- Article 5: Strabismus (New) -->
+            <!-- New Article 3: Lazy Eye -->
             <article
                 class="article-card bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
-                onclick="window.location.href='article_strabismus.html'">
+                onclick="window.location.href='article-lazy-eye-fix.html'">
                 <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                    <div
-                        class="w-full h-full bg-gradient-to-br from-indigo-600/20 to-black flex items-center justify-center text-4xl">
-                        👁️‍🗨️
-                    </div>
+                    <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop"
+                        alt="Eye assessment for amblyopia and strabismus"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                    <div
+                        class="absolute top-4 left-4 bg-purple-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded tracking-widest sans">
+                        Surgery</div>
                 </div>
-                <div class="p-8 flex-grow flex flex-col">
+                <div class="p-6 flex-grow flex flex-col">
                     <div class="flex items-center gap-2 mb-4">
                         <span
-                            class="px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 text-xs font-bold sans uppercase">Strabismus</span>
-                        <span class="text-zinc-500 text-xs sans">5 min read</span>
+                            class="px-2 py-1 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold sans uppercase">Amblyopia</span>
+                        <span class="text-zinc-500 text-[10px] sans uppercase">13 min read</span>
                     </div>
-                    <h2
-                        class="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-indigo-400 transition-colors sans">
-                        斜视纠正指南：立体视觉恢复的秘密</h2>
-                    <p class="text-zinc-400 text-sm mb-6 line-clamp-3 sans">
-                        两眼不对齐不仅涉及美观，更关乎立体视觉的丧失。科普斜视种类、手术建议与训练方案。
-                    </p>
+                    <h2 class="text-xl font-bold text-white mb-3 group-hover:text-purple-400 transition-colors sans">
+                        Amblyopia vs Strabismus: How to Fix Lazy Eye</h2>
+                    <p class="text-zinc-500 text-sm mb-6 line-clamp-3 sans">Exploring lazy eye surgery, cross eye
+                        operations, and specialized exercises for alignment.</p>
                     <span
-                        class="mt-auto text-indigo-400 font-bold text-sm sans flex items-center gap-1 group-hover:gap-2 transition-all">
-                        双眼对齐 →
-                    </span>
+                        class="mt-auto text-purple-400 font-bold text-xs uppercase tracking-widest flex items-center gap-2 sans">Read
+                        Article →</span>
                 </div>
             </article>
 
-            <!-- Article 1: 20-20-20 Rule -->
+            <!-- Existing Content ... -->
             <article
                 class="article-card bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
                 onclick="window.location.href='article_20_20_20.html'">
                 <div class="h-48 bg-zinc-800 relative overflow-hidden">
                     <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop"
+                        alt="Computer monitor for 20-20-20 rule guide"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
                 </div>
-                <div class="p-8 flex-grow flex flex-col">
+                <div class="p-6 flex-grow flex flex-col">
                     <div class="flex items-center gap-2 mb-4">
                         <span
-                            class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 text-xs font-bold sans uppercase">Dev
-                            Health</span>
-                        <span class="text-zinc-500 text-xs sans">5 min read</span>
+                            class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[10px] font-bold sans uppercase">Guides</span>
+                        <span class="text-zinc-500 text-[10px] sans uppercase">5 min read</span>
                     </div>
-                    <h2
-                        class="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-cyan-400 transition-colors sans">
-                        20-20-20 法则：真的能缓解眼疲劳吗？</h2>
-                    <p class="text-zinc-400 text-sm mb-6 line-clamp-3 sans">
-                        长期面对电脑的开发者必备。深入分析这个简单法则背后的科学依据，以及如何结合 AI 提醒获得最佳效果。
-                    </p>
-                    <span
-                        class="mt-auto text-cyan-400 font-bold text-sm sans flex items-center gap-1 group-hover:gap-2 transition-all">
-                        开始护眼 →
-                    </span>
-                </div>
-            </article>
-
-            <!-- Article 2: Myopia vs Hyperopia -->
-            <article
-                class="article-card bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
-                onclick="window.location.href='article_myopia_vs_hyperopia.html'">
-                <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?q=80&w=800&auto=format&fit=crop"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
-                </div>
-                <div class="p-8 flex-grow flex flex-col">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span
-                            class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-bold sans uppercase">Vision
-                            Science</span>
-                        <span class="text-zinc-500 text-xs sans">4 min read</span>
-                    </div>
-                    <h2
-                        class="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-emerald-400 transition-colors sans">
-                        近视 vs 远视：你真的分得清吗？</h2>
-                    <p class="text-zinc-400 text-sm mb-6 line-clamp-3 sans">
-                        分不清近处模糊还是远处模糊？本文详细对比两者的光学原理，帮助你选择最合适的矫正镜片。
-                    </p>
-                    <span
-                        class="mt-auto text-emerald-400 font-bold text-sm sans flex items-center gap-1 group-hover:gap-2 transition-all">
-                        全面对比 →
-                    </span>
+                    <h2 class="text-xl font-bold text-white mb-3 sans">The 20-20-20 Rule for Digital Strain</h2>
+                    <p class="text-zinc-500 text-sm mb-6 line-clamp-3 sans">How to protect your eyes while working on
+                        screens for long hours.</p>
+                    <span class="mt-auto text-zinc-400 font-bold text-xs uppercase tracking-widest sans">Read Article
+                        →</span>
                 </div>
             </article>
 
         </div>
     </main>
 
-    <footer class="py-12 border-t border-zinc-900 bg-black text-center text-zinc-600 text-sm sans">
-        <p>&copy; 2026 VisionGuard AI. Content medically reviewed by AI algorithms.</p>
+    <footer class="py-12 border-t border-zinc-900 bg-black text-center text-zinc-700 text-xs sans">
+        <p>&copy; 2026 VisionGuard AI • Precision Eye Protection</p>
     </footer>
 
 </body>
