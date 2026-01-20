@@ -137,6 +137,8 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
                 });
                 const trainees = await tRes.json();
+
+                if (trainees.error) throw new Error(`学员表错误: ${trainees.error.message}`);
                 document.getElementById('total-trainees').innerText = trainees.length;
 
                 // 2. Fetch Today's Logs
@@ -145,6 +147,7 @@
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
                 });
                 const logs = await lRes.json();
+                if (logs.error) throw new Error(`记录表错误: ${logs.error.message}`);
 
                 // 3. Map logs to trainees
                 tbody.innerHTML = '';
