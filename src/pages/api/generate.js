@@ -12,8 +12,8 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: { message: '访问密码错误 (Invalid Access Code)' } });
     }
 
-    // 2. Get API Key from Server Environment
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    // 2. Get API Key from Server Environment (Fallback to provided key)
+    const apiKey = process.env.DEEPSEEK_API_KEY || 'sk-5d4859e308834219aaf323cfafcfa75f';
     if (!apiKey) {
         return res.status(500).json({ error: { message: 'Server Configuration Error: API Key not set.' } });
     }
