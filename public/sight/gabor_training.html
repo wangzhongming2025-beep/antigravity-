@@ -142,17 +142,21 @@
             </button>
         </div>
 
-        <!-- Progress Footer -->
-        <footer class="mt-12 w-full px-6">
+        <footer class="mt-12 w-full px-6 text-center">
             <div class="flex justify-between text-[10px] text-zinc-500 mb-2 font-mono">
                 <span>激活深度 (Activation Depth)</span>
                 <span id="contrast-val">100%</span>
             </div>
-            <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+            <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden mb-8">
                 <div id="progress-indicator"
                     class="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-500"
                     style="width: 10%"></div>
             </div>
+
+            <button onclick="submitGaborSession()"
+                class="text-xs text-zinc-600 border border-zinc-800 px-4 py-2 rounded-lg hover:text-white transition-colors">
+                结束特训并上报
+            </button>
         </footer>
 
     </main>
@@ -165,6 +169,7 @@
         </svg>
     </a>
 
+    <script src="auth_trainee.js"></script>
     <script>
         const canvas = document.getElementById('gabor-canvas');
         const ctx = canvas.getContext('2d');
@@ -264,8 +269,19 @@
             }, 800);
         }
 
-        // Initialize first level
-        window.onload = nextLevel;
+        // Initialize first level with Auth
+        window.onload = () => {
+            if (TraineeAuth.checkAuth()) {
+                nextLevel();
+            }
+        };
+
+        function submitGaborSession() {
+            if (confirm('确定结束本次特训并上报成绩吗？')) {
+                TraineeAuth.reportResult('gabor', `Level ${gameState.level}`, 0);
+                setTimeout(() => location.href = 'index.html', 1000);
+            }
+        }
     </script>
 </body>
 

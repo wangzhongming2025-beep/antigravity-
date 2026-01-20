@@ -177,6 +177,7 @@
         </div>
     </div>
 
+    <script src="auth_trainee.js"></script>
     <script>
         let gameState = {
             current: 1,
@@ -287,6 +288,14 @@
 
             document.getElementById('rank-name').innerText = rank;
             document.getElementById('result-modal').classList.remove('hidden');
+
+            // --- REPORT TO DB ---
+            const isDynamic = document.getElementById('dynamic-mode').checked;
+            TraineeAuth.reportResult(
+                isDynamic ? 'schulte_dynamic' : 'schulte_standard',
+                rank,
+                time
+            );
         }
 
         function resetGame() {
@@ -296,7 +305,11 @@
             gameState.isRunning = false;
         }
 
-        window.onload = () => createGrid();
+        window.onload = () => {
+            if (TraineeAuth.checkAuth()) {
+                createGrid();
+            }
+        };
     </script>
 </body>
 
