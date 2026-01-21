@@ -168,6 +168,7 @@
                 <span class="text-3xl font-black rank-badge" id="rank-name">新兵蛋子</span>
             </div>
 
+            <div id="submit-status" class="mb-4 text-sm text-green-400 font-bold hidden">✅ 成绩已自动上报到指挥室</div>
             <div class="space-y-3">
                 <button onclick="startGame()"
                     class="w-full bg-cyan-500 text-black py-4 rounded-2xl font-black hover:bg-cyan-400 transition-colors">再次挑战</button>
@@ -291,11 +292,15 @@
 
             // --- REPORT TO DB ---
             const isDynamic = document.getElementById('dynamic-mode').checked;
-            TraineeAuth.reportResult(
-                isDynamic ? 'schulte_dynamic' : 'schulte_standard',
-                rank,
-                time
-            );
+            const projectName = isDynamic ? 'schulte_dynamic' : 'schulte_standard';
+
+            // reportResult(project, score, duration)
+            TraineeAuth.reportResult(projectName, rank, time);
+
+            // Show success message
+            setTimeout(() => {
+                document.getElementById('submit-status').classList.remove('hidden');
+            }, 500);
         }
 
         function resetGame() {
