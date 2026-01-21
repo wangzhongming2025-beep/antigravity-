@@ -122,23 +122,23 @@
         <div class="grid grid-cols-2 gap-4 w-full px-4">
             <button onclick="checkAnswer(45)"
                 class="option-btn glass-card py-6 rounded-2xl flex flex-col items-center gap-2 hover:bg-zinc-800 border-zinc-700/50">
-                <div class="w-12 h-1 bg-zinc-300 rotate-45 rounded-full shadow-lg shadow-white/10"></div>
-                <span class="text-xs font-bold text-zinc-500">45° 斜向</span>
+                <div class="w-12 h-1 bg-zinc-300 -rotate-45 rounded-full shadow-lg shadow-white/10"></div>
+                <span class="text-xs font-bold text-zinc-500">45° 斜向 (/)</span>
             </button>
             <button onclick="checkAnswer(135)"
                 class="option-btn glass-card py-6 rounded-2xl flex flex-col items-center gap-2 hover:bg-zinc-800 border-zinc-700/50">
-                <div class="w-12 h-1 bg-zinc-300 -rotate-45 rounded-full shadow-lg shadow-white/10"></div>
-                <span class="text-xs font-bold text-zinc-500">135° 斜向</span>
+                <div class="w-12 h-1 bg-zinc-300 rotate-45 rounded-full shadow-lg shadow-white/10"></div>
+                <span class="text-xs font-bold text-zinc-500">135° 斜向 (\)</span>
             </button>
             <button onclick="checkAnswer(90)"
                 class="option-btn glass-card py-6 rounded-2xl flex flex-col items-center gap-2 hover:bg-zinc-800 border-zinc-700/50">
                 <div class="w-12 h-1 bg-zinc-300 rotate-90 rounded-full shadow-lg shadow-white/10"></div>
-                <span class="text-xs font-bold text-zinc-500">90° 垂直</span>
+                <span class="text-xs font-bold text-zinc-500">90° 垂直 (|)</span>
             </button>
             <button onclick="checkAnswer(0)"
                 class="option-btn glass-card py-6 rounded-2xl flex flex-col items-center gap-2 hover:bg-zinc-800 border-zinc-700/50">
                 <div class="w-12 h-1 bg-zinc-300 rounded-full shadow-lg shadow-white/10"></div>
-                <span class="text-xs font-bold text-zinc-500">0° 水平</span>
+                <span class="text-xs font-bold text-zinc-500">0° 水平 (—)</span>
             </button>
         </div>
 
@@ -188,9 +188,10 @@
             const imageData = ctx.createImageData(SIZE, SIZE);
             const data = imageData.data;
             const mid = SIZE / 2;
-            const radians = angle * (Math.PI / 180);
 
-            // Optimization: Cos and Sin once
+            // Standardizing Orientation Logic (0=H, 90=V, 45=/, 135=\)
+            // Browser Y is down. Offset by 90 to make 0deg horizontal stripes.
+            const radians = (90 - angle) * (Math.PI / 180);
             const cosA = Math.cos(radians);
             const sinA = Math.sin(radians);
 
@@ -199,24 +200,22 @@
                     const dx = x - mid;
                     const dy = y - mid;
 
-                    // Rotated coordinates
+                    // Rotated coordinates for grating normal
                     const x_rot = dx * cosA + dy * sinA;
-                    const y_rot = -dx * sinA + dy * cosA;
 
-                    // Gaussian Envelope
-                    const envelope = Math.exp(-(x_rot * x_rot + y_rot * y_rot) / (2 * sigma * sigma));
+                    // Gaussian Envelope based on distance from center
+                    const distSq = dx * dx + dy * dy;
+                    const envelope = Math.exp(-distSq / (2 * sigma * sigma));
 
                     // Sinusoidal Grating
                     const grating = Math.cos(2 * Math.PI * frequency * x_rot);
 
-                    // Combine and scale to 0-255 (Background is middle gray 128)
+                    // Combine to normalized intensity
                     const val = 127.5 + (127.5 * contrast * envelope * grating);
 
                     const idx = (y * SIZE + x) * 4;
-                    data[idx] = val;     // R
-                    data[idx + 1] = val; // G
-                    data[idx + 2] = val; // B
-                    data[idx + 3] = 255; // A
+                    data[idx] = data[idx + 1] = data[idx + 2] = val;
+                    data[idx + 3] = 255;
                 }
             }
             ctx.putImageData(imageData, 0, 0);
