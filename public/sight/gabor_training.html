@@ -189,9 +189,10 @@
             const data = imageData.data;
             const mid = SIZE / 2;
 
-            // Convert angle to radians - no offset needed, direct mapping
-            // 0° = horizontal, 90° = vertical, 45° = /, 135° = \
-            const radians = angle * (Math.PI / 180);
+            // Add 90° offset: angle describes the stripe direction, not the grating direction
+            // 0° = horizontal stripes (—), 90° = vertical stripes (|)
+            // 45° = forward slash stripes (/), 135° = backslash stripes (\)
+            const radians = (angle + 90) * (Math.PI / 180);
             const cosA = Math.cos(radians);
             const sinA = Math.sin(radians);
 
@@ -201,7 +202,7 @@
                     const dy = y - mid;
 
                     // Rotated coordinates - perpendicular to stripe direction
-                    const x_rot = dx * cosA - dy * sinA;
+                    const x_rot = dx * cosA + dy * sinA;
 
                     // Gaussian Envelope based on distance from center
                     const distSq = dx * dx + dy * dy;
