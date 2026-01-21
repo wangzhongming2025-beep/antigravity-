@@ -189,9 +189,9 @@
             const data = imageData.data;
             const mid = SIZE / 2;
 
-            // Standardizing Orientation Logic (0=H, 90=V, 45=/, 135=\)
-            // Browser Y is down. Offset by 90 to make 0deg horizontal stripes.
-            const radians = (90 - angle) * (Math.PI / 180);
+            // Convert angle to radians - no offset needed, direct mapping
+            // 0° = horizontal, 90° = vertical, 45° = /, 135° = \
+            const radians = angle * (Math.PI / 180);
             const cosA = Math.cos(radians);
             const sinA = Math.sin(radians);
 
@@ -200,8 +200,8 @@
                     const dx = x - mid;
                     const dy = y - mid;
 
-                    // Rotated coordinates for grating normal
-                    const x_rot = dx * cosA + dy * sinA;
+                    // Rotated coordinates - perpendicular to stripe direction
+                    const x_rot = dx * cosA - dy * sinA;
 
                     // Gaussian Envelope based on distance from center
                     const distSq = dx * dx + dy * dy;
@@ -277,7 +277,9 @@
 
         function submitGaborSession() {
             if (confirm('确定结束本次特训并上报成绩吗？')) {
-                TraineeAuth.reportResult('gabor', `Level ${gameState.level}`, 0);
+                // reportResult(project, score, duration)
+                TraineeAuth.reportResult('gabor', gameState.level, 0);
+                alert('成绩已上报！等级：Level ' + gameState.level);
                 setTimeout(() => location.href = 'index.html', 1000);
             }
         }
