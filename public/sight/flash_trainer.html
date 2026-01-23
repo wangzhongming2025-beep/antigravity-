@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闪视特训 | 摄影式记忆训练</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+        }
+
+        .tech-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .flash-display {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            transition: all 0.05s ease;
+        }
+
+        .flash-active {
+            background: linear-gradient(135deg, #06b6d4, #10b981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 40px rgba(6, 182, 212, 0.5);
+        }
+
+        .shape-display {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .shape-item {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .answer-input {
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 0.3em;
+            font-weight: 800;
+        }
+
+        .countdown-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid rgba(6, 182, 212, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .countdown-ring::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #06b6d4;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .result-wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .pulse-ready {
+            animation: pulseReady 1s ease-in-out infinite;
+        }
+
+        @keyframes pulseReady {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+
+        .level-star {
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+    <div class="max-w-lg mx-auto">
+
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <div
+                class="inline-block px-4 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
+                ⚡ 瞬时记忆
+            </div>
+            <h1 class="tech-font text-2xl md:text-3xl text-white mb-2">
+                闪视 <span class="text-yellow-400">特训</span>
+            </h1>
+            <p class="text-zinc-500 text-sm">训练摄影式记忆 · 捕捉瞬间信息</p>
+        </header>
+
+        <!-- Game Container -->
+        <div id="game-container">
+
+            <!-- Start Screen -->
+            <div id="start-screen" class="glass-panel rounded-3xl p-8 text-center">
+                <div
+                    class="w-20 h-20 bg-yellow-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">
+                    📸
+                </div>
+                <h2 class="text-xl font-bold text-white mb-4">选择训练模式</h2>
+
+                <div class="space-y-3 mb-6">
+                    <!-- Number Mode -->
+                    <button onclick="startGame('number')"
+                        class="w-full glass-panel rounded-xl p-4 text-left hover:border-cyan-500 border border-transparent transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center text-2xl">
+                                🔢</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-white group-hover:text-cyan-400 transition-colors">数字闪视</p>
+                                <p class="text-xs text-zinc-500">记住一闪而过的数字序列</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Shape Mode -->
+                    <button onclick="startGame('shape')"
+                        class="w-full glass-panel rounded-xl p-4 text-left hover:border-purple-500 border border-transparent transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-2xl">
+                                🔷</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-white group-hover:text-purple-400 transition-colors">图形闪视</p>
+                                <p class="text-xs text-zinc-500">记住一闪而过的图形组合</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Color Mode -->
+                    <button onclick="startGame('color')"
+                        class="w-full glass-panel rounded-xl p-4 text-left hover:border-green-500 border border-transparent transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-2xl">
+                                🎨</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-white group-hover:text-green-400 transition-colors">颜色闪视</p>
+                                <p class="text-xs text-zinc-500">记住一闪而过的颜色序列</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Settings -->
+                <div class="glass-panel rounded-xl p-4 mb-6">
+                    <p class="text-xs text-zinc-500 uppercase tracking-widest mb-3">闪现时间</p>
+                    <div class="flex justify-center gap-2">
+                        <button onclick="setFlashTime(100)" id="time-100"
+                            class="px-4 py-2 rounded-lg bg-yellow-500 text-black font-bold text-sm">0.1秒</button>
+                        <button onclick="setFlashTime(200)" id="time-200"
+                            class="px-4 py-2 rounded-lg bg-zinc-800 text-zinc-400 font-bold text-sm">0.2秒</button>
+                        <button onclick="setFlashTime(500)" id="time-500"
+                            class="px-4 py-2 rounded-lg bg-zinc-800 text-zinc-400 font-bold text-sm">0.5秒</button>
+                        <button onclick="setFlashTime(1000)" id="time-1000"
+                            class="px-4 py-2 rounded-lg bg-zinc-800 text-zinc-400 font-bold text-sm">1秒</button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-xl p-4 text-left">
+                    <p class="text-xs text-zinc-500 mb-2">📖 训练说明</p>
+                    <ul class="text-xs text-zinc-400 space-y-1">
+                        <li>• 点击"准备"后，屏幕会闪现内容</li>
+                        <li>• 仔细观察并记住看到的内容</li>
+                        <li>• 闪现结束后输入你记住的内容</li>
+                        <li>• 正确则进入下一关，难度逐渐增加</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Playing Screen -->
+            <div id="play-screen" class="hidden">
+                <!-- Stats Bar -->
+                <div class="flex justify-between items-center mb-4">
+                    <div class="glass-panel rounded-xl px-4 py-2">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest">关卡</p>
+                        <p class="tech-font text-lg text-yellow-400" id="current-level">1</p>
+                    </div>
+                    <div class="glass-panel rounded-xl px-4 py-2 text-center">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest">位数/个数</p>
+                        <p class="tech-font text-lg text-white" id="current-digits">3</p>
+                    </div>
+                    <div class="glass-panel rounded-xl px-4 py-2 text-right">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest">连对</p>
+                        <p class="tech-font text-lg text-green-400" id="streak">0</p>
+                    </div>
+                </div>
+
+                <!-- Flash Area -->
+                <div class="glass-panel rounded-3xl p-8 mb-4" id="flash-container">
+
+                    <!-- Ready State -->
+                    <div id="ready-state" class="text-center">
+                        <p class="text-zinc-500 text-sm mb-4">准备好了吗？</p>
+                        <button onclick="showFlash()"
+                            class="pulse-ready bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-black py-4 px-8 rounded-xl text-lg transition-all hover:scale-105 active:scale-95">
+                            ⚡ 开始闪现
+                        </button>
+                    </div>
+
+                    <!-- Countdown State -->
+                    <div id="countdown-state" class="text-center hidden">
+                        <div class="countdown-ring mx-auto">
+                            <span class="tech-font text-2xl text-cyan-400" id="countdown-num">3</span>
+                        </div>
+                        <p class="text-zinc-500 text-sm mt-4">集中注意力...</p>
+                    </div>
+
+                    <!-- Flash State -->
+                    <div id="flash-state" class="hidden">
+                        <div class="flash-display flash-active" id="flash-content">
+                            <!-- Content shown here -->
+                        </div>
+                    </div>
+
+                    <!-- Answer State -->
+                    <div id="answer-state" class="hidden">
+                        <p class="text-zinc-500 text-sm text-center mb-4">你看到了什么？</p>
+
+                        <!-- Number Input -->
+                        <div id="number-input-area">
+                            <input type="text" id="answer-input" maxlength="12"
+                                class="w-full bg-black/50 border-2 border-zinc-700 rounded-xl p-4 text-white answer-input focus:outline-none focus:border-yellow-500 transition-colors"
+                                placeholder="输入数字..." onkeypress="if(event.key==='Enter')checkAnswer()">
+                        </div>
+
+                        <!-- Shape/Color Selection -->
+                        <div id="selection-area" class="hidden">
+                            <div id="selection-options" class="flex flex-wrap justify-center gap-3 mb-4">
+                                <!-- Options generated by JS -->
+                            </div>
+                            <p class="text-xs text-zinc-600 text-center">点击选择你看到的内容（按顺序）</p>
+                        </div>
+
+                        <button onclick="checkAnswer()"
+                            class="w-full bg-gradient-to-r from-cyan-500 to-green-500 text-black font-black py-4 rounded-xl mt-4 transition-all hover:scale-[1.02] active:scale-95">
+                            ✓ 确认答案
+                        </button>
+                    </div>
+
+                    <!-- Result State -->
+                    <div id="result-state" class="hidden text-center">
+                        <div class="text-6xl mb-4" id="result-emoji">✅</div>
+                        <p class="text-xl font-bold mb-2" id="result-text">正确！</p>
+                        <p class="text-zinc-500 text-sm mb-4" id="result-detail">答案：123456</p>
+                        <button onclick="nextRound()"
+                            class="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-black py-3 px-8 rounded-xl transition-all hover:scale-105 active:scale-95">
+                            下一关 →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="glass-panel rounded-xl p-4">
+                    <div class="flex justify-between text-xs text-zinc-500 mb-2">
+                        <span>最高关卡</span>
+                        <span id="best-level">1</span>
+                    </div>
+                    <div class="flex gap-1" id="level-stars">
+                        <!-- Stars generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="gameover-screen" class="glass-panel rounded-3xl p-8 text-center hidden">
+                <div class="w-20 h-20 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">
+                    💥
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">训练结束</h2>
+                <p class="text-zinc-500 text-sm mb-6">再接再厉，继续挑战更高关卡！</p>
+
+                <div class="glass-panel rounded-2xl p-6 mb-6">
+                    <p class="text-xs text-zinc-500 uppercase tracking-widest mb-2">最高关卡</p>
+                    <p class="tech-font text-5xl font-bold text-yellow-400" id="final-level">1</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-8">
+                    <div class="glass-panel rounded-xl p-4">
+                        <p class="text-lg font-bold text-cyan-400" id="stat-digits">3</p>
+                        <p class="text-[10px] text-zinc-500">最大位数</p>
+                    </div>
+                    <div class="glass-panel rounded-xl p-4">
+                        <p class="text-lg font-bold text-green-400" id="stat-streak">0</p>
+                        <p class="text-[10px] text-zinc-500">最长连对</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="restartGame()"
+                        class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95">
+                        🔄 再来一局
+                    </button>
+                    <button onclick="backToStart()"
+                        class="w-full glass-panel text-zinc-400 font-bold py-4 rounded-xl transition-all hover:text-white">
+                        ← 选择其他模式
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-8">
+            <a href="index.html" class="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">← 返回工具箱</a>
+        </footer>
+
+    </div>
+
+    <script>
+        // Game State
+        let gameMode = 'number';
+        let flashTime = 100; // milliseconds
+        let currentLevel = 1;
+        let currentDigits = 3;
+        let streak = 0;
+        let bestLevel = 1;
+        let maxStreak = 0;
+        let currentContent = '';
+        let selectedAnswers = [];
+
+        const shapes = ['🔴', '🟢', '🔵', '🟡', '🟣', '🟠', '⬛', '⬜'];
+        const colors = ['红', '绿', '蓝', '黄', '紫', '橙', '黑', '白'];
+        const colorMap = {
+            '红': '#ef4444', '绿': '#22c55e', '蓝': '#3b82f6',
+            '黄': '#eab308', '紫': '#a855f7', '橙': '#f97316',
+            '黑': '#1f2937', '白': '#f3f4f6'
+        };
+
+        // Set flash time
+        function setFlashTime(ms) {
+            flashTime = ms;
+            ['100', '200', '500', '1000'].forEach(t => {
+                const btn = document.getElementById(`time-${t}`);
+                if (parseInt(t) === ms) {
+                    btn.className = 'px-4 py-2 rounded-lg bg-yellow-500 text-black font-bold text-sm';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-lg bg-zinc-800 text-zinc-400 font-bold text-sm';
+                }
+            });
+        }
+
+        // Start Game
+        function startGame(mode) {
+            gameMode = mode;
+            currentLevel = 1;
+            currentDigits = 3;
+            streak = 0;
+            bestLevel = 1;
+            maxStreak = 0;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.add('hidden');
+            document.getElementById('play-screen').classList.remove('hidden');
+
+            updateStats();
+            showReadyState();
+        }
+
+        // Update Stats Display
+        function updateStats() {
+            document.getElementById('current-level').textContent = currentLevel;
+            document.getElementById('current-digits').textContent = currentDigits;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('best-level').textContent = bestLevel;
+
+            // Update stars
+            const starsContainer = document.getElementById('level-stars');
+            starsContainer.innerHTML = '';
+            for (let i = 1; i <= Math.min(currentLevel, 10); i++) {
+                const star = document.createElement('span');
+                star.textContent = '⭐';
+                star.className = 'level-star';
+                starsContainer.appendChild(star);
+            }
+            if (currentLevel > 10) {
+                const more = document.createElement('span');
+                more.textContent = `+${currentLevel - 10}`;
+                more.className = 'text-yellow-400 text-xs ml-1';
+                starsContainer.appendChild(more);
+            }
+        }
+
+        // Show Ready State
+        function showReadyState() {
+            hideAllStates();
+            document.getElementById('ready-state').classList.remove('hidden');
+        }
+
+        // Hide All States
+        function hideAllStates() {
+            ['ready-state', 'countdown-state', 'flash-state', 'answer-state', 'result-state'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+        }
+
+        // Show Flash with Countdown
+        function showFlash() {
+            hideAllStates();
+            document.getElementById('countdown-state').classList.remove('hidden');
+
+            let count = 3;
+            document.getElementById('countdown-num').textContent = count;
+
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    document.getElementById('countdown-num').textContent = count;
+                } else {
+                    clearInterval(interval);
+                    executeFlash();
+                }
+            }, 800);
+        }
+
+        // Execute Flash
+        function executeFlash() {
+            hideAllStates();
+
+            // Generate content
+            currentContent = generateContent();
+
+            // Show flash
+            const flashEl = document.getElementById('flash-content');
+            if (gameMode === 'number') {
+                flashEl.innerHTML = `<span class="flash-active">${currentContent}</span>`;
+            } else if (gameMode === 'shape') {
+                flashEl.innerHTML = `<div class="shape-display">${currentContent.split('').map(s => `<span class="shape-item">${shapes[parseInt(s)]}</span>`).join('')}</div>`;
+            } else if (gameMode === 'color') {
+                const colorNames = currentContent.split(',');
+                flashEl.innerHTML = `<div class="flex gap-4">${colorNames.map(c => `<div style="width:50px;height:50px;background:${colorMap[c]};border-radius:8px;"></div>`).join('')}</div>`;
+            }
+
+            document.getElementById('flash-state').classList.remove('hidden');
+
+            // Hide after flash time
+            setTimeout(() => {
+                showAnswerState();
+            }, flashTime);
+        }
+
+        // Generate Content
+        function generateContent() {
+            if (gameMode === 'number') {
+                let num = '';
+                for (let i = 0; i < currentDigits; i++) {
+                    num += Math.floor(Math.random() * 10);
+                }
+                return num;
+            } else if (gameMode === 'shape') {
+                let indices = '';
+                for (let i = 0; i < currentDigits; i++) {
+                    indices += Math.floor(Math.random() * shapes.length);
+                }
+                return indices;
+            } else if (gameMode === 'color') {
+                const selected = [];
+                for (let i = 0; i < currentDigits; i++) {
+                    selected.push(colors[Math.floor(Math.random() * colors.length)]);
+                }
+                return selected.join(',');
+            }
+        }
+
+        // Show Answer State
+        function showAnswerState() {
+            hideAllStates();
+            selectedAnswers = [];
+
+            if (gameMode === 'number') {
+                document.getElementById('number-input-area').classList.remove('hidden');
+                document.getElementById('selection-area').classList.add('hidden');
+                document.getElementById('answer-input').value = '';
+                document.getElementById('answer-input').focus();
+            } else {
+                document.getElementById('number-input-area').classList.add('hidden');
+                document.getElementById('selection-area').classList.remove('hidden');
+
+                const optionsEl = document.getElementById('selection-options');
+                optionsEl.innerHTML = '';
+
+                if (gameMode === 'shape') {
+                    shapes.forEach((s, i) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'w-14 h-14 glass-panel rounded-xl text-2xl hover:border-purple-500 border border-transparent transition-all';
+                        btn.textContent = s;
+                        btn.onclick = () => selectOption(i.toString(), btn);
+                        optionsEl.appendChild(btn);
+                    });
+                } else if (gameMode === 'color') {
+                    colors.forEach(c => {
+                        const btn = document.createElement('button');
+                        btn.className = 'w-14 h-14 rounded-xl hover:scale-110 transition-all border-2 border-transparent';
+                        btn.style.background = colorMap[c];
+                        btn.onclick = () => selectOption(c, btn);
+                        optionsEl.appendChild(btn);
+                    });
+                }
+            }
+
+            document.getElementById('answer-state').classList.remove('hidden');
+        }
+
+        // Select Option (for shape/color mode)
+        function selectOption(value, btn) {
+            selectedAnswers.push(value);
+            btn.classList.add('opacity-50');
+            btn.style.pointerEvents = 'none';
+
+            // Auto submit when enough selected
+            if (selectedAnswers.length >= currentDigits) {
+                setTimeout(checkAnswer, 300);
+            }
+        }
+
+        // Check Answer
+        function checkAnswer() {
+            let userAnswer = '';
+            let correctAnswer = currentContent;
+
+            if (gameMode === 'number') {
+                userAnswer = document.getElementById('answer-input').value.trim();
+            } else if (gameMode === 'shape') {
+                userAnswer = selectedAnswers.join('');
+            } else if (gameMode === 'color') {
+                userAnswer = selectedAnswers.join(',');
+            }
+
+            const isCorrect = userAnswer === correctAnswer;
+
+            hideAllStates();
+            document.getElementById('result-state').classList.remove('hidden');
+
+            const container = document.getElementById('flash-container');
+            container.classList.remove('result-correct', 'result-wrong');
+
+            if (isCorrect) {
+                document.getElementById('result-emoji').textContent = '✅';
+                document.getElementById('result-text').textContent = '正确！太棒了！';
+                container.classList.add('result-correct');
+
+                streak++;
+                maxStreak = Math.max(maxStreak, streak);
+                currentLevel++;
+                bestLevel = Math.max(bestLevel, currentLevel);
+
+                // Increase difficulty every 3 levels
+                if (currentLevel % 3 === 1 && currentLevel > 1) {
+                    currentDigits++;
+                }
+            } else {
+                document.getElementById('result-emoji').textContent = '❌';
+                document.getElementById('result-text').textContent = '错误！';
+                container.classList.add('result-wrong');
+                streak = 0;
+            }
+
+            // Show correct answer
+            let answerDisplay = '';
+            if (gameMode === 'number') {
+                answerDisplay = correctAnswer;
+            } else if (gameMode === 'shape') {
+                answerDisplay = correctAnswer.split('').map(i => shapes[parseInt(i)]).join(' ');
+            } else if (gameMode === 'color') {
+                answerDisplay = correctAnswer.split(',').join(' → ');
+            }
+            document.getElementById('result-detail').textContent = `正确答案：${answerDisplay}`;
+
+            updateStats();
+
+            // If wrong, end game after 2 wrong in a row would be too harsh
+            // Let them continue but track best level
+        }
+
+        // Next Round
+        function nextRound() {
+            const container = document.getElementById('flash-container');
+            container.classList.remove('result-correct', 'result-wrong');
+            showReadyState();
+        }
+
+        // Restart
+        function restartGame() {
+            startGame(gameMode);
+        }
+
+        // Back to Start
+        function backToStart() {
+            document.getElementById('play-screen').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>
