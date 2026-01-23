@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鹰眼特种兵·脑视觉雷达体检 | 299元专业测评</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+        }
+
+        .tech-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glow-green {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .glow-red {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+        }
+
+        .radar-container {
+            position: relative;
+        }
+
+        .radar-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 0%, #00ff88 50%, transparent 100%);
+            animation: radar-sweep 4s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes radar-sweep {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator.active {
+            background: linear-gradient(135deg, #06b6d4, #10b981);
+            transform: scale(1.2);
+        }
+
+        .step-indicator.completed {
+            background: #10b981;
+        }
+
+        .option-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6, 182, 212, 0.5);
+        }
+
+        .option-card.selected {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .option-card.selected-good {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .schulte-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .schulte-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: rgba(24, 24, 27, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .schulte-cell:hover {
+            border-color: #06b6d4;
+            transform: scale(1.05);
+        }
+
+        .schulte-cell.correct {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: #10b981;
+        }
+
+        .schulte-cell.wrong {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .noise-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .noise-cell {
+            padding: 6px;
+            text-align: center;
+            background: rgba(24, 24, 27, 0.5);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .noise-cell:hover {
+            background: rgba(6, 182, 212, 0.2);
+        }
+
+        .noise-cell.found {
+            background: rgba(16, 185, 129, 0.4);
+            color: #10b981;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+    <div class="max-w-2xl mx-auto">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div
+                class="inline-block px-4 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
+                🎖️ 限时特惠 ¥299
+            </div>
+            <h1 class="tech-font text-2xl md:text-3xl text-white mb-2">
+                鹰眼特种兵<span class="text-cyan-400">·</span>脑视觉雷达体检
+            </h1>
+            <p class="text-zinc-500 text-sm">专业视觉能力评估系统 | 适用6-15岁学生</p>
+        </header>
+
+        <!-- Progress Indicator -->
+        <div class="flex justify-center gap-3 mb-8" id="progress-bar">
+            <div class="step-indicator w-3 h-3 rounded-full bg-zinc-700" data-step="0"></div>
+            <div class="step-indicator w-3 h-3 rounded-full bg-zinc-700" data-step="1"></div>
+            <div class="step-indicator w-3 h-3 rounded-full bg-zinc-700" data-step="2"></div>
+            <div class="step-indicator w-3 h-3 rounded-full bg-zinc-700" data-step="3"></div>
+            <div class="step-indicator w-3 h-3 rounded-full bg-zinc-700" data-step="4"></div>
+            <div class="step-indicator w-3 h-3 rounded-full bg-zinc-700" data-step="5"></div>
+        </div>
+
+        <!-- Step Container -->
+        <div id="step-container">
+
+            <!-- Step 0: Start -->
+            <div class="step glass-panel rounded-3xl p-8 slide-in" id="step-0">
+                <div class="text-center mb-8">
+                    <div
+                        class="w-20 h-20 bg-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-4xl glow-cyan">
+                        🦅
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">开始视觉雷达体检</h2>
+                    <p class="text-zinc-500 text-sm">请家长填写以下信息，辅助孩子完成测试</p>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <div>
+                        <label class="block text-xs text-zinc-500 uppercase tracking-widest mb-2">家长手机号</label>
+                        <input type="tel" id="input-phone" placeholder="输入手机号"
+                            class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-500 uppercase tracking-widest mb-2">孩子姓名</label>
+                        <input type="text" id="input-name" placeholder="输入孩子姓名"
+                            class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-500 uppercase tracking-widest mb-2">孩子年龄</label>
+                        <input type="number" id="input-age" placeholder="6-15" min="6" max="15"
+                            class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                    </div>
+                </div>
+
+                <button onclick="startTest()"
+                    class="w-full bg-gradient-to-r from-cyan-500 to-green-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-lg">
+                    🚀 开始体检
+                </button>
+            </div>
+
+            <!-- Step 1: Eye Tracking -->
+            <div class="step glass-panel rounded-3xl p-8 hidden" id="step-1">
+                <div class="text-center mb-6">
+                    <div
+                        class="inline-block px-3 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded-full mb-4">
+                        第一项 / 共四项
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">👁️ 眼动追踪能力测试</h2>
+                    <p class="text-zinc-500 text-sm">测试"阅读不跳行"的能力</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 mb-6 border-l-4 border-cyan-500">
+                    <p class="text-sm font-bold text-white mb-2">🔧 道具：一支笔</p>
+                    <p class="text-sm text-zinc-400">
+                        家长手持笔，在孩子眼前 40cm 处，<strong class="text-cyan-400">缓慢水平移动（左右）</strong>，然后<strong
+                            class="text-cyan-400">快速跳跃移动</strong>。
+                    </p>
+                </div>
+
+                <p class="text-xs text-zinc-500 mb-4 uppercase tracking-widest">观察指标（请勾选符合的情况）</p>
+
+                <div class="space-y-3 mb-8" id="part1-options">
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="0"
+                        data-good="true" onclick="toggleOption(this, 'part1')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">孩子的眼球能平滑地跟着笔走，头完全不动。<span
+                                    class="text-green-400 ml-1">✅</span></p>
+                        </div>
+                    </div>
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="1"
+                        onclick="toggleOption(this, 'part1')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">孩子的头忍不住跟着笔一起转动。<span class="text-red-400 ml-1">❌
+                                    颈部代偿</span></p>
+                        </div>
+                    </div>
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="2"
+                        onclick="toggleOption(this, 'part1')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">笔快速停下时，孩子视线"冲过头"或"没跟上"。<span class="text-red-400 ml-1">❌
+                                    眼动控制差</span></p>
+                        </div>
+                    </div>
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="3"
+                        onclick="toggleOption(this, 'part1')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">眼睛转动时，会有卡顿或眨眼现象。<span class="text-red-400 ml-1">❌
+                                    视觉专注力断裂</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="nextStep(2)"
+                    class="w-full bg-gradient-to-r from-cyan-500 to-green-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95">
+                    下一项 →
+                </button>
+            </div>
+
+            <!-- Step 2: Binocular Fusion -->
+            <div class="step glass-panel rounded-3xl p-8 hidden" id="step-2">
+                <div class="text-center mb-6">
+                    <div
+                        class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-bold rounded-full mb-4">
+                        第二项 / 共四项
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">👀 双眼融合功能测试</h2>
+                    <p class="text-zinc-500 text-sm">测试"看书不累"的能力</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 mb-6 border-l-4 border-purple-500">
+                    <p class="text-sm font-bold text-white mb-2">🔧 道具：你的大拇指</p>
+                    <p class="text-sm text-zinc-400">
+                        让孩子盯着家长放在他<strong class="text-purple-400">鼻尖前 10cm 处</strong>的大拇指，<strong
+                            class="text-purple-400">保持 10 秒</strong>。
+                    </p>
+                </div>
+
+                <p class="text-xs text-zinc-500 mb-4 uppercase tracking-widest">观察指标（请勾选符合的情况）</p>
+
+                <div class="space-y-3 mb-8" id="part2-options">
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="0"
+                        data-good="true" onclick="toggleOption(this, 'part2')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">两只黑眼珠都能紧紧聚在中间（斗鸡眼状），且保持不动。<span
+                                    class="text-green-400 ml-1">✅</span></p>
+                        </div>
+                    </div>
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="1"
+                        onclick="toggleOption(this, 'part2')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">一只眼睛看进来了，另一只眼睛"飘"出去了。<span class="text-red-400 ml-1">❌
+                                    集合不足/隐斜视</span></p>
+                        </div>
+                    </div>
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="2"
+                        onclick="toggleOption(this, 'part2')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">孩子喊"头晕"、"有两个手指"，或者眼睛狂流泪。<span class="text-red-400 ml-1">❌
+                                    视觉疲劳阈值低</span></p>
+                        </div>
+                    </div>
+                    <div class="option-card glass-panel rounded-xl p-4 border border-transparent" data-value="3"
+                        onclick="toggleOption(this, 'part2')">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-6 h-6 rounded-md border-2 border-zinc-600 flex items-center justify-center text-xs check-box">
+                                ✓</div>
+                            <p class="text-sm text-zinc-300">坚持不到 3 秒，眼睛就自动散开了。<span class="text-red-400 ml-1">❌
+                                    调节力崩塌</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="nextStep(3)"
+                    class="w-full bg-gradient-to-r from-purple-500 to-cyan-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95">
+                    下一项 →
+                </button>
+            </div>
+
+            <!-- Step 3: Visual Span (Schulte) -->
+            <div class="step glass-panel rounded-3xl p-8 hidden" id="step-3">
+                <div class="text-center mb-6">
+                    <div
+                        class="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full mb-4">
+                        第三项 / 共四项
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">🎯 视觉广度测试</h2>
+                    <p class="text-zinc-500 text-sm">测试"一目十行"的能力</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 mb-6 border-l-4 border-green-500">
+                    <p class="text-sm text-zinc-400">
+                        让孩子按顺序从 <strong class="text-green-400">1 点到 25</strong>，计时开始后点击数字。
+                    </p>
+                </div>
+
+                <!-- Timer Display -->
+                <div class="text-center mb-6">
+                    <p class="text-xs text-zinc-500 uppercase tracking-widest mb-1">用时</p>
+                    <p class="tech-font text-4xl text-cyan-400" id="schulte-timer">0.0</p>
+                    <p class="text-sm text-zinc-500 mt-2">下一个数字: <span id="next-number"
+                            class="text-white font-bold">1</span></p>
+                </div>
+
+                <!-- Schulte Grid -->
+                <div class="schulte-grid mb-6" id="schulte-grid">
+                    <!-- Generated by JS -->
+                </div>
+
+                <!-- Reference -->
+                <div class="grid grid-cols-3 gap-2 text-center text-xs mb-6">
+                    <div class="glass-panel rounded-lg p-3">
+                        <p class="text-green-400 font-bold">
+                            < 20秒</p>
+                                <p class="text-zinc-500">王牌飞行员</p>
+                    </div>
+                    <div class="glass-panel rounded-lg p-3">
+                        <p class="text-yellow-400 font-bold">25-35秒</p>
+                        <p class="text-zinc-500">合格战士</p>
+                    </div>
+                    <div class="glass-panel rounded-lg p-3">
+                        <p class="text-red-400 font-bold">> 40秒</p>
+                        <p class="text-zinc-500">需要维修</p>
+                    </div>
+                </div>
+
+                <button onclick="startSchulte()" id="schulte-start-btn"
+                    class="w-full bg-gradient-to-r from-green-500 to-cyan-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95">
+                    🏁 开始计时
+                </button>
+                <button onclick="nextStep(4)" id="schulte-next-btn"
+                    class="w-full bg-gradient-to-r from-green-500 to-cyan-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95 hidden mt-4">
+                    下一项 →
+                </button>
+            </div>
+
+            <!-- Step 4: Visual Noise (Find 8s) -->
+            <div class="step glass-panel rounded-3xl p-8 hidden" id="step-4">
+                <div class="text-center mb-6">
+                    <div
+                        class="inline-block px-3 py-1 bg-orange-500/20 text-orange-400 text-xs font-bold rounded-full mb-4">
+                        第四项 / 共四项
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">🔍 视觉信噪比测试</h2>
+                    <p class="text-zinc-500 text-sm">测试"抗干扰"的能力</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-4 mb-6 border-l-4 border-orange-500">
+                    <p class="text-sm text-zinc-400">
+                        在下方乱码图中，找出并点击所有的数字 <strong class="text-orange-400 text-xl">"8"</strong>（共<span
+                            id="total-eights">?</span>个）
+                    </p>
+                </div>
+
+                <!-- Timer and Progress -->
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <p class="text-xs text-zinc-500">已找到</p>
+                        <p class="text-lg font-bold text-green-400"><span id="found-count">0</span> / <span
+                                id="total-count">?</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-zinc-500">用时</p>
+                        <p class="tech-font text-lg text-cyan-400" id="noise-timer">0.0</p>
+                    </div>
+                </div>
+
+                <!-- Noise Grid -->
+                <div class="noise-grid mb-6" id="noise-grid">
+                    <!-- Generated by JS -->
+                </div>
+
+                <button onclick="startNoiseTest()" id="noise-start-btn"
+                    class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95">
+                    🔍 开始找"8"
+                </button>
+                <button onclick="generateReport()" id="noise-next-btn"
+                    class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95 hidden mt-4">
+                    📊 生成诊断报告
+                </button>
+            </div>
+
+            <!-- Step 5: Report -->
+            <div class="step glass-panel rounded-3xl p-8 hidden" id="step-5">
+                <div class="text-center mb-6">
+                    <div
+                        class="inline-block px-3 py-1 bg-gradient-to-r from-cyan-500 to-green-500 text-black text-xs font-bold rounded-full mb-4">
+                        📋 诊断报告
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">脑视觉雷达体检报告</h2>
+                    <p class="text-zinc-500 text-sm" id="report-child-info">--</p>
+                </div>
+
+                <!-- Radar Chart -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-64 h-64">
+                        <canvas id="radar-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Total Score -->
+                <div class="text-center mb-6">
+                    <p class="text-xs text-zinc-500 uppercase tracking-widest mb-2">视觉系统总评分</p>
+                    <p class="tech-font text-6xl font-bold" id="total-score-display">--</p>
+                    <p class="text-sm mt-2" id="score-level">--</p>
+                </div>
+
+                <!-- Detailed Scores -->
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="glass-panel rounded-xl p-4 text-center">
+                        <p class="text-xs text-zinc-500 mb-1">眼动控制力</p>
+                        <p class="text-xl font-bold" id="score-part1">--</p>
+                    </div>
+                    <div class="glass-panel rounded-xl p-4 text-center">
+                        <p class="text-xs text-zinc-500 mb-1">融合调节力</p>
+                        <p class="text-xl font-bold" id="score-part2">--</p>
+                    </div>
+                    <div class="glass-panel rounded-xl p-4 text-center">
+                        <p class="text-xs text-zinc-500 mb-1">视觉广度</p>
+                        <p class="text-xl font-bold" id="score-part3">--</p>
+                    </div>
+                    <div class="glass-panel rounded-xl p-4 text-center">
+                        <p class="text-xs text-zinc-500 mb-1">抗干扰能力</p>
+                        <p class="text-xl font-bold" id="score-part4">--</p>
+                    </div>
+                </div>
+
+                <!-- Diagnosis -->
+                <div class="glass-panel rounded-2xl p-5 mb-6 border-l-4 border-red-500" id="diagnosis-box">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl">💀</span>
+                        <div>
+                            <p class="text-sm font-bold text-red-400 mb-2">连长诊断</p>
+                            <p class="text-sm text-zinc-300" id="diagnosis-text">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescription -->
+                <div class="glass-panel rounded-2xl p-5 mb-8 border-l-4 border-green-500">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl">💊</span>
+                        <div>
+                            <p class="text-sm font-bold text-green-400 mb-2">推荐处方</p>
+                            <p class="text-sm text-zinc-300" id="prescription-text">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="text-center">
+                    <p class="text-xs text-zinc-500 mb-4">报告已保存，稍后会有专业老师联系您</p>
+                    <a href="index.html"
+                        class="block w-full bg-gradient-to-r from-green-500 to-cyan-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95 text-center">
+                        🏠 返回首页
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Supabase Config
+        const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
+
+        // Assessment Data
+        let assessmentData = {
+            phone: '',
+            child_name: '',
+            child_age: 0,
+            part1_answers: [],
+            part2_answers: [],
+            part3_time: 0,
+            part4_found: 0,
+            part4_total: 0,
+            part4_time: 0
+        };
+
+        let currentStep = 0;
+        let schulteTimer = null;
+        let schulteStartTime = 0;
+        let schulteCurrentNumber = 1;
+        let noiseTimer = null;
+        let noiseStartTime = 0;
+        let noiseEights = [];
+        let foundEights = 0;
+
+        // Toggle option selection
+        function toggleOption(card, part) {
+            const isGood = card.dataset.good === 'true';
+
+            if (card.classList.contains('selected') || card.classList.contains('selected-good')) {
+                card.classList.remove('selected', 'selected-good');
+                card.querySelector('.check-box').style.borderColor = '#52525b';
+                card.querySelector('.check-box').style.background = 'transparent';
+                card.querySelector('.check-box').style.color = 'transparent';
+            } else {
+                card.classList.add(isGood ? 'selected-good' : 'selected');
+                card.querySelector('.check-box').style.borderColor = isGood ? '#10b981' : '#ef4444';
+                card.querySelector('.check-box').style.background = isGood ? '#10b981' : '#ef4444';
+                card.querySelector('.check-box').style.color = 'white';
+            }
+        }
+
+        // Get selected options for a part
+        function getSelectedOptions(partId) {
+            const container = document.getElementById(`${partId}-options`);
+            const selected = container.querySelectorAll('.selected, .selected-good');
+            return Array.from(selected).map(el => parseInt(el.dataset.value));
+        }
+
+        // Navigate to next step
+        function nextStep(step) {
+            // Save current step data
+            if (currentStep === 1) {
+                assessmentData.part1_answers = getSelectedOptions('part1');
+            } else if (currentStep === 2) {
+                assessmentData.part2_answers = getSelectedOptions('part2');
+            }
+
+            // Hide current step
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+
+            // Show next step
+            currentStep = step;
+            const nextEl = document.getElementById(`step-${step}`);
+            nextEl.classList.remove('hidden');
+            nextEl.classList.add('slide-in');
+
+            // Update progress bar
+            updateProgress();
+
+            // Initialize step-specific content
+            if (step === 3) {
+                initSchulte();
+            } else if (step === 4) {
+                initNoiseTest();
+            }
+        }
+
+        // Update progress indicator
+        function updateProgress() {
+            document.querySelectorAll('.step-indicator').forEach((el, idx) => {
+                el.classList.remove('active', 'completed');
+                if (idx < currentStep) {
+                    el.classList.add('completed');
+                } else if (idx === currentStep) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        // Start test
+        function startTest() {
+            const phone = document.getElementById('input-phone').value.trim();
+            const name = document.getElementById('input-name').value.trim();
+            const age = parseInt(document.getElementById('input-age').value);
+
+            if (!phone || phone.length < 11) {
+                alert('请输入正确的手机号');
+                return;
+            }
+            if (!name) {
+                alert('请输入孩子姓名');
+                return;
+            }
+            if (!age || age < 6 || age > 15) {
+                alert('请输入正确的年龄（6-15岁）');
+                return;
+            }
+
+            assessmentData.phone = phone;
+            assessmentData.child_name = name;
+            assessmentData.child_age = age;
+
+            nextStep(1);
+        }
+
+        // Schulte Grid Functions
+        function initSchulte() {
+            const grid = document.getElementById('schulte-grid');
+            grid.innerHTML = '';
+
+            // Generate shuffled numbers 1-25
+            const numbers = Array.from({ length: 25 }, (_, i) => i + 1);
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+
+            numbers.forEach(num => {
+                const cell = document.createElement('div');
+                cell.className = 'schulte-cell';
+                cell.textContent = num;
+                cell.dataset.num = num;
+                cell.onclick = () => clickSchulteCell(cell);
+                grid.appendChild(cell);
+            });
+
+            schulteCurrentNumber = 1;
+            document.getElementById('next-number').textContent = '1';
+            document.getElementById('schulte-timer').textContent = '0.0';
+        }
+
+        function startSchulte() {
+            document.getElementById('schulte-start-btn').classList.add('hidden');
+            schulteStartTime = Date.now();
+            schulteTimer = setInterval(() => {
+                const elapsed = (Date.now() - schulteStartTime) / 1000;
+                document.getElementById('schulte-timer').textContent = elapsed.toFixed(1);
+            }, 100);
+        }
+
+        function clickSchulteCell(cell) {
+            if (!schulteTimer) return;
+
+            const num = parseInt(cell.dataset.num);
+            if (num === schulteCurrentNumber) {
+                cell.classList.add('correct');
+                schulteCurrentNumber++;
+                document.getElementById('next-number').textContent = schulteCurrentNumber <= 25 ? schulteCurrentNumber : '✓';
+
+                if (schulteCurrentNumber > 25) {
+                    // Complete!
+                    clearInterval(schulteTimer);
+                    const elapsed = (Date.now() - schulteStartTime) / 1000;
+                    assessmentData.part3_time = elapsed;
+                    document.getElementById('schulte-next-btn').classList.remove('hidden');
+                }
+            } else {
+                cell.classList.add('wrong');
+                setTimeout(() => cell.classList.remove('wrong'), 300);
+            }
+        }
+
+        // Noise Test Functions
+        function initNoiseTest() {
+            const grid = document.getElementById('noise-grid');
+            grid.innerHTML = '';
+            noiseEights = [];
+            foundEights = 0;
+
+            // Characters to use (confusable with 8)
+            const chars = '0369BODS23568901234567890ABCDEFG';
+            const totalCells = 80; // 8 rows x 10 cols
+            const numEights = 8 + Math.floor(Math.random() * 5); // 8-12 eights
+
+            // Randomly place 8s
+            const eightPositions = new Set();
+            while (eightPositions.size < numEights) {
+                eightPositions.add(Math.floor(Math.random() * totalCells));
+            }
+
+            for (let i = 0; i < totalCells; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'noise-cell';
+
+                if (eightPositions.has(i)) {
+                    cell.textContent = '8';
+                    cell.dataset.isEight = 'true';
+                    noiseEights.push(i);
+                } else {
+                    cell.textContent = chars[Math.floor(Math.random() * chars.length)];
+                }
+
+                cell.onclick = () => clickNoiseCell(cell, i);
+                grid.appendChild(cell);
+            }
+
+            document.getElementById('total-eights').textContent = numEights;
+            document.getElementById('total-count').textContent = numEights;
+            document.getElementById('found-count').textContent = '0';
+            assessmentData.part4_total = numEights;
+        }
+
+        function startNoiseTest() {
+            document.getElementById('noise-start-btn').classList.add('hidden');
+            noiseStartTime = Date.now();
+            noiseTimer = setInterval(() => {
+                const elapsed = (Date.now() - noiseStartTime) / 1000;
+                document.getElementById('noise-timer').textContent = elapsed.toFixed(1);
+            }, 100);
+        }
+
+        function clickNoiseCell(cell, idx) {
+            if (!noiseTimer) return;
+            if (cell.classList.contains('found')) return;
+
+            if (cell.dataset.isEight === 'true') {
+                cell.classList.add('found');
+                foundEights++;
+                document.getElementById('found-count').textContent = foundEights;
+
+                if (foundEights >= noiseEights.length) {
+                    clearInterval(noiseTimer);
+                    const elapsed = (Date.now() - noiseStartTime) / 1000;
+                    assessmentData.part4_time = elapsed;
+                    assessmentData.part4_found = foundEights;
+                    document.getElementById('noise-next-btn').classList.remove('hidden');
+                }
+            }
+        }
+
+        // Generate Report
+        async function generateReport() {
+            // Calculate scores
+            const scores = calculateScores();
+
+            // Save to database
+            await saveAssessment(scores);
+
+            // Show report
+            nextStep(5);
+            renderReport(scores);
+        }
+
+        function calculateScores() {
+            // Part 1: Eye Tracking (100 if only option 0 selected, -25 for each bad option)
+            let part1Score = 100;
+            if (!assessmentData.part1_answers.includes(0)) part1Score -= 40;
+            if (assessmentData.part1_answers.includes(1)) part1Score -= 20;
+            if (assessmentData.part1_answers.includes(2)) part1Score -= 25;
+            if (assessmentData.part1_answers.includes(3)) part1Score -= 15;
+            part1Score = Math.max(0, part1Score);
+
+            // Part 2: Binocular Fusion
+            let part2Score = 100;
+            if (!assessmentData.part2_answers.includes(0)) part2Score -= 40;
+            if (assessmentData.part2_answers.includes(1)) part2Score -= 25;
+            if (assessmentData.part2_answers.includes(2)) part2Score -= 20;
+            if (assessmentData.part2_answers.includes(3)) part2Score -= 15;
+            part2Score = Math.max(0, part2Score);
+
+            // Part 3: Visual Span (based on time)
+            let part3Score = 100;
+            const time = assessmentData.part3_time;
+            if (time <= 20) part3Score = 100;
+            else if (time <= 25) part3Score = 85;
+            else if (time <= 35) part3Score = 65;
+            else if (time <= 40) part3Score = 45;
+            else part3Score = Math.max(20, 100 - time);
+
+            // Part 4: Noise (accuracy + time)
+            let part4Score = 100;
+            const accuracy = assessmentData.part4_found / assessmentData.part4_total;
+            part4Score = Math.round(accuracy * 100);
+            if (assessmentData.part4_time > 30) part4Score -= 10;
+            if (assessmentData.part4_time > 45) part4Score -= 10;
+            part4Score = Math.max(0, part4Score);
+
+            // Total weighted score
+            const total = Math.round((part1Score + part2Score + part3Score + part4Score) / 4);
+
+            return {
+                part1: part1Score,
+                part2: part2Score,
+                part3: part3Score,
+                part4: part4Score,
+                total: total
+            };
+        }
+
+        function renderReport(scores) {
+            // Child info
+            document.getElementById('report-child-info').textContent =
+                `${assessmentData.child_name}（${assessmentData.child_age}岁）| ${assessmentData.phone}`;
+
+            // Individual scores
+            const scoreColor = (s) => s >= 70 ? 'text-green-400' : s >= 50 ? 'text-yellow-400' : 'text-red-400';
+            document.getElementById('score-part1').className = `text-xl font-bold ${scoreColor(scores.part1)}`;
+            document.getElementById('score-part1').textContent = scores.part1 + '分';
+            document.getElementById('score-part2').className = `text-xl font-bold ${scoreColor(scores.part2)}`;
+            document.getElementById('score-part2').textContent = scores.part2 + '分';
+            document.getElementById('score-part3').className = `text-xl font-bold ${scoreColor(scores.part3)}`;
+            document.getElementById('score-part3').textContent = scores.part3 + '分';
+            document.getElementById('score-part4').className = `text-xl font-bold ${scoreColor(scores.part4)}`;
+            document.getElementById('score-part4').textContent = scores.part4 + '分';
+
+            // Total score
+            document.getElementById('total-score-display').className = `tech-font text-6xl font-bold ${scoreColor(scores.total)}`;
+            document.getElementById('total-score-display').textContent = scores.total;
+
+            let levelText = '';
+            if (scores.total >= 80) levelText = '<span class="text-green-400">优秀 - 视觉系统运转良好</span>';
+            else if (scores.total >= 60) levelText = '<span class="text-yellow-400">中等 - 需要针对性训练</span>';
+            else levelText = '<span class="text-red-400">警告 - 视觉系统急需维修！</span>';
+            document.getElementById('score-level').innerHTML = levelText;
+
+            // Diagnosis
+            let diagnosis = `家长，经过测试，${assessmentData.child_name}的眼睛（硬件）是好的，视力表能看清。但是！他的大脑视觉处理系统（软件）只有 ${scores.total} 分！`;
+
+            if (scores.part1 < 60) diagnosis += ' 眼动控制力严重不足，相当于5岁水平。';
+            if (scores.part2 < 60) diagnosis += ' 双眼融合能力差，大脑指挥不动眼部肌肉。';
+            if (scores.part3 < 60) diagnosis += ' 视觉广度严重滞后，阅读效率低。';
+            if (scores.part4 < 60) diagnosis += ' 视觉抗干扰能力弱，容易走神。';
+
+            diagnosis += ' 这就是他补课没用、写作业磨蹭的根本原因！这台"机器"如果不修，往里面灌再多知识也是漏的！';
+            document.getElementById('diagnosis-text').textContent = diagnosis;
+
+            // Prescription
+            let prescription = '建议参加 2980 元《脑视觉特训营》：';
+            if (scores.part1 < 70 || scores.part3 < 70) prescription += '【舒尔特方格特训】';
+            if (scores.part2 < 70) prescription += '【翻转拍+聚散球物理深蹲】';
+            if (scores.part4 < 70) prescription += '【Gabor阈值边缘训练】';
+            document.getElementById('prescription-text').textContent = prescription;
+
+            // Radar Chart
+            const ctx = document.getElementById('radar-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['眼动控制力', '融合调节力', '视觉广度', '抗干扰能力'],
+                    datasets: [{
+                        label: '得分',
+                        data: [scores.part1, scores.part2, scores.part3, scores.part4],
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderColor: 'rgba(6, 182, 212, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(6, 182, 212, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(6, 182, 212, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 25,
+                                color: '#71717a',
+                                backdropColor: 'transparent'
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            pointLabels: {
+                                color: '#a1a1aa',
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        async function saveAssessment(scores) {
+            try {
+                const payload = {
+                    phone: assessmentData.phone,
+                    child_name: assessmentData.child_name,
+                    child_age: assessmentData.child_age,
+                    part1_score: scores.part1,
+                    part1_answers: assessmentData.part1_answers,
+                    part2_score: scores.part2,
+                    part2_answers: assessmentData.part2_answers,
+                    part3_score: scores.part3,
+                    part3_time: assessmentData.part3_time,
+                    part4_score: scores.part4,
+                    part4_found: assessmentData.part4_found,
+                    part4_total: assessmentData.part4_total,
+                    part4_time: assessmentData.part4_time,
+                    total_score: scores.total
+                };
+
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/vision_assessments`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    console.error('Save failed:', await res.text());
+                } else {
+                    console.log('Assessment saved successfully');
+                }
+            } catch (e) {
+                console.error('Save error:', e);
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+
+</html>

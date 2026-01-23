@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉体检数据后台 - 连长指挥室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+        }
+
+        .tech-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-6">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-black text-white tracking-tight">视觉体检数据 · <span
+                        class="text-cyan-400">后台分析</span></h1>
+                <p class="text-zinc-500 text-sm mt-1">鹰眼特种兵·脑视觉雷达体检 结果查看</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="admin_monitor.html" class="text-xs text-zinc-500 hover:text-white transition-colors">←
+                    返回学员监控</a>
+                <button onclick="refreshData()"
+                    class="p-3 bg-zinc-900 rounded-xl hover:bg-zinc-800 transition-colors border border-zinc-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                        <path d="M3 21v-5h5" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-panel p-6 rounded-3xl">
+                <p class="text-zinc-500 text-xs mb-1 uppercase font-mono tracking-widest">总测评数</p>
+                <p class="text-3xl font-black text-white" id="stat-total">--</p>
+            </div>
+            <div class="glass-panel p-6 rounded-3xl">
+                <p class="text-zinc-500 text-xs mb-1 uppercase font-mono tracking-widest">今日新增</p>
+                <p class="text-3xl font-black text-cyan-400" id="stat-today">--</p>
+            </div>
+            <div class="glass-panel p-6 rounded-3xl">
+                <p class="text-zinc-500 text-xs mb-1 uppercase font-mono tracking-widest">平均总分</p>
+                <p class="text-3xl font-black text-yellow-400" id="stat-avg">--</p>
+            </div>
+            <div class="glass-panel p-6 rounded-3xl">
+                <p class="text-zinc-500 text-xs mb-1 uppercase font-mono tracking-widest">需干预率</p>
+                <p class="text-3xl font-black text-red-400" id="stat-risk">--</p>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="glass-panel rounded-3xl p-6 mb-8">
+            <div class="flex gap-4">
+                <input type="text" id="search-input" placeholder="搜索手机号或姓名..."
+                    class="flex-1 bg-black/50 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                <button onclick="searchData()"
+                    class="px-6 bg-cyan-500 text-black font-bold rounded-xl hover:bg-cyan-400 transition-colors">
+                    搜索
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="glass-panel rounded-[32px] overflow-hidden">
+            <div class="p-6 border-b border-white/5">
+                <h2 class="text-lg font-bold">测评记录列表</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-zinc-900/50 text-zinc-500 text-[10px] uppercase tracking-widest font-mono">
+                            <th class="px-6 py-4">测评时间</th>
+                            <th class="px-6 py-4">手机号</th>
+                            <th class="px-6 py-4">孩子姓名</th>
+                            <th class="px-6 py-4">年龄</th>
+                            <th class="px-6 py-4">眼动</th>
+                            <th class="px-6 py-4">融合</th>
+                            <th class="px-6 py-4">广度</th>
+                            <th class="px-6 py-4">抗扰</th>
+                            <th class="px-6 py-4">总分</th>
+                            <th class="px-6 py-4 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-tbody" class="divide-y divide-white/5">
+                        <tr>
+                            <td colspan="10" class="px-6 py-20 text-center text-zinc-600">正在加载数据...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 hidden">
+        <div class="w-full max-w-lg glass-panel rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">详细报告</h3>
+                <button onclick="closeModal()" class="text-zinc-500 hover:text-white">✕</button>
+            </div>
+
+            <div class="text-center mb-6">
+                <p class="text-lg font-bold text-white" id="modal-name">--</p>
+                <p class="text-sm text-zinc-500" id="modal-info">--</p>
+            </div>
+
+            <!-- Radar Chart -->
+            <div class="flex justify-center mb-6">
+                <div class="w-56 h-56">
+                    <canvas id="modal-radar"></canvas>
+                </div>
+            </div>
+
+            <!-- Scores -->
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="glass-panel rounded-xl p-4 text-center">
+                    <p class="text-xs text-zinc-500 mb-1">眼动控制力</p>
+                    <p class="text-xl font-bold" id="modal-p1">--</p>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center">
+                    <p class="text-xs text-zinc-500 mb-1">融合调节力</p>
+                    <p class="text-xl font-bold" id="modal-p2">--</p>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center">
+                    <p class="text-xs text-zinc-500 mb-1">视觉广度</p>
+                    <p class="text-xl font-bold" id="modal-p3">--</p>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center">
+                    <p class="text-xs text-zinc-500 mb-1">抗干扰能力</p>
+                    <p class="text-xl font-bold" id="modal-p4">--</p>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <p class="text-xs text-zinc-500 mb-1">总评分</p>
+                <p class="tech-font text-4xl font-bold" id="modal-total">--</p>
+            </div>
+
+            <div class="mt-6 glass-panel rounded-xl p-4">
+                <p class="text-xs text-zinc-500 mb-2">舒尔特用时</p>
+                <p class="font-bold" id="modal-time">--</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
+
+        let allData = [];
+        let modalChart = null;
+
+        async function refreshData() {
+            const tbody = document.getElementById('data-tbody');
+            tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-20 text-center text-zinc-600">正在加载数据...</td></tr>';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/vision_assessments?select=*&order=created_at.desc`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+                });
+                const data = await res.json();
+
+                if (data.error) throw new Error(data.error.message);
+                if (!Array.isArray(data)) throw new Error('数据格式错误');
+
+                allData = data;
+                renderTable(data);
+                updateStats(data);
+
+            } catch (e) {
+                console.error('Load failed:', e);
+                tbody.innerHTML = `<tr><td colspan="10" class="px-6 py-20 text-center text-red-500">${e.message}</td></tr>`;
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('data-tbody');
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-20 text-center text-zinc-600">暂无数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach((item, idx) => {
+                const scoreColor = (s) => s >= 70 ? 'text-green-400' : s >= 50 ? 'text-yellow-400' : 'text-red-400';
+                const date = new Date(item.created_at).toLocaleString('zh-CN', {
+                    month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+                });
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-white/5 transition-colors';
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-zinc-400 text-sm">${date}</td>
+                    <td class="px-6 py-4 font-mono text-sm">${item.phone}</td>
+                    <td class="px-6 py-4 font-bold text-white">${item.child_name}</td>
+                    <td class="px-6 py-4 text-zinc-400">${item.child_age}岁</td>
+                    <td class="px-6 py-4 ${scoreColor(item.part1_score)}">${item.part1_score}</td>
+                    <td class="px-6 py-4 ${scoreColor(item.part2_score)}">${item.part2_score}</td>
+                    <td class="px-6 py-4 ${scoreColor(item.part3_score)}">${item.part3_score}</td>
+                    <td class="px-6 py-4 ${scoreColor(item.part4_score)}">${item.part4_score}</td>
+                    <td class="px-6 py-4 font-bold ${scoreColor(item.total_score)}">${item.total_score}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="showDetail(${idx})" class="text-[10px] font-black uppercase tracking-tighter text-zinc-500 border border-zinc-800 px-3 py-1 rounded hover:text-white hover:border-zinc-400 transition-all">
+                            查看
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-total').textContent = data.length;
+
+            // Today count
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = data.filter(d => d.created_at.startsWith(today)).length;
+            document.getElementById('stat-today').textContent = todayCount;
+
+            // Average score
+            if (data.length > 0) {
+                const avg = Math.round(data.reduce((sum, d) => sum + d.total_score, 0) / data.length);
+                document.getElementById('stat-avg').textContent = avg;
+
+                // Risk rate (score < 60)
+                const riskCount = data.filter(d => d.total_score < 60).length;
+                const riskRate = Math.round((riskCount / data.length) * 100);
+                document.getElementById('stat-risk').textContent = riskRate + '%';
+            }
+        }
+
+        function searchData() {
+            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            if (!query) {
+                renderTable(allData);
+                return;
+            }
+
+            const filtered = allData.filter(d =>
+                d.phone.includes(query) || d.child_name.toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        }
+
+        function showDetail(idx) {
+            const item = allData[idx];
+            if (!item) return;
+
+            document.getElementById('modal-name').textContent = item.child_name;
+            document.getElementById('modal-info').textContent = `${item.child_age}岁 | ${item.phone} | ${new Date(item.created_at).toLocaleString('zh-CN')}`;
+
+            const scoreColor = (s) => s >= 70 ? 'text-green-400' : s >= 50 ? 'text-yellow-400' : 'text-red-400';
+            document.getElementById('modal-p1').className = `text-xl font-bold ${scoreColor(item.part1_score)}`;
+            document.getElementById('modal-p1').textContent = item.part1_score + '分';
+            document.getElementById('modal-p2').className = `text-xl font-bold ${scoreColor(item.part2_score)}`;
+            document.getElementById('modal-p2').textContent = item.part2_score + '分';
+            document.getElementById('modal-p3').className = `text-xl font-bold ${scoreColor(item.part3_score)}`;
+            document.getElementById('modal-p3').textContent = item.part3_score + '分';
+            document.getElementById('modal-p4').className = `text-xl font-bold ${scoreColor(item.part4_score)}`;
+            document.getElementById('modal-p4').textContent = item.part4_score + '分';
+
+            document.getElementById('modal-total').className = `tech-font text-4xl font-bold ${scoreColor(item.total_score)}`;
+            document.getElementById('modal-total').textContent = item.total_score;
+
+            document.getElementById('modal-time').textContent = item.part3_time ? `${item.part3_time.toFixed(1)}秒` : '--';
+
+            // Render radar chart
+            if (modalChart) modalChart.destroy();
+            const ctx = document.getElementById('modal-radar').getContext('2d');
+            modalChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['眼动', '融合', '广度', '抗扰'],
+                    datasets: [{
+                        data: [item.part1_score, item.part2_score, item.part3_score, item.part4_score],
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderColor: 'rgba(6, 182, 212, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(6, 182, 212, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 25, color: '#71717a', backdropColor: 'transparent' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#a1a1aa', font: { size: 10 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // Init
+        refreshData();
+    </script>
+</body>
+
+</html>
