@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Back 记忆特训 | 脑力雷达升级站</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+        }
+
+        .tech-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: rgba(24, 24, 27, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.15s ease;
+        }
+
+        .grid-cell.active {
+            background: linear-gradient(135deg, #06b6d4, #10b981);
+            border-color: #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-match {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.2s ease;
+        }
+
+        .btn-match:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-match:active {
+            transform: scale(0.95);
+        }
+
+        .btn-no-match {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            transition: all 0.2s ease;
+        }
+
+        .btn-no-match:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-no-match:active {
+            transform: scale(0.95);
+        }
+
+        .feedback-correct {
+            animation: flashGreen 0.3s ease;
+        }
+
+        .feedback-wrong {
+            animation: flashRed 0.3s ease;
+        }
+
+        @keyframes flashGreen {
+
+            0%,
+            100% {
+                background: transparent;
+            }
+
+            50% {
+                background: rgba(16, 185, 129, 0.3);
+            }
+        }
+
+        @keyframes flashRed {
+
+            0%,
+            100% {
+                background: transparent;
+            }
+
+            50% {
+                background: rgba(239, 68, 68, 0.3);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
+            }
+        }
+
+        .score-pop {
+            animation: scorePop 0.5s ease;
+        }
+
+        @keyframes scorePop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+    <div class="max-w-lg mx-auto">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div
+                class="inline-block px-4 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
+                🧠 认知特训模块
+            </div>
+            <h1 class="tech-font text-2xl md:text-3xl text-white mb-2">
+                N-Back <span class="text-cyan-400">记忆雷达</span>
+            </h1>
+            <p class="text-zinc-500 text-sm">判断当前方块位置是否与 N 步前相同</p>
+        </header>
+
+        <!-- Game Container -->
+        <div id="game-container">
+
+            <!-- Start Screen -->
+            <div id="start-screen" class="glass-panel rounded-3xl p-8 text-center">
+                <div
+                    class="w-20 h-20 bg-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl pulse-glow">
+                    🎯
+                </div>
+                <h2 class="text-xl font-bold text-white mb-4">选择难度等级</h2>
+                <p class="text-zinc-500 text-sm mb-6">N 值越大，需要记住更多步骤，难度越高</p>
+
+                <div class="grid grid-cols-3 gap-3 mb-8">
+                    <button onclick="startGame(1)"
+                        class="glass-panel rounded-xl p-4 hover:border-cyan-500 border border-transparent transition-all">
+                        <p class="tech-font text-2xl text-cyan-400 mb-1">1</p>
+                        <p class="text-xs text-zinc-500">新兵</p>
+                    </button>
+                    <button onclick="startGame(2)"
+                        class="glass-panel rounded-xl p-4 hover:border-green-500 border border-transparent transition-all">
+                        <p class="tech-font text-2xl text-green-400 mb-1">2</p>
+                        <p class="text-xs text-zinc-500">战士</p>
+                    </button>
+                    <button onclick="startGame(3)"
+                        class="glass-panel rounded-xl p-4 hover:border-yellow-500 border border-transparent transition-all">
+                        <p class="tech-font text-2xl text-yellow-400 mb-1">3</p>
+                        <p class="text-xs text-zinc-500">精英</p>
+                    </button>
+                </div>
+
+                <div class="glass-panel rounded-xl p-4 text-left">
+                    <p class="text-xs text-zinc-500 mb-2">📖 游戏规则</p>
+                    <ul class="text-xs text-zinc-400 space-y-1">
+                        <li>• 观察方块出现的位置</li>
+                        <li>• 判断当前位置是否与 <span class="text-cyan-400">N 步前</span> 相同</li>
+                        <li>• 相同点"匹配"，不同点"不匹配"</li>
+                        <li>• 连续正确可获得更高分数</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Playing Screen -->
+            <div id="play-screen" class="hidden">
+                <!-- Stats Bar -->
+                <div class="flex justify-between items-center mb-6">
+                    <div class="glass-panel rounded-xl px-4 py-2">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest">难度</p>
+                        <p class="tech-font text-lg text-cyan-400" id="current-n">N-2</p>
+                    </div>
+                    <div class="glass-panel rounded-xl px-4 py-2 text-center">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest">回合</p>
+                        <p class="tech-font text-lg text-white"><span id="current-round">1</span> / <span
+                                id="total-rounds">20</span></p>
+                    </div>
+                    <div class="glass-panel rounded-xl px-4 py-2 text-right">
+                        <p class="text-[10px] text-zinc-500 uppercase tracking-widest">得分</p>
+                        <p class="tech-font text-lg text-green-400" id="current-score">0</p>
+                    </div>
+                </div>
+
+                <!-- Accuracy Bar -->
+                <div class="glass-panel rounded-xl p-3 mb-6">
+                    <div class="flex justify-between text-xs text-zinc-500 mb-2">
+                        <span>正确率</span>
+                        <span id="accuracy-text">0%</span>
+                    </div>
+                    <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                        <div id="accuracy-bar"
+                            class="h-full bg-gradient-to-r from-cyan-500 to-green-500 transition-all duration-300"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- 3x3 Grid -->
+                <div id="feedback-container" class="glass-panel rounded-3xl p-6 mb-6">
+                    <div class="grid grid-cols-3 gap-3" id="game-grid">
+                        <div class="grid-cell" data-pos="0"></div>
+                        <div class="grid-cell" data-pos="1"></div>
+                        <div class="grid-cell" data-pos="2"></div>
+                        <div class="grid-cell" data-pos="3"></div>
+                        <div class="grid-cell" data-pos="4"></div>
+                        <div class="grid-cell" data-pos="5"></div>
+                        <div class="grid-cell" data-pos="6"></div>
+                        <div class="grid-cell" data-pos="7"></div>
+                        <div class="grid-cell" data-pos="8"></div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="grid grid-cols-2 gap-4 mb-6" id="control-buttons">
+                    <button onclick="respond(true)"
+                        class="btn-match text-white font-black py-5 rounded-2xl text-lg shadow-lg">
+                        ✅ 匹配
+                    </button>
+                    <button onclick="respond(false)"
+                        class="btn-no-match text-white font-black py-5 rounded-2xl text-lg shadow-lg">
+                        ❌ 不匹配
+                    </button>
+                </div>
+
+                <!-- Info -->
+                <p class="text-center text-xs text-zinc-600" id="hint-text">观察方块位置...</p>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="glass-panel rounded-3xl p-8 text-center hidden">
+                <div
+                    class="w-20 h-20 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">
+                    🏆
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">训练完成！</h2>
+                <p class="text-zinc-500 text-sm mb-6" id="result-subtitle">表现优秀，继续保持！</p>
+
+                <!-- Score Display -->
+                <div class="glass-panel rounded-2xl p-6 mb-6">
+                    <p class="text-xs text-zinc-500 uppercase tracking-widest mb-2">最终得分</p>
+                    <p class="tech-font text-5xl font-bold text-cyan-400" id="final-score">0</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-3 gap-3 mb-8">
+                    <div class="glass-panel rounded-xl p-4">
+                        <p class="text-lg font-bold text-green-400" id="stat-correct">0</p>
+                        <p class="text-[10px] text-zinc-500">正确</p>
+                    </div>
+                    <div class="glass-panel rounded-xl p-4">
+                        <p class="text-lg font-bold text-red-400" id="stat-wrong">0</p>
+                        <p class="text-[10px] text-zinc-500">错误</p>
+                    </div>
+                    <div class="glass-panel rounded-xl p-4">
+                        <p class="text-lg font-bold text-yellow-400" id="stat-accuracy">0%</p>
+                        <p class="text-[10px] text-zinc-500">正确率</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button onclick="restartGame()"
+                        class="w-full bg-gradient-to-r from-cyan-500 to-green-500 text-black font-black py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-95">
+                        🔄 再来一局
+                    </button>
+                    <button onclick="backToStart()"
+                        class="w-full glass-panel text-zinc-400 font-bold py-4 rounded-xl transition-all hover:text-white">
+                        ← 返回选择难度
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-8">
+            <a href="index.html" class="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">← 返回工具箱</a>
+        </footer>
+
+    </div>
+
+    <script>
+        // Game State
+        let nLevel = 2;
+        let positions = [];
+        let currentRound = 0;
+        let totalRounds = 20;
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let isWaiting = false;
+        let gameTimer = null;
+
+        // Start Game
+        function startGame(n) {
+            nLevel = n;
+            positions = [];
+            currentRound = 0;
+            score = 0;
+            correctCount = 0;
+            wrongCount = 0;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('play-screen').classList.remove('hidden');
+
+            document.getElementById('current-n').textContent = `N-${n}`;
+            document.getElementById('current-score').textContent = '0';
+            updateAccuracy();
+
+            nextRound();
+        }
+
+        // Next Round
+        function nextRound() {
+            currentRound++;
+            document.getElementById('current-round').textContent = currentRound;
+
+            if (currentRound > totalRounds) {
+                endGame();
+                return;
+            }
+
+            // Generate random position (0-8)
+            const newPos = Math.floor(Math.random() * 9);
+            positions.push(newPos);
+
+            // Show the block
+            showBlock(newPos);
+
+            // Check if we can ask for a match (need at least n+1 rounds)
+            if (currentRound <= nLevel) {
+                document.getElementById('hint-text').textContent = `观察位置... (还需 ${nLevel - currentRound + 1} 步后开始判断)`;
+                document.getElementById('control-buttons').style.opacity = '0.3';
+                document.getElementById('control-buttons').style.pointerEvents = 'none';
+
+                // Auto advance after showing
+                gameTimer = setTimeout(() => {
+                    clearBlock();
+                    setTimeout(nextRound, 500);
+                }, 1500);
+            } else {
+                document.getElementById('hint-text').textContent = `与 ${nLevel} 步前的位置相同吗？`;
+                document.getElementById('control-buttons').style.opacity = '1';
+                document.getElementById('control-buttons').style.pointerEvents = 'auto';
+                isWaiting = true;
+            }
+        }
+
+        // Show block at position
+        function showBlock(pos) {
+            clearBlock();
+            const cells = document.querySelectorAll('.grid-cell');
+            cells[pos].classList.add('active');
+        }
+
+        // Clear all blocks
+        function clearBlock() {
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(c => c.classList.remove('active'));
+        }
+
+        // Player response
+        function respond(isMatch) {
+            if (!isWaiting) return;
+            isWaiting = false;
+
+            const currentPos = positions[positions.length - 1];
+            const nBackPos = positions[positions.length - 1 - nLevel];
+            const actualMatch = currentPos === nBackPos;
+
+            const container = document.getElementById('feedback-container');
+
+            if (isMatch === actualMatch) {
+                // Correct!
+                correctCount++;
+                score += 10 + (correctCount * 2); // Bonus for streak
+                container.classList.add('feedback-correct');
+                document.getElementById('current-score').classList.add('score-pop');
+            } else {
+                // Wrong!
+                wrongCount++;
+                score = Math.max(0, score - 5);
+                container.classList.add('feedback-wrong');
+            }
+
+            document.getElementById('current-score').textContent = score;
+            updateAccuracy();
+
+            // Clear feedback
+            setTimeout(() => {
+                container.classList.remove('feedback-correct', 'feedback-wrong');
+                document.getElementById('current-score').classList.remove('score-pop');
+                clearBlock();
+                setTimeout(nextRound, 300);
+            }, 500);
+        }
+
+        // Update accuracy display
+        function updateAccuracy() {
+            const total = correctCount + wrongCount;
+            const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+            document.getElementById('accuracy-text').textContent = accuracy + '%';
+            document.getElementById('accuracy-bar').style.width = accuracy + '%';
+        }
+
+        // End game
+        function endGame() {
+            clearTimeout(gameTimer);
+            document.getElementById('play-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const total = correctCount + wrongCount;
+            const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('stat-correct').textContent = correctCount;
+            document.getElementById('stat-wrong').textContent = wrongCount;
+            document.getElementById('stat-accuracy').textContent = accuracy + '%';
+
+            // Subtitle based on performance
+            let subtitle = '';
+            if (accuracy >= 90) subtitle = '🎖️ 王牌水准！记忆力超强！';
+            else if (accuracy >= 70) subtitle = '💪 表现不错，继续训练！';
+            else if (accuracy >= 50) subtitle = '🔧 还需努力，多加练习！';
+            else subtitle = '📚 需要更多训练来提升记忆力';
+            document.getElementById('result-subtitle').textContent = subtitle;
+
+            // Save result (optional - for future integration)
+            saveResult(score, accuracy);
+        }
+
+        // Restart with same difficulty
+        function restartGame() {
+            startGame(nLevel);
+        }
+
+        // Back to start screen
+        function backToStart() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('play-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        // Save result (placeholder for Supabase integration)
+        async function saveResult(score, accuracy) {
+            // Could integrate with training_logs table in the future
+            console.log(`Game completed: Score=${score}, Accuracy=${accuracy}%, N=${nLevel}`);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (!isWaiting) return;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                respond(true);
+            } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                respond(false);
+            }
+        });
+    </script>
+</body>
+
+</html>
