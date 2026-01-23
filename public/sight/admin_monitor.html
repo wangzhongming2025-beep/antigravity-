@@ -108,6 +108,7 @@
                             <th class="px-6 py-4">今日 Gabor</th>
                             <th class="px-6 py-4">今日专注力</th>
                             <th class="px-6 py-4">连续打卡</th>
+                            <th class="px-6 py-4">获赞数</th>
                             <th class="px-6 py-4">状态</th>
                             <th class="px-6 py-4 text-center">操作</th>
                         </tr>
@@ -115,10 +116,22 @@
                     <tbody id="monitor-tbody" class="divide-y divide-white/5">
                         <!-- Loaded by JS -->
                         <tr>
-                            <td colspan="7" class="px-6 py-20 text-center text-zinc-600">正在同步战区数据...</td>
+                            <td colspan="8" class="px-6 py-20 text-center text-zinc-600">正在同步战区数据...</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="reward-toast"
+        class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-500 pointer-events-none">
+        <div class="glass-panel px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl border-green-500/30 border">
+            <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-2xl">🎖️</div>
+            <div>
+                <p class="text-white font-bold text-sm">表扬成功！</p>
+                <p class="text-zinc-400 text-xs" id="reward-toast-msg">已记录奖励</p>
             </div>
         </div>
     </div>
@@ -127,6 +140,69 @@
     <script>
         const SUPABASE_URL = 'https://oqwqlrmqblguiikrsmjf.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
+
+        // Store all rewards for display
+        let allRewards = {};
+
+        // Show success toast
+        function showRewardToast(traineeName) {
+            const toast = document.getElementById('reward-toast');
+            document.getElementById('reward-toast-msg').innerText = `${traineeName} +1 🎉`;
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                toast.classList.remove('translate-x-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Give reward to a trainee
+        async function giveReward(traineeId, traineeName) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = '发送中...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/training_logs`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        trainee_id: traineeId,
+                        project_name: 'reward',
+                        score: '1',
+                        duration: 0
+                    })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.message || '发送失败');
+                }
+
+                showRewardToast(traineeName);
+
+                // Add confetti effect on the button
+                btn.innerText = '✅ 已表扬';
+                btn.classList.add('text-green-400', 'border-green-500/50');
+
+                // Refresh data after a short delay
+                setTimeout(() => {
+                    refreshData();
+                }, 1000);
+
+            } catch (e) {
+                console.error('Reward failed:', e);
+                alert('表扬发送失败: ' + e.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
 
         async function refreshData() {
             const tbody = document.getElementById('monitor-tbody');
@@ -151,14 +227,29 @@
                 if (logs.error) throw new Error(`记录表错误: ${logs.error.message}`);
                 if (!Array.isArray(logs)) throw new Error('记录表返回格式错误 (非数组)');
 
-                // 3. Map logs to trainees
+                // 3. Fetch ALL reward records (not just today)
+                const rRes = await fetch(`${SUPABASE_URL}/rest/v1/training_logs?project_name=eq.reward&select=trainee_id`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+                });
+                const rewards = await rRes.json();
+
+                // Count rewards per trainee
+                allRewards = {};
+                if (Array.isArray(rewards)) {
+                    rewards.forEach(r => {
+                        allRewards[r.trainee_id] = (allRewards[r.trainee_id] || 0) + 1;
+                    });
+                }
+
+                // 4. Map logs to trainees
                 tbody.innerHTML = '';
                 let activeCount = 0;
 
                 trainees.forEach(t => {
-                    const tLogs = logs.filter(l => l.trainee_id === t.trainee_id);
+                    const tLogs = logs.filter(l => l.trainee_id === t.trainee_id && l.project_name !== 'reward');
                     const gaborLogs = tLogs.filter(l => l.project_name === 'gabor');
                     const schulteLogs = tLogs.filter(l => l.project_name.startsWith('schulte'));
+                    const rewardCount = allRewards[t.trainee_id] || 0;
 
                     if (tLogs.length > 0) activeCount++;
 
@@ -179,13 +270,20 @@
                         </td>
                         <td class="px-6 py-6 font-bold text-white">-- 天</td>
                         <td class="px-6 py-6">
+                            ${rewardCount > 0
+                            ? `<span class="inline-flex items-center gap-1 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                                   <span class="text-base">🎖️</span> ${rewardCount}
+                               </span>`
+                            : `<span class="text-zinc-700 text-xs">--</span>`}
+                        </td>
+                        <td class="px-6 py-6">
                             <div class="flex items-center gap-2">
                                 <div class="${tLogs.length > 0 ? 'success-dot' : 'fail-dot'}"></div>
                                 <span class="text-xs ${tLogs.length > 0 ? 'text-green-400' : 'text-red-400'}">${tLogs.length > 0 ? '优秀' : '掉队'}</span>
                             </div>
                         </td>
                         <td class="px-6 py-6 text-center">
-                            <button onclick="alert('奖励机制开发中...')" class="text-[10px] font-black uppercase tracking-tighter text-zinc-500 border border-zinc-800 px-3 py-1 rounded hover:text-white hover:border-zinc-400 transition-all">
+                            <button onclick="giveReward('${t.trainee_id}', '${t.name || '学员'}')" class="text-[10px] font-black uppercase tracking-tighter text-zinc-500 border border-zinc-800 px-3 py-1 rounded hover:text-white hover:border-zinc-400 transition-all hover:bg-zinc-800/50">
                                 [ 表扬一次 ]
                             </button>
                         </td>
@@ -197,7 +295,7 @@
 
             } catch (e) {
                 console.error('Refresh failed:', e);
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-20 text-center text-red-500 font-bold">同步失败: ${e.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-20 text-center text-red-500 font-bold">同步失败: ${e.message}</td></tr>`;
                 document.getElementById('total-trainees').innerText = 'Error';
                 document.getElementById('today-active').innerText = 'Error';
             }
