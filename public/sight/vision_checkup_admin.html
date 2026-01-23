@@ -185,10 +185,32 @@
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/vision_assessments?select=*&order=created_at.desc`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
                 });
+
+                // Check HTTP status first
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        throw new Error('数据表不存在，请先在 Supabase 后台创建 vision_assessments 表');
+                    }
+                    throw new Error(`请求失败 (${res.status})`);
+                }
+
                 const data = await res.json();
 
-                if (data.error) throw new Error(data.error.message);
-                if (!Array.isArray(data)) throw new Error('数据格式错误');
+                // Handle Supabase error object
+                if (data && data.code) {
+                    if (data.code === '42P01' || data.message?.includes('does not exist')) {
+                        throw new Error('数据表不存在，请先在 Supabase 后台创建 vision_assessments 表');
+                    }
+                    throw new Error(data.message || '数据库错误');
+                }
+
+                if (!Array.isArray(data)) {
+                    // Empty result is ok, just treat as empty array
+                    allData = [];
+                    renderTable([]);
+                    updateStats([]);
+                    return;
+                }
 
                 allData = data;
                 renderTable(data);
