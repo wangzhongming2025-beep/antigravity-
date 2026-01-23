@@ -150,7 +150,7 @@
             <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden mb-8">
                 <div id="progress-indicator"
                     class="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-500"
-                    style="width: 10%"></div>
+                    style="width: 5%"></div>
             </div>
 
             <button onclick="submitGaborSession()"
@@ -222,6 +222,8 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
+        let isProcessing = false;
+
         function nextLevel() {
             const angles = [0, 45, 90, 135];
             gameState.targetAngle = angles[Math.floor(Math.random() * angles.length)];
@@ -232,14 +234,25 @@
             // Frequency slightly increases to make it harder to focus
             gameState.freq = 0.06 + (gameState.level * 0.002);
 
+            // Update UI
             document.getElementById('level-display').innerText = gameState.level;
-            document.getElementById('contrast-val').innerText = Math.round(gameState.contrast * 100) + '%';
-            document.getElementById('progress-indicator').style.width = Math.min(100, (gameState.level * 5)) + '%';
+
+            // Calculate progress (capped at 100%)
+            // Level 1 = 5%, Level 20 = 100%
+            let activationDepth = gameState.level * 5;
+            if (activationDepth > 100) activationDepth = 100;
+
+            document.getElementById('contrast-val').innerText = activationDepth + '%';
+            document.getElementById('progress-indicator').style.width = activationDepth + '%';
 
             drawGabor(gameState.targetAngle, gameState.contrast, gameState.freq, gameState.sigma);
+            isProcessing = false; // Unlock input
         }
 
         function checkAnswer(selectedAngle) {
+            if (isProcessing) return;
+            isProcessing = true;
+
             const hint = document.getElementById('status-hint');
             const text = document.getElementById('status-text');
             const container = document.getElementById('canvas-container');
@@ -256,7 +269,10 @@
                 container.classList.add('success-flash');
                 setTimeout(() => container.classList.remove('success-flash'), 500);
             } else {
-                gameState.level = Math.max(1, gameState.level - 1);
+                // Drop level on mistake
+                if (gameState.level > 1) {
+                    gameState.level--;
+                }
                 gameState.score = 0;
                 text.innerText = "干扰偏差";
                 text.className = "text-2xl font-bold uppercase italic tracking-tighter text-red-400";
