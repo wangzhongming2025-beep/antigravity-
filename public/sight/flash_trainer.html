@@ -500,7 +500,8 @@
             if (gameMode === 'number') {
                 flashEl.innerHTML = `<span class="flash-active">${currentContent}</span>`;
             } else if (gameMode === 'shape') {
-                flashEl.innerHTML = `<div class="shape-display">${currentContent.split('').map(s => `<span class="shape-item">${shapes[parseInt(s)]}</span>`).join('')}</div>`;
+                const indices = currentContent.split(',');
+                flashEl.innerHTML = `<div class="shape-display">${indices.map(i => `<span class="shape-item">${shapes[parseInt(i)]}</span>`).join('')}</div>`;
             } else if (gameMode === 'color') {
                 const colorNames = currentContent.split(',');
                 flashEl.innerHTML = `<div class="flex gap-4">${colorNames.map(c => `<div style="width:50px;height:50px;background:${colorMap[c]};border-radius:8px;"></div>`).join('')}</div>`;
@@ -523,11 +524,12 @@
                 }
                 return num;
             } else if (gameMode === 'shape') {
-                let indices = '';
+                // Use comma-separated format for consistency
+                const selected = [];
                 for (let i = 0; i < currentDigits; i++) {
-                    indices += Math.floor(Math.random() * shapes.length);
+                    selected.push(Math.floor(Math.random() * shapes.length).toString());
                 }
-                return indices;
+                return selected.join(',');
             } else if (gameMode === 'color') {
                 const selected = [];
                 for (let i = 0; i < currentDigits; i++) {
@@ -634,7 +636,7 @@
             if (gameMode === 'number') {
                 userAnswer = document.getElementById('answer-input').value.trim();
             } else if (gameMode === 'shape') {
-                userAnswer = selectedAnswers.join('');
+                userAnswer = selectedAnswers.join(',');
             } else if (gameMode === 'color') {
                 userAnswer = selectedAnswers.join(',');
             }
@@ -673,7 +675,7 @@
             if (gameMode === 'number') {
                 answerDisplay = correctAnswer;
             } else if (gameMode === 'shape') {
-                answerDisplay = correctAnswer.split('').map(i => shapes[parseInt(i)]).join(' ');
+                answerDisplay = correctAnswer.split(',').map(i => shapes[parseInt(i)]).join(' ');
             } else if (gameMode === 'color') {
                 answerDisplay = correctAnswer.split(',').join(' → ');
             }
