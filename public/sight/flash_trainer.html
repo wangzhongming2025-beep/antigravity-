@@ -394,7 +394,7 @@
         let currentContent = '';
         let selectedAnswers = [];
 
-        const shapes = ['🔴', '🟢', '🔵', '🟡', '🟣', '🟠', '⬛', '⬜'];
+        const shapes = ['■', '▲', '●', '★', '✚', '◆', '❤', '🌙'];
         const colors = ['红', '绿', '蓝', '黄', '紫', '橙', '黑', '白'];
         const colorMap = {
             '红': '#ef4444', '绿': '#22c55e', '蓝': '#3b82f6',
@@ -497,14 +497,22 @@
 
             // Show flash
             const flashEl = document.getElementById('flash-content');
+
+            // Handle CSS class for text effect
+            if (gameMode === 'color') {
+                flashEl.classList.remove('flash-active');
+            } else {
+                flashEl.classList.add('flash-active');
+            }
+
             if (gameMode === 'number') {
-                flashEl.innerHTML = `<span class="flash-active">${currentContent}</span>`;
+                flashEl.innerHTML = `<span>${currentContent}</span>`;
             } else if (gameMode === 'shape') {
                 const indices = currentContent.split(',');
                 flashEl.innerHTML = `<div class="shape-display">${indices.map(i => `<span class="shape-item">${shapes[parseInt(i)]}</span>`).join('')}</div>`;
             } else if (gameMode === 'color') {
                 const colorNames = currentContent.split(',');
-                flashEl.innerHTML = `<div class="flex gap-4">${colorNames.map(c => `<div style="width:50px;height:50px;background:${colorMap[c]};border-radius:8px;"></div>`).join('')}</div>`;
+                flashEl.innerHTML = `<div class="flex gap-4">${colorNames.map(c => `<div style="width:60px;height:60px;background:${colorMap[c]};border-radius:12px;box-shadow:0 0 20px -5px ${colorMap[c]}"></div>`).join('')}</div>`;
             }
 
             document.getElementById('flash-state').classList.remove('hidden');
