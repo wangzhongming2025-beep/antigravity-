@@ -321,8 +321,12 @@
         let score = 0;
         let correctCount = 0;
         let wrongCount = 0;
+        let currentStreak = 0; // New: Track consecutive correct answers
         let isWaiting = false;
         let gameTimer = null;
+
+        // Constants
+        const TARGET_PROB = 0.35; // 35% chance to force a match
 
         // Start Game
         function startGame(n) {
@@ -332,6 +336,7 @@
             score = 0;
             correctCount = 0;
             wrongCount = 0;
+            currentStreak = 0;
 
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.add('hidden');
@@ -354,8 +359,33 @@
                 return;
             }
 
-            // Generate random position (0-8)
-            const newPos = Math.floor(Math.random() * 9);
+            let newPos;
+            const canMatch = currentRound > nLevel; // Can we have a match?
+
+            // Logic to determine new position
+            if (canMatch && Math.random() < TARGET_PROB) {
+                // Force a match
+                newPos = positions[positions.length - nLevel];
+                // console.log(`Round ${currentRound}: Forced Match at pos ${newPos}`);
+            } else {
+                // Random position
+                // Important: If we CAN match, we should try to avoid accidental match if appropriate,
+                // BUT standard N-Back implies randomness. However, to strictly control 35%,
+                // if we rolled "No Match" (the else block), we should ensure it's NOT a match
+                // if possible, to avoid inflating the match rate.
+                
+                const avoidPos = canMatch ? positions[positions.length - nLevel] : -1;
+                
+                // Get valid positions excluding avoidPos
+                const validPositions = [];
+                for (let i = 0; i < 9; i++) {
+                    if (i !== avoidPos) validPositions.push(i);
+                }
+                
+                newPos = validPositions[Math.floor(Math.random() * validPositions.length)];
+                // console.log(`Round ${currentRound}: Random pos ${newPos} (avoided ${avoidPos})`);
+            }
+            
             positions.push(newPos);
 
             // Show the block
@@ -407,12 +437,18 @@
             if (isMatch === actualMatch) {
                 // Correct!
                 correctCount++;
-                score += 10 + (correctCount * 2); // Bonus for streak
+                currentStreak++; 
+                // Base score 10 + Streak bonus (e.g., 2, 4, 6...)
+                score += 10 + (currentStreak * 2); 
+                
                 container.classList.add('feedback-correct');
                 document.getElementById('current-score').classList.add('score-pop');
             } else {
                 // Wrong!
                 wrongCount++;
+                currentStreak = 0; // Reset streak on error
+                
+                // Penalty
                 score = Math.max(0, score - 5);
                 container.classList.add('feedback-wrong');
             }
