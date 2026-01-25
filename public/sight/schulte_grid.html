@@ -139,9 +139,20 @@
                 <br>练就过目不忘的“扫描眼”
             </p>
             <button onclick="startGame()"
-                class="px-12 py-4 bg-white text-black rounded-full font-black hover:scale-105 active:scale-95 transition-all shadow-xl">
+                class="px-12 py-4 bg-white text-black rounded-full font-black hover:scale-105 active:scale-95 transition-all shadow-xl mb-8">
                 开始扫描
             </button>
+
+            <!-- Leaderboard section -->
+            <div class="w-full max-w-xs bg-zinc-900/80 rounded-2xl p-4 border border-white/5">
+                <div class="flex justify-between items-center mb-3 text-xs">
+                    <span class="text-cyan-400 font-bold uppercase tracking-widest">🏆 极速榜 (Top Pilots)</span>
+                    <span class="text-zinc-500">按最快耗时</span>
+                </div>
+                <div id="start-leaderboard" class="space-y-1 max-h-32 overflow-y-auto">
+                    <p class="text-[10px] text-zinc-500 text-center py-2">读取数据中...</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -310,9 +321,42 @@
             gameState.isRunning = false;
         }
 
+        async function loadLeaderboard() {
+            if (typeof TraineeAuth === 'undefined') return;
+            const container = document.getElementById('start-leaderboard');
+
+            // For Schulte, we sort by duration ASC (Time)
+            // Note: DB saves project names as 'schulte_standard' or 'schulte_dynamic'
+            // We'll show Standard mode leaderboard by default or maybe filter both?
+            // Let's show 'schulte_standard' for complexity simplicity or just 'schulte%' if capable? No, use standard.
+            const data = await TraineeAuth.getLeaderboard('schulte_standard', 5, 'duration.asc.nullslast');
+            container.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="text-[10px] text-zinc-500 text-center py-2">暂无纪录，争做第一！</div>';
+                return;
+            }
+
+            data.forEach((entry, index) => {
+                const rankColor = index === 0 ? 'text-yellow-400' : (index === 1 ? 'text-gray-300' : (index === 2 ? 'text-orange-400' : 'text-zinc-500'));
+
+                const html = `
+                    <div class="flex justify-between items-center py-1.5 border-b border-white/5 last:border-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-[10px] w-4 ${rankColor}">#${index + 1}</span>
+                            <span class="text-xs text-zinc-300">${entry.name}</span>
+                        </div>
+                        <span class="font-mono text-cyan-400 font-bold text-xs">${entry.duration.toFixed(2)}s</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
         window.onload = () => {
             if (TraineeAuth.checkAuth()) {
                 createGrid();
+                loadLeaderboard();
             }
         };
     </script>
