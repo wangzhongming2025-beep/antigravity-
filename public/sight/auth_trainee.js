@@ -102,5 +102,35 @@ const TraineeAuth = {
         } catch (e) {
             console.error(e);
         }
+    },
+
+    getLeaderboard: async (project, limit = 10) => {
+        try {
+            // Attempt to join with trainees to get names. 
+            // If foreign key is missing, this might fail or return null for trainees.
+            // Using a simple query first.
+            const url = `${SUPABASE_URL}/rest/v1/training_logs?select=score,created_at,trainee_id&project_name=eq.${project}&order=score.desc.nullslast&limit=${limit}`;
+
+            const res = await fetch(url, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY
+                }
+            });
+
+            if (!res.ok) return [];
+            const logs = await res.json();
+
+            // Simple masking for IDs since we might not have names joined easily without FK
+            return logs.map(log => ({
+                name: log.trainee_id ? `学员_${log.trainee_id.slice(-4)}` : '未知学员',
+                score: log.score,
+                date: new Date(log.created_at).toLocaleDateString()
+            }));
+
+        } catch (e) {
+            console.error("Failed to fetch leaderboard", e);
+            return [];
+        }
     }
 };

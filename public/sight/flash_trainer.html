@@ -222,6 +222,17 @@
                         <li>• 正确则进入下一关，难度逐渐增加</li>
                     </ul>
                 </div>
+
+                <!-- Leaderboard Preview -->
+                <div class="mt-6 glass-panel rounded-xl p-4 text-left">
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-xs text-yellow-500 font-bold uppercase tracking-widest">🏆 巅峰榜 (Top Aces)</p>
+                        <span class="text-[10px] text-zinc-500">最高关卡排行</span>
+                    </div>
+                    <div id="start-leaderboard" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                        <div class="text-center text-zinc-500 text-xs py-2">加载数据中...</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Playing Screen -->
@@ -382,6 +393,7 @@
 
     </div>
 
+    <script src="auth_trainee.js"></script>
     <script>
         // Game State
         let gameMode = 'number';
@@ -675,7 +687,12 @@
                 document.getElementById('result-emoji').textContent = '❌';
                 document.getElementById('result-text').textContent = '错误！';
                 container.classList.add('result-wrong');
-                streak = 0;
+
+                // End Game Logic
+                setTimeout(() => {
+                    showGameOver();
+                }, 1000);
+                return; // Stop execution
             }
 
             // Show correct answer
@@ -695,6 +712,18 @@
             // Let them continue but track best level
         }
 
+        function showGameOver() {
+            hideAllStates();
+            document.getElementById('play-screen').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.remove('hidden');
+
+            document.getElementById('final-level').textContent = bestLevel;
+            document.getElementById('stat-digits').textContent = currentDigits;
+            document.getElementById('stat-streak').textContent = maxStreak;
+
+            reportScore();
+        }
+
         // Next Round
         function nextRound() {
             const container = document.getElementById('flash-container');
@@ -712,7 +741,55 @@
             document.getElementById('play-screen').classList.add('hidden');
             document.getElementById('gameover-screen').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
+            loadLeaderboard();
         }
+
+        // New Logic for Leaderboard & Reporting
+        function reportScore() {
+            if (typeof TraineeAuth !== 'undefined') {
+                // Report max level as score
+                TraineeAuth.reportResult('flash_trainer', bestLevel, 0);
+            }
+        }
+
+        async function loadLeaderboard() {
+            if (typeof TraineeAuth === 'undefined') return;
+            const container = document.getElementById('start-leaderboard');
+
+            const data = await TraineeAuth.getLeaderboard('flash_trainer', 5);
+            container.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="text-center text-zinc-500 text-xs py-2">暂无数据，等你来战！</div>';
+                return;
+            }
+
+            data.forEach((entry, index) => {
+                const rankColor = index === 0 ? 'text-yellow-400' : (index === 1 ? 'text-gray-300' : (index === 2 ? 'text-orange-400' : 'text-zinc-500'));
+                const icon = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index + 1}`));
+
+                const html = `
+                    <div class="flex justify-between items-center bg-black/20 p-2 rounded-lg text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold w-6 ${rankColor}">${icon}</span>
+                            <span class="text-zinc-300">${entry.name}</span>
+                        </div>
+                        <span class="font-mono text-cyan-400 font-bold">LV.${entry.score}</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // Initial load
+        window.addEventListener('load', () => {
+            // Check auth silently (optional, or just init)
+            if (typeof TraineeAuth !== 'undefined') {
+                TraineeAuth.checkAuth();
+                loadLeaderboard();
+            }
+        });
+
     </script>
 </body>
 
