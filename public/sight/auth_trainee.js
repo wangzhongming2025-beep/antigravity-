@@ -129,8 +129,30 @@ const TraineeAuth = {
                 date: new Date(log.created_at).toLocaleDateString()
             }));
 
-        } catch (e) {
             console.error("Failed to fetch leaderboard", e);
+            return [];
+        }
+    },
+
+    getHistory: async (project) => {
+        try {
+            const trainee_id = TraineeAuth.getTraineeId();
+            if (!trainee_id) return [];
+
+            const url = `${SUPABASE_URL}/rest/v1/training_logs?select=score,duration,created_at&project_name=eq.${project}&trainee_id=eq.${trainee_id}&order=created_at.asc`;
+
+            const res = await fetch(url, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY
+                }
+            });
+
+            if (!res.ok) return [];
+            return await res.json();
+
+        } catch (e) {
+            console.error("Failed to fetch history", e);
             return [];
         }
     }

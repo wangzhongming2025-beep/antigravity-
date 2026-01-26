@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>舒尔特方格专注力训练 - VisionGuard AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;900&display=swap"
-        rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;900&display=swap"
+    rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -153,8 +153,31 @@
                     <p class="text-[10px] text-zinc-500 text-center py-2">读取数据中...</p>
                 </div>
             </div>
+
+            <button onclick="showHistory()"
+                class="mt-4 text-xs text-zinc-500 hover:text-white underline underline-offset-4">
+                📈 查看我的训练曲线 (My Data)
+            </button>
         </div>
     </main>
+
+    <!-- History Chart Modal -->
+    <div id="history-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
+        <div class="w-full max-w-md glass-panel p-6 rounded-3xl relative">
+            <button onclick="document.getElementById('history-modal').classList.add('hidden')"
+                class="absolute top-4 right-4 text-zinc-500 hover:text-white text-xl">
+                ✕
+            </button>
+            <h3 class="text-lg font-bold text-white mb-4">📊 训练趋势 (Training Trend)</h3>
+            <div class="w-full h-64 bg-black/20 rounded-xl p-2">
+                <canvas id="history-chart"></canvas>
+            </div>
+            <p class="text-[10px] text-zinc-500 mt-4 text-center">
+                坚持训练，让每一条曲线都成为向上的阶梯。
+            </p>
+        </div>
+    </div>
 
     <!-- Mode Selector -->
     <div class="mt-8 flex items-center gap-4 bg-zinc-900/50 p-2 rounded-2xl border border-white/5">
@@ -356,9 +379,65 @@
         window.onload = () => {
             if (TraineeAuth.checkAuth()) {
                 createGrid();
-                loadLeaderboard();
             }
         };
+
+        // --- History Chart Logic ---
+        let historyChart = null;
+        async function showHistory() {
+            if (typeof TraineeAuth === 'undefined') return;
+
+            document.getElementById('history-modal').classList.remove('hidden');
+
+            const data = await TraineeAuth.getHistory('schulte_standard');
+            if (!data || data.length === 0) return;
+
+            const ctx = document.getElementById('history-chart').getContext('2d');
+
+            // Limit to last 20 records
+            const recentData = data.slice(-20);
+
+            const labels = recentData.map((d, i) => i + 1); // just session index
+            const durations = recentData.map(d => d.duration);
+
+            if (historyChart) historyChart.destroy();
+
+            historyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '耗时 (秒)',
+                        data: durations,
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#71717a' },
+                            title: { display: true, text: '耗时 (s)', color: '#52525b', font: { size: 10 } }
+                        },
+                        x: {
+                            display: false // hide x axis labels for cleanliness
+                        }
+                    },
+                    animation: { duration: 1000, easing: 'easeOutQuart' }
+                }
+            });
+        }
     </script>
 </body>
 
