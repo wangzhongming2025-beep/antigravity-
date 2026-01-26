@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>舒尔特方格专注力训练 - VisionGuard AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
+    <link <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;900&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -380,6 +380,7 @@
         window.onload = () => {
             if (TraineeAuth.checkAuth()) {
                 createGrid();
+                loadLeaderboard();
             }
         };
 
