@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD专注力评估 | 科学筛查量表</title>
+    <meta name="description" content="基于WHO标准ASRS量表的成人ADHD筛查，以及SNAP-IV儿童专注力评估工具。专业、科学、保密。">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(160deg, #0a0f1a 0%, #0d1520 50%, #0a0f1a 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border-color: #0ea5e9;
+            color: white;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .progress-fill {
+            transition: width 0.4s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .score-ring {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        .locked-overlay {
+            background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.95) 60%);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 overflow-x-hidden">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-sky-500 to-cyan-400 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-lg">
+                    🧠
+                </div>
+                <div>
+                    <h1 class="font-bold text-white">ADHD专注力评估</h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider">Clinical Screening Tool</p>
+                </div>
+            </div>
+            <button onclick="showHistory()" class="text-slate-400 hover:text-white text-sm flex items-center gap-1">
+                📋 <span class="hidden sm:inline">历史记录</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="pt-20 pb-10 px-4 max-w-2xl mx-auto">
+
+        <!-- Screen: Welcome / Version Selection -->
+        <div id="screen-welcome" class="min-h-[80vh] flex flex-col justify-center">
+            <div class="text-center mb-10 fade-in">
+                <div
+                    class="w-20 h-20 bg-gradient-to-br from-sky-500/20 to-cyan-400/20 rounded-3xl flex items-center justify-center mx-auto mb-6 text-4xl border border-sky-500/30">
+                    🎯
+                </div>
+                <h2 class="text-3xl font-bold text-white mb-3">ADHD 专注力评估</h2>
+                <p class="text-slate-400 max-w-md mx-auto text-sm leading-relaxed">
+                    基于国际标准化量表，科学评估注意力缺陷多动障碍(ADHD)相关症状。
+                </p>
+            </div>
+
+            <!-- Version Selection -->
+            <div class="space-y-4 mb-8">
+                <button onclick="selectVersion('adult')"
+                    class="w-full glass-card p-6 rounded-2xl text-left hover:border-sky-500/50 transition-all group">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-sky-500/10 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            👤
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-white text-lg mb-1">成人版 (18岁+)</h3>
+                            <p class="text-slate-400 text-sm">ASRS-v1.1 · WHO/哈佛大学联合开发</p>
+                            <p class="text-slate-500 text-xs mt-1">18道题 · 约5分钟</p>
+                        </div>
+                        <div class="text-slate-500">→</div>
+                    </div>
+                </button>
+
+                <button onclick="selectVersion('child')"
+                    class="w-full glass-card p-6 rounded-2xl text-left hover:border-emerald-500/50 transition-all group">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            👦
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-white text-lg mb-1">儿童版 (6-18岁)</h3>
+                            <p class="text-slate-400 text-sm">SNAP-IV · 家长/教师填写</p>
+                            <p class="text-slate-500 text-xs mt-1">26道题 · 约8分钟</p>
+                        </div>
+                        <div class="text-slate-500">→</div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="glass-card rounded-2xl p-4 border-amber-500/20">
+                <p class="text-amber-400/80 text-xs leading-relaxed flex items-start gap-2">
+                    <span class="text-base">⚠️</span>
+                    <span>本评估仅作为筛查工具，不能替代专业诊断。如有疑虑，请咨询精神科医生或心理专家。</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Screen: Login -->
+        <div id="screen-login" class="min-h-[80vh] flex flex-col justify-center hidden">
+            <div class="glass-card rounded-3xl p-8 fade-in">
+                <div class="text-center mb-8">
+                    <div
+                        class="w-16 h-16 bg-sky-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                        🔐
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">登录以保存记录</h2>
+                    <p class="text-slate-400 text-sm">使用手机号或自定义ID，方便查看历史评估结果</p>
+                </div>
+
+                <div class="space-y-4">
+                    <input type="text" id="login-id-input" placeholder="输入手机号或自定义ID"
+                        class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-4 text-white text-center text-lg placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors">
+
+                    <button onclick="handleLogin()"
+                        class="w-full bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold py-4 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-sky-500/20">
+                        开始评估
+                    </button>
+
+                    <button onclick="skipLogin()" class="w-full text-slate-500 text-sm py-2 hover:text-slate-300">
+                        跳过登录，不保存记录
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen: Assessment Questions -->
+        <div id="screen-assessment" class="min-h-[80vh] flex flex-col hidden">
+            <!-- Progress Bar -->
+            <div class="mb-6 pt-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-slate-500 text-sm">问题 <span id="current-q-num">1</span> / <span
+                            id="total-q-num">18</span></span>
+                    <span id="section-label"
+                        class="text-sky-400 text-xs font-medium px-2 py-1 bg-sky-500/10 rounded-full">第A部分</span>
+                </div>
+                <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-sky-500 to-cyan-400 progress-fill"
+                        style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="flex-1 flex flex-col justify-center">
+                <div class="glass-card rounded-3xl p-6 mb-6 fade-in" id="question-card">
+                    <p id="question-text" class="text-white text-lg leading-relaxed mb-6">
+                        在过去6个月中，您在完成一项工作的最后步骤时，是否经常因难以专注于细节而出错？
+                    </p>
+
+                    <!-- Options -->
+                    <div id="options-container" class="space-y-3">
+                        <!-- Options will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex gap-4 mt-4">
+                <button id="btn-prev" onclick="prevQuestion()"
+                    class="flex-1 bg-slate-800 text-slate-300 font-medium py-4 rounded-xl hover:bg-slate-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    disabled>
+                    ← 上一题
+                </button>
+                <button id="btn-next" onclick="nextQuestion()"
+                    class="flex-1 bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold py-4 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                    disabled>
+                    下一题 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen: Results -->
+        <div id="screen-results" class="hidden">
+            <!-- Results Header -->
+            <div class="text-center mb-8 pt-8 fade-in">
+                <h2 class="text-2xl font-bold text-white mb-2">评估报告</h2>
+                <p id="result-date" class="text-slate-500 text-sm">2026年1月27日</p>
+            </div>
+
+            <!-- Score Overview -->
+            <div class="glass-card rounded-3xl p-6 mb-6 fade-in">
+                <div class="flex items-center gap-6">
+                    <!-- Score Ring -->
+                    <div class="relative w-28 h-28 flex-shrink-0">
+                        <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="8" />
+                            <circle id="score-ring" cx="50" cy="50" r="45" fill="none" stroke="url(#scoreGradient)"
+                                stroke-width="8" stroke-linecap="round" class="score-ring" />
+                            <defs>
+                                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#0ea5e9" />
+                                    <stop offset="100%" stop-color="#22d3ee" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="total-score" class="text-3xl font-bold text-white">42</span>
+                            <span class="text-[10px] text-slate-500">总分</span>
+                        </div>
+                    </div>
+
+                    <!-- Severity -->
+                    <div class="flex-1">
+                        <p class="text-slate-400 text-sm mb-1">症状程度</p>
+                        <p id="severity-label" class="text-2xl font-bold text-amber-400">中高水平</p>
+                        <p id="severity-desc" class="text-slate-500 text-sm mt-2">建议进一步咨询专业人士</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscale Scores -->
+            <div class="glass-card rounded-3xl p-6 mb-6 fade-in">
+                <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                    📊 分量表得分
+                </h3>
+                <div id="subscales-container" class="space-y-4">
+                    <!-- Subscale bars will be injected here -->
+                </div>
+            </div>
+
+            <!-- Interpretation -->
+            <div class="glass-card rounded-3xl p-6 mb-6 fade-in">
+                <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                    📋 结果解读
+                </h3>
+                <div id="interpretation-text" class="text-slate-300 text-sm leading-relaxed space-y-3">
+                    <!-- Interpretation will be injected here -->
+                </div>
+            </div>
+
+            <!-- Pro Features (Locked) -->
+            <div class="glass-card rounded-3xl p-6 mb-6 relative overflow-hidden fade-in">
+                <div class="absolute inset-0 locked-overlay z-10 flex items-end justify-center pb-6">
+                    <div class="text-center">
+                        <p class="text-white font-bold mb-2">🔒 专业版功能</p>
+                        <button onclick="showProModal()"
+                            class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-6 py-3 rounded-xl text-sm hover:opacity-90 transition-opacity shadow-lg">
+                            解锁专业版
+                        </button>
+                    </div>
+                </div>
+                <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                    🎯 详细分析
+                </h3>
+                <div class="space-y-3 blur-sm">
+                    <div class="bg-slate-800/50 rounded-xl p-4">
+                        <p class="text-slate-400 text-sm">注意力指数深度分析...</p>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-4">
+                        <p class="text-slate-400 text-sm">历史趋势图表...</p>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-4">
+                        <p class="text-slate-400 text-sm">PDF报告导出...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consultation CTA -->
+            <div class="glass-card rounded-3xl p-6 mb-6 border-sky-500/30 fade-in">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-14 h-14 bg-sky-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                        💬
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-white mb-1">需要专业咨询？</h3>
+                        <p class="text-slate-400 text-sm">与专家一对一沟通，获取个性化建议</p>
+                    </div>
+                </div>
+                <button onclick="showConsultModal()"
+                    class="w-full mt-4 bg-sky-500/20 border border-sky-500/30 text-sky-400 font-bold py-3 rounded-xl hover:bg-sky-500/30 transition-colors">
+                    联系咨询 (微信)
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 fade-in">
+                <button onclick="restartAssessment()"
+                    class="flex-1 bg-slate-800 text-slate-300 font-medium py-4 rounded-xl hover:bg-slate-700 transition-colors">
+                    重新评估
+                </button>
+                <button onclick="goHome()"
+                    class="flex-1 bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold py-4 rounded-xl hover:opacity-90 transition-opacity">
+                    返回首页
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen: History -->
+        <div id="screen-history" class="hidden">
+            <div class="pt-8 mb-6 fade-in">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-white">历史记录</h2>
+                    <button onclick="goHome()" class="text-slate-400 hover:text-white text-sm">← 返回</button>
+                </div>
+            </div>
+
+            <div id="history-container" class="space-y-4">
+                <!-- History items will be injected here -->
+                <div class="glass-card rounded-2xl p-6 text-center text-slate-500">
+                    <p class="text-4xl mb-3">📭</p>
+                    <p>暂无评估记录</p>
+                    <p class="text-sm mt-1">登录后完成评估即可保存记录</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Pro Version -->
+    <div id="modal-pro"
+        class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4"
+        onclick="closeModals()">
+        <div class="glass-card rounded-3xl p-8 max-w-sm w-full text-center" onclick="event.stopPropagation()">
+            <div
+                class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                💎
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">解锁专业版</h3>
+            <p class="text-slate-400 text-sm mb-6">获取完整分析报告、历史趋势图表、PDF导出等高级功能</p>
+
+            <div class="bg-slate-800/50 rounded-xl p-4 mb-4">
+                <p class="text-purple-400 font-mono font-bold text-xl">lwdz2026</p>
+                <p class="text-slate-500 text-xs mt-1">添加微信获取解锁码</p>
+            </div>
+
+            <button onclick="copyWechat('lwdz2026')"
+                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 rounded-xl mb-3 hover:opacity-90 transition-opacity">
+                复制微信号
+            </button>
+            <button onclick="closeModals()" class="w-full text-slate-500 text-sm py-2 hover:text-white">关闭</button>
+        </div>
+    </div>
+
+    <!-- Modal: Consultation -->
+    <div id="modal-consult"
+        class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4"
+        onclick="closeModals()">
+        <div class="glass-card rounded-3xl p-8 max-w-sm w-full text-center" onclick="event.stopPropagation()">
+            <div
+                class="w-16 h-16 bg-gradient-to-br from-sky-500 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                👨‍⚕️
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">专业咨询服务</h3>
+            <p class="text-slate-400 text-sm mb-6">与资深专家一对一沟通，获取个性化评估建议和干预方案</p>
+
+            <div class="bg-slate-800/50 rounded-xl p-4 mb-4">
+                <p class="text-sky-400 font-mono font-bold text-xl">lwdz2026</p>
+                <p class="text-slate-500 text-xs mt-1">添加微信预约咨询</p>
+            </div>
+
+            <button onclick="copyWechat('lwdz2026')"
+                class="w-full bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold py-3 rounded-xl mb-3 hover:opacity-90 transition-opacity">
+                复制微信号
+            </button>
+            <button onclick="closeModals()" class="w-full text-slate-500 text-sm py-2 hover:text-white">关闭</button>
+        </div>
+    </div>
+
+    <!-- Auth Script -->
+    <script src="auth_trainee.js"></script>
+
+    <script>
+        // ========== DATA: ASRS Adult Questions ==========
+        const ASRS_QUESTIONS = [
+            // Part A (6 items) - Most predictive
+            { id: 1, part: 'A', text: '在完成一项工作的最后步骤时，您是否经常因难以专注于细节而出错？' },
+            { id: 2, part: 'A', text: '在完成需要按部就班的任务时，您是否经常难以保持注意力？' },
+            { id: 3, part: 'A', text: '当有人直接对您说话时，您是否经常看起来没有在听？' },
+            { id: 4, part: 'A', text: '您是否经常将事情拖延到最后一刻才开始？' },
+            { id: 5, part: 'A', text: '当您必须长时间坐着时（如开会、上课），您是否经常坐立不安或手脚不停？' },
+            { id: 6, part: 'A', text: '您是否经常感到过度活跃，必须做些什么，好像有马达在驱动一样？' },
+            // Part B (12 items) - Additional symptoms
+            { id: 7, part: 'B', text: '在完成需要组织规划的任务时，您是否经常遇到困难？' },
+            { id: 8, part: 'B', text: '您是否经常推迟或避免开始需要持续脑力劳动的任务？' },
+            { id: 9, part: 'B', text: '您是否经常丢失或找不到日常生活中需要的物品？' },
+            { id: 10, part: 'B', text: '您是否经常因外界刺激（如声音、动静）而分心？' },
+            { id: 11, part: 'B', text: '您是否经常忘记日常约会或义务？' },
+            { id: 12, part: 'B', text: '在需要静坐的场合，您是否经常离开座位？' },
+            { id: 13, part: 'B', text: '您是否经常感到焦躁不安？' },
+            { id: 14, part: 'B', text: '在休息或放松时间，您是否经常难以安静下来？' },
+            { id: 15, part: 'B', text: '在社交场合，您是否经常话太多？' },
+            { id: 16, part: 'B', text: '在谈话中，您是否经常在他人说完之前就抢先回答？' },
+            { id: 17, part: 'B', text: '在需要轮流等待时，您是否经常难以等待？' },
+            { id: 18, part: 'B', text: '您是否经常打断他人或插嘴？' }
+        ];
+
+        const ASRS_OPTIONS = [
+            { value: 0, label: '从不' },
+            { value: 1, label: '很少' },
+            { value: 2, label: '有时' },
+            { value: 3, label: '经常' },
+            { value: 4, label: '非常频繁' }
+        ];
+
+        // ========== DATA: SNAP-IV Child Questions ==========
+        const SNAPIV_QUESTIONS = [
+            // Inattention (1-9)
+            { id: 1, sub: 'inattention', text: '在学习、工作或其他活动中，经常不能仔细注意细节，或常犯粗心大意的错误' },
+            { id: 2, sub: 'inattention', text: '在做作业或游戏活动时，经常难以保持注意力集中' },
+            { id: 3, sub: 'inattention', text: '别人对他/她讲话时，经常看起来没有在听' },
+            { id: 4, sub: 'inattention', text: '经常不能按照指示完成作业、家务或其他任务（不是由于对立行为或不理解指示）' },
+            { id: 5, sub: 'inattention', text: '经常难以组织安排任务和活动' },
+            { id: 6, sub: 'inattention', text: '经常回避、不喜欢或不愿意从事需要持续脑力努力的任务（如学校作业）' },
+            { id: 7, sub: 'inattention', text: '经常丢失任务或活动所需的物品（如玩具、作业本、铅笔、书籍）' },
+            { id: 8, sub: 'inattention', text: '经常容易被外界刺激分心' },
+            { id: 9, sub: 'inattention', text: '经常在日常活动中健忘' },
+            // Hyperactivity/Impulsivity (10-18)
+            { id: 10, sub: 'hyperactivity', text: '经常手脚不停地动或在座位上扭来扭去' },
+            { id: 11, sub: 'hyperactivity', text: '在应该保持坐着的情况下经常离开座位' },
+            { id: 12, sub: 'hyperactivity', text: '经常在不适当的场合过分地跑来跑去或爬上爬下' },
+            { id: 13, sub: 'hyperactivity', text: '经常难以安静地玩耍或从事休闲活动' },
+            { id: 14, sub: 'hyperactivity', text: '经常"不停地动"或表现得像"装了马达一样"' },
+            { id: 15, sub: 'hyperactivity', text: '经常话太多' },
+            { id: 16, sub: 'hyperactivity', text: '经常在问题还没问完时就抢先回答' },
+            { id: 17, sub: 'hyperactivity', text: '经常难以等待轮到自己' },
+            { id: 18, sub: 'hyperactivity', text: '经常打断或打扰别人（如插嘴或干扰别人的游戏）' },
+            // Opposition/Defiance (19-26)
+            { id: 19, sub: 'opposition', text: '经常发脾气' },
+            { id: 20, sub: 'opposition', text: '经常与大人争辩' },
+            { id: 21, sub: 'opposition', text: '经常主动违抗或拒绝遵守大人的要求或规则' },
+            { id: 22, sub: 'opposition', text: '经常故意激怒别人' },
+            { id: 23, sub: 'opposition', text: '经常因自己的错误或不当行为而责怪别人' },
+            { id: 24, sub: 'opposition', text: '经常容易被激怒或恼怒' },
+            { id: 25, sub: 'opposition', text: '经常生气和怨恨' },
+            { id: 26, sub: 'opposition', text: '经常怀恨在心或有报复心理' }
+        ];
+
+        const SNAPIV_OPTIONS = [
+            { value: 0, label: '完全没有' },
+            { value: 1, label: '有一点点' },
+            { value: 2, label: '还算不少' },
+            { value: 3, label: '非常的多' }
+        ];
+
+        // ========== STATE ==========
+        let currentVersion = null; // 'adult' or 'child'
+        let currentQuestionIndex = 0;
+        let answers = [];
+        let questions = [];
+        let options = [];
+        let userId = null;
+        let startTime = null;
+
+        // ========== NAVIGATION ==========
+        function showScreen(screenId) {
+            document.querySelectorAll('[id^="screen-"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function selectVersion(version) {
+            currentVersion = version;
+            questions = version === 'adult' ? ASRS_QUESTIONS : SNAPIV_QUESTIONS;
+            options = version === 'adult' ? ASRS_OPTIONS : SNAPIV_OPTIONS;
+            answers = new Array(questions.length).fill(null);
+
+            // Check if already logged in
+            userId = localStorage.getItem('adhd_user_id');
+            if (userId) {
+                startAssessment();
+            } else {
+                showScreen('screen-login');
+            }
+        }
+
+        function handleLogin() {
+            const input = document.getElementById('login-id-input').value.trim();
+            if (!input) {
+                alert('请输入手机号或ID');
+                return;
+            }
+            userId = input;
+            localStorage.setItem('adhd_user_id', userId);
+
+            // Also set for TraineeAuth if available
+            if (typeof TraineeAuth !== 'undefined') {
+                TraineeAuth.setTraineeId(userId);
+            }
+
+            startAssessment();
+        }
+
+        function skipLogin() {
+            userId = null;
+            startAssessment();
+        }
+
+        function startAssessment() {
+            currentQuestionIndex = 0;
+            startTime = Date.now();
+            showScreen('screen-assessment');
+            document.getElementById('total-q-num').textContent = questions.length;
+            renderQuestion();
+        }
+
+        // ========== ASSESSMENT LOGIC ==========
+        function renderQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('current-q-num').textContent = currentQuestionIndex + 1;
+            document.getElementById('question-text').textContent = q.text;
+
+            // Update progress
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            // Update section label
+            let sectionText = '';
+            if (currentVersion === 'adult') {
+                sectionText = q.part === 'A' ? '第A部分 · 核心症状' : '第B部分 · 附加症状';
+            } else {
+                if (q.sub === 'inattention') sectionText = '注意力缺陷';
+                else if (q.sub === 'hyperactivity') sectionText = '多动/冲动';
+                else sectionText = '对立违抗';
+            }
+            document.getElementById('section-label').textContent = sectionText;
+
+            // Render options
+            const container = document.getElementById('options-container');
+            container.innerHTML = options.map((opt, i) => `
+                <button onclick="selectOption(${opt.value})" 
+                    class="option-btn w-full p-4 rounded-xl border border-slate-700 bg-slate-800/50 text-left hover:border-slate-500 ${answers[currentQuestionIndex] === opt.value ? 'selected' : ''}">
+                    <span class="text-slate-300">${opt.label}</span>
+                </button>
+            `).join('');
+
+            // Update navigation buttons
+            document.getElementById('btn-prev').disabled = currentQuestionIndex === 0;
+            document.getElementById('btn-next').disabled = answers[currentQuestionIndex] === null;
+            document.getElementById('btn-next').textContent = currentQuestionIndex === questions.length - 1 ? '查看结果 ✓' : '下一题 →';
+        }
+
+        function selectOption(value) {
+            answers[currentQuestionIndex] = value;
+            document.querySelectorAll('.option-btn').forEach((btn, i) => {
+                btn.classList.toggle('selected', options[i].value === value);
+            });
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestionIndex] === null) return;
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                // Finish assessment
+                calculateResults();
+            }
+        }
+
+        // ========== RESULTS CALCULATION ==========
+        function calculateResults() {
+            const duration = Math.round((Date.now() - startTime) / 1000);
+            let results = {};
+
+            if (currentVersion === 'adult') {
+                // ASRS Scoring
+                const partA = answers.slice(0, 6).reduce((a, b) => a + b, 0);
+                const partB = answers.slice(6).reduce((a, b) => a + b, 0);
+                const total = partA + partB;
+
+                results = {
+                    version: 'adult',
+                    partA,
+                    partB,
+                    total,
+                    maxPartA: 24,
+                    maxPartB: 48,
+                    maxTotal: 72
+                };
+
+                // Determine severity
+                if (total <= 30) {
+                    results.severity = 'low';
+                    results.severityLabel = '低水平';
+                    results.severityColor = 'text-emerald-400';
+                } else if (total <= 39) {
+                    results.severity = 'mild';
+                    results.severityLabel = '轻度至中度';
+                    results.severityColor = 'text-yellow-400';
+                } else if (total <= 49) {
+                    results.severity = 'high';
+                    results.severityLabel = '中高水平';
+                    results.severityColor = 'text-orange-400';
+                } else {
+                    results.severity = 'very_high';
+                    results.severityLabel = '高水平';
+                    results.severityColor = 'text-red-400';
+                }
+            } else {
+                // SNAP-IV Scoring
+                const inattention = answers.slice(0, 9).reduce((a, b) => a + b, 0);
+                const hyperactivity = answers.slice(9, 18).reduce((a, b) => a + b, 0);
+                const opposition = answers.slice(18).reduce((a, b) => a + b, 0);
+                const total = inattention + hyperactivity + opposition;
+
+                results = {
+                    version: 'child',
+                    inattention,
+                    hyperactivity,
+                    opposition,
+                    total,
+                    maxInattention: 27,
+                    maxHyperactivity: 27,
+                    maxOpposition: 24,
+                    maxTotal: 78
+                };
+
+                // Determine overall severity based on highest subscale
+                const maxSub = Math.max(inattention, hyperactivity, opposition);
+                if (maxSub < 13) {
+                    results.severity = 'low';
+                    results.severityLabel = '症状不显著';
+                    results.severityColor = 'text-emerald-400';
+                } else if (maxSub <= 17) {
+                    results.severity = 'mild';
+                    results.severityLabel = '轻度';
+                    results.severityColor = 'text-yellow-400';
+                } else if (maxSub <= 22) {
+                    results.severity = 'moderate';
+                    results.severityLabel = '中度';
+                    results.severityColor = 'text-orange-400';
+                } else {
+                    results.severity = 'severe';
+                    results.severityLabel = '重度';
+                    results.severityColor = 'text-red-400';
+                }
+            }
+
+            results.duration = duration;
+            results.timestamp = new Date().toISOString();
+            results.answers = [...answers];
+
+            // Save to history
+            saveResult(results);
+
+            // Show results
+            displayResults(results);
+        }
+
+        function displayResults(results) {
+            showScreen('screen-results');
+
+            // Update date
+            document.getElementById('result-date').textContent = new Date().toLocaleDateString('zh-CN', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            // Update score ring
+            const maxScore = results.version === 'adult' ? results.maxTotal : results.maxTotal;
+            const scorePercent = results.total / maxScore;
+            const ring = document.getElementById('score-ring');
+            ring.style.strokeDashoffset = 283 - (283 * scorePercent);
+
+            // Color based on severity
+            const colors = {
+                low: '#22c55e', mild: '#eab308', moderate: '#f97316',
+                high: '#f97316', very_high: '#ef4444', severe: '#ef4444'
+            };
+            ring.style.stroke = colors[results.severity] || '#0ea5e9';
+
+            document.getElementById('total-score').textContent = results.total;
+            document.getElementById('severity-label').textContent = results.severityLabel;
+            document.getElementById('severity-label').className = `text-2xl font-bold ${results.severityColor}`;
+
+            // Severity description
+            const descriptions = {
+                low: '目前症状水平较低，一般无需特别关注。',
+                mild: '存在一定程度的症状表现，建议持续观察。',
+                moderate: '症状达到中等程度，建议咨询专业人士进行进一步评估。',
+                high: '症状程度较高，强烈建议咨询专业人士进行详细评估。',
+                very_high: '症状程度很高，强烈建议尽快咨询专业人士进行诊断和干预。',
+                severe: '症状程度严重，请尽快咨询精神科医生或心理专家。'
+            };
+            document.getElementById('severity-desc').textContent = descriptions[results.severity];
+
+            // Render subscales
+            const subscalesContainer = document.getElementById('subscales-container');
+            if (results.version === 'adult') {
+                subscalesContainer.innerHTML = `
+                    ${renderSubscaleBar('第A部分（核心症状）', results.partA, results.maxPartA, results.partA >= 14 ? 'bg-orange-500' : 'bg-sky-500')}
+                    ${renderSubscaleBar('第B部分（附加症状）', results.partB, results.maxPartB, results.partB >= 27 ? 'bg-orange-500' : 'bg-sky-500')}
+                `;
+            } else {
+                subscalesContainer.innerHTML = `
+                    ${renderSubscaleBar('注意力缺陷', results.inattention, results.maxInattention, getSubscaleColor(results.inattention, 13))}
+                    ${renderSubscaleBar('多动/冲动', results.hyperactivity, results.maxHyperactivity, getSubscaleColor(results.hyperactivity, 13))}
+                    ${renderSubscaleBar('对立违抗', results.opposition, results.maxOpposition, getSubscaleColor(results.opposition, 8))}
+                `;
+            }
+
+            // Render interpretation
+            const interpretationContainer = document.getElementById('interpretation-text');
+            interpretationContainer.innerHTML = generateInterpretation(results);
+        }
+
+        function renderSubscaleBar(label, score, max, colorClass) {
+            const percent = Math.round((score / max) * 100);
+            return `
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-400">${label}</span>
+                        <span class="text-white font-medium">${score} / ${max}</span>
+                    </div>
+                    <div class="h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full ${colorClass} rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSubscaleColor(score, threshold) {
+            if (score < threshold) return 'bg-emerald-500';
+            if (score < threshold + 5) return 'bg-yellow-500';
+            if (score < threshold + 10) return 'bg-orange-500';
+            return 'bg-red-500';
+        }
+
+        function generateInterpretation(results) {
+            let html = '';
+
+            if (results.version === 'adult') {
+                html += `<p><strong>ASRS-v1.1成人ADHD自评量表</strong>是世界卫生组织(WHO)与哈佛大学联合开发的标准化筛查工具。</p>`;
+
+                if (results.partA >= 14) {
+                    html += `<p class="text-amber-400">⚠️ 您的第A部分得分(${results.partA}分)达到临床显著水平(≥14分)，这是ADHD的核心症状指标，建议进一步进行专业评估。</p>`;
+                }
+
+                if (results.total >= 40) {
+                    html += `<p>您的总分${results.total}分，高于79百分位参考值(40分)，提示存在明显的ADHD相关症状表现。</p>`;
+                }
+            } else {
+                html += `<p><strong>SNAP-IV量表</strong>是评估儿童青少年注意力缺陷多动障碍(ADHD)及对立违抗障碍(ODD)的标准化工具。</p>`;
+
+                if (results.inattention >= 18) {
+                    html += `<p class="text-amber-400">⚠️ 注意力缺陷维度得分(${results.inattention}分)达到中度以上水平，建议关注学习时的专注力表现。</p>`;
+                }
+                if (results.hyperactivity >= 18) {
+                    html += `<p class="text-amber-400">⚠️ 多动/冲动维度得分(${results.hyperactivity}分)达到中度以上水平，建议关注行为控制方面的表现。</p>`;
+                }
+                if (results.opposition >= 14) {
+                    html += `<p class="text-amber-400">⚠️ 对立违抗维度得分(${results.opposition}分)达到中度以上水平，建议关注情绪管理和亲子互动。</p>`;
+                }
+            }
+
+            html += `<p class="text-slate-500 text-xs mt-4 border-t border-slate-700 pt-4">⚠️ 重要提示：本评估仅作为初步筛查工具，不能替代专业诊断。如有疑虑，请咨询精神科医生或具有相关资质的心理专家。</p>`;
+
+            return html;
+        }
+
+        // ========== DATA PERSISTENCE ==========
+        function saveResult(results) {
+            if (!userId) return;
+
+            // Save to localStorage for history
+            const historyKey = 'adhd_history_' + userId;
+            let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+            history.unshift(results);
+            if (history.length > 20) history = history.slice(0, 20); // Keep last 20
+            localStorage.setItem(historyKey, JSON.stringify(history));
+
+            // Save to Supabase if TraineeAuth is available
+            if (typeof TraineeAuth !== 'undefined') {
+                const projectName = results.version === 'adult' ? 'adhd_adult' : 'adhd_child';
+                TraineeAuth.reportResult(projectName, JSON.stringify({
+                    total: results.total,
+                    severity: results.severity,
+                    ...(results.version === 'adult' ? { partA: results.partA, partB: results.partB } :
+                        { inattention: results.inattention, hyperactivity: results.hyperactivity, opposition: results.opposition })
+                }), results.duration);
+            }
+        }
+
+        function showHistory() {
+            showScreen('screen-history');
+
+            const container = document.getElementById('history-container');
+
+            if (!userId) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6 text-center text-slate-500">
+                        <p class="text-4xl mb-3">🔐</p>
+                        <p>请先登录查看历史记录</p>
+                        <button onclick="showScreen('screen-login')" class="mt-4 text-sky-400 hover:underline">去登录</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const historyKey = 'adhd_history_' + userId;
+            const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6 text-center text-slate-500">
+                        <p class="text-4xl mb-3">📭</p>
+                        <p>暂无评估记录</p>
+                        <button onclick="goHome()" class="mt-4 text-sky-400 hover:underline">开始评估</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map((r, i) => `
+                <div class="glass-card rounded-2xl p-4" onclick="viewHistoryDetail(${i})">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 ${r.severityColor?.replace('text-', 'bg-').replace('-400', '-500/20')} rounded-xl flex items-center justify-center text-xl">
+                            ${r.version === 'adult' ? '👤' : '👦'}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white font-medium">${r.version === 'adult' ? '成人版' : '儿童版'} · ${r.severityLabel}</p>
+                            <p class="text-slate-500 text-sm">${new Date(r.timestamp).toLocaleDateString('zh-CN')}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white font-bold text-lg">${r.total}</p>
+                            <p class="text-slate-500 text-xs">总分</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewHistoryDetail(index) {
+            const historyKey = 'adhd_history_' + userId;
+            const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+            if (history[index]) {
+                displayResults(history[index]);
+            }
+        }
+
+        // ========== UTILITIES ==========
+        function goHome() {
+            showScreen('screen-welcome');
+            // Reset state
+            currentVersion = null;
+            currentQuestionIndex = 0;
+            answers = [];
+        }
+
+        function restartAssessment() {
+            if (currentVersion) {
+                answers = new Array(questions.length).fill(null);
+                startAssessment();
+            } else {
+                goHome();
+            }
+        }
+
+        function showProModal() {
+            document.getElementById('modal-pro').classList.remove('hidden');
+            document.getElementById('modal-pro').classList.add('flex');
+        }
+
+        function showConsultModal() {
+            document.getElementById('modal-consult').classList.remove('hidden');
+            document.getElementById('modal-consult').classList.add('flex');
+        }
+
+        function closeModals() {
+            document.querySelectorAll('[id^="modal-"]').forEach(m => {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            });
+        }
+
+        function copyWechat(wechat) {
+            navigator.clipboard.writeText(wechat).then(() => {
+                alert('微信号已复制: ' + wechat);
+            }).catch(() => {
+                prompt('请手动复制:', wechat);
+            });
+        }
+
+        // ========== INIT ==========
+        userId = localStorage.getItem('adhd_user_id');
+    </script>
+</body>
+
+</html>
