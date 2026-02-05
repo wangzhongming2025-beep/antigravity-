@@ -52,6 +52,25 @@
             overflow: hidden;
             box-shadow: 0 0 40px rgba(167, 139, 250, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            /* Hidden by default, toggled via JS */
+        }
+
+        .video-wrapper.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .video-wrapper iframe {
@@ -99,6 +118,42 @@
         .nav-back:hover {
             color: #fff;
         }
+
+        /* Language Switcher */
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 30px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            color: #888;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background: #a78bfa;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -112,10 +167,25 @@
         <h1>NSDR 非睡眠深度休息</h1>
         <p class="subtitle">10分钟重置神经系统 | 提升多巴胺储备 | 加速学习记忆</p>
 
-        <div class="video-wrapper">
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="switchLang('en')">English (Huberman)</button>
+            <button class="lang-btn" onclick="switchLang('cn')">中文引导</button>
+        </div>
+
+        <!-- English Video (Default) -->
+        <div class="video-wrapper active" id="video-en">
             <!-- Huberman Lab NSDR (10 min) -->
             <iframe width="560" height="315" src="https://www.youtube.com/embed/pL02HRFk2vo?si=3kX-e5a9y2t5q_7-"
-                title="YouTube video player" frameborder="0"
+                title="Huberman NSDR" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+
+        <!-- Chinese Video -->
+        <div class="video-wrapper" id="video-cn">
+            <!-- Chinese NSDR 10min (v3z_e6t-n8c) -->
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/v3z_e6t-n8c?si=ChineseNSDR"
+                title="Chinese NSDR" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
@@ -126,6 +196,43 @@
                 分钟，也能有效补充睡眠不足，恢复前额叶皮层的执行功能。</p>
         </div>
     </div>
+
+    <script>
+        function switchLang(lang) {
+            // Update buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            if (lang === 'en') {
+                document.querySelector('.lang-btn:nth-child(1)').classList.add('active');
+            } else {
+                document.querySelector('.lang-btn:nth-child(2)').classList.add('active');
+            }
+
+            // Update videos
+            const vidEn = document.getElementById('video-en');
+            const vidCn = document.getElementById('video-cn');
+
+            if (lang === 'en') {
+                vidEn.classList.add('active');
+                vidCn.classList.remove('active');
+                // Stop the other video
+                resetIframe(vidCn);
+            } else {
+                vidCn.classList.add('active');
+                vidEn.classList.remove('active');
+                // Stop the other video
+                resetIframe(vidEn);
+            }
+        }
+
+        // Helper to stop video when switching
+        function resetIframe(wrapper) {
+            const iframe = wrapper.querySelector('iframe');
+            if (iframe) {
+                const src = iframe.src;
+                iframe.src = src; // Reloading iframe stops playback
+            }
+        }
+    </script>
 
 </body>
 
