@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Fusion Protocol - Amblyopia Therapy</title>
+    <meta name="description" content="基于双眼分视（Dichoptic）技术的弱视神经重塑训练系统。需要红蓝眼镜。">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Dichoptic Colors - The Core of the Therapy */
+        .anaglyph-red {
+            color: #ff0000;
+            /* Visible through BLUE/CYAN lens, blocked by RED lens */
+        }
+
+        .anaglyph-cyan {
+            color: #00ffff;
+            /* Visible through RED lens, blocked by BLUE/CYAN lens */
+        }
+
+        canvas {
+            image-rendering: pixelated;
+        }
+
+        .scanline {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2));
+            background-size: 100% 4px;
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.15;
+            z-index: 50;
+        }
+    </style>
+</head>
+
+<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+
+    <!-- CRT/Scanline Effect Overlay -->
+    <div class="scanline"></div>
+
+    <!-- Intro / Calibration Screen -->
+    <div id="setup-screen"
+        class="absolute inset-0 z-40 bg-zinc-950 flex flex-col items-center justify-center p-6 transition-opacity duration-500">
+        <div class="glass-panel max-w-2xl w-full rounded-2xl p-8 border-l-4 border-l-rose-500 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-20">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-bold mb-2 flex items-center gap-3">
+                <span class="w-2 h-8 bg-rose-500 block"></span>
+                神经视觉融合协议 (Neural Fusion Protocol)
+            </h1>
+            <p class="text-zinc-400 mb-8 max-w-lg">
+                基于双眼分视的高强度弱视康复训练。本协议强制要求佩戴 <b class="text-white">红蓝 3D 眼镜</b>。
+            </p>
+
+            <!-- Eye Selection -->
+            <div class="mb-8">
+                <label class="block text-xs font-mono text-zinc-500 mb-3 uppercase tracking-wider">选择弱视眼 (Lazy
+                    Eye)</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectEye('left')" id="btn-left"
+                        class="group relative px-6 py-4 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-rose-500/50 transition-all text-left">
+                        <div class="text-lg font-bold">左眼 (Left)</div>
+                        <div class="text-xs text-zinc-500 group-hover:text-rose-400">佩戴红镜片 (Red Lens)</div>
+                    </button>
+                    <button onclick="selectEye('right')" id="btn-right"
+                        class="group relative px-6 py-4 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:border-cyan-500/50 transition-all text-left">
+                        <div class="text-lg font-bold">右眼 (Right)</div>
+                        <div class="text-xs text-zinc-500 group-hover:text-cyan-400">佩戴蓝/青镜片 (Blue Lens)</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calibration Test -->
+            <div class="mb-8 p-6 bg-zinc-900/50 rounded-xl border border-zinc-800">
+                <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    硬件校准程序 (Calibration)
+                </h3>
+                <div class="flex items-center justify-around text-center">
+                    <div>
+                        <div class="text-6xl font-black text-[#ff0000] mb-2 tracking-tighter">RED</div>
+                        <p class="text-xs text-zinc-500 max-w-[120px]">闭上右眼。此文字应消失或变淡。</p>
+                    </div>
+                    <div>
+                        <div class="text-6xl font-black text-[#00ffff] mb-2 tracking-tighter">CYAN</div>
+                        <p class="text-xs text-zinc-500 max-w-[120px]">闭上左眼。此文字应消失或变淡。</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" disabled id="start-btn"
+                class="w-full py-4 bg-zinc-800 text-zinc-500 font-bold rounded-lg cursor-not-allowed transition-all uppercase tracking-widest text-sm">
+                请先选择弱视眼以初始化
+            </button>
+        </div>
+    </div>
+
+    <!-- Game selection screen -->
+    <div id="mode-select-screen"
+        class="absolute inset-0 z-40 bg-zinc-950 hidden flex-col items-center justify-center p-6">
+        <h2 class="text-2xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-cyan-500">
+            选择训练模块 (SELECT MODULE)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl w-full">
+            <!-- Mode A -->
+            <button onclick="startMode('pong')"
+                class="glass-panel p-8 rounded-2xl border border-zinc-800 hover:border-rose-500 transition-all group text-left">
+                <div class="text-4xl mb-4 group-hover:scale-110 transition-transform">🏓</div>
+                <h3 class="text-xl font-bold mb-2">立体破壁 (Stereo-Breaker)</h3>
+                <p class="text-zinc-500 text-sm">动态融合训练。需要双眼协同，分别追踪球体与挡板，强制大脑进行视觉融合。</p>
+                <div class="mt-4 flex gap-2">
+                    <span class="text-[10px] bg-zinc-800 px-2 py-1 rounded border border-zinc-700">动态追踪
+                        (Tracking)</span>
+                    <span class="text-[10px] bg-zinc-800 px-2 py-1 rounded border border-zinc-700">反射神经 (Reflex)</span>
+                </div>
+            </button>
+
+            <!-- Mode B -->
+            <button onclick="startMode('gabor')"
+                class="glass-panel p-8 rounded-2xl border border-zinc-800 hover:border-cyan-500 transition-all group text-left">
+                <div class="text-4xl mb-4 group-hover:scale-110 transition-transform">🎯</div>
+                <h3 class="text-xl font-bold mb-2">加博信号猎手 (Gabor Hunter)</h3>
+                <p class="text-zinc-500 text-sm">高频辨别任务。寻找隐藏在双眼分视噪声中的不同纹理，提升弱视眼视锐度。</p>
+                <div class="mt-4 flex gap-2">
+                    <span class="text-[10px] bg-zinc-800 px-2 py-1 rounded border border-zinc-700">视锐度 (Acuity)</span>
+                    <span class="text-[10px] bg-zinc-800 px-2 py-1 rounded border border-zinc-700">对比敏感度
+                        (Contrast)</span>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="absolute top-0 left-0 w-full p-6 flex justify-between items-start pointer-events-none z-30">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="font-mono text-xs text-emerald-500" id="mode-badge">神经连接已激活 (NEURAL LINK ACTIVE)</span>
+            </div>
+            <div class="text-4xl font-black font-mono tracking-tighter" id="score-display">0000</div>
+        </div>
+        <div class="text-right">
+            <div class="text-xs text-zinc-500 font-mono uppercase">协同等级 (Synergy)</div>
+            <div class="text-2xl font-bold text-rose-500" id="level-display">Lvl 1</div>
+        </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="game-canvas" class="w-full h-full object-contain max-h-screen"></canvas>
+
+    <!-- Controls Hint -->
+    <div id="controls-hint"
+        class="absolute bottom-8 text-center text-zinc-600 text-xs font-mono tracking-widest z-20 pointer-events-none">
+        使用鼠标控制挡板 • [ESC] 暂停
+    </div>
+
+    <script src="auth_trainee.js"></script>
+    <script>
+        // --- Configuration & State ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let state = {
+            active: false,
+            lazyEye: null, // 'left' or 'right'
+            level: 1,
+            score: 0,
+            lives: 3,
+            combo: 0,
+            mode: 'none' // 'pong' or 'gabor'
+        };
+
+        // Pong Globals
+        let paddle = { x: 0, width: 150, height: 20 };
+        let ball = { x: 0, y: 0, dx: 0, dy: 0, radius: 10, speed: 6, active: false };
+
+        // Gabor Globals
+        let gabors = [];
+        let gaborTarget = null;
+        let lastSpawnTime = 0;
+
+        const COLORS = {
+            RED: '#ff0000',   // Visible to Cyan lens (Right Eye typically)
+            CYAN: '#00ffff',  // Visible to Red lens (Left Eye typically)
+            BOTH: '#ffffff'
+        };
+
+        // --- Setup Logic ---
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (state.mode === 'pong' && !state.active) {
+                paddle.x = canvas.width / 2 - paddle.width / 2;
+                resetBall();
+            }
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function selectEye(eye) {
+            state.lazyEye = eye;
+            document.getElementById('btn-left').classList.remove('ring-2', 'ring-rose-500');
+            document.getElementById('btn-right').classList.remove('ring-2', 'ring-cyan-500');
+            if (eye === 'left') {
+                document.getElementById('btn-left').classList.add('ring-2', 'ring-rose-500');
+            } else {
+                document.getElementById('btn-right').classList.add('ring-2', 'ring-cyan-500');
+            }
+            const btn = document.getElementById('start-btn');
+            btn.disabled = false;
+            btn.classList.remove('bg-zinc-800', 'text-zinc-500', 'cursor-not-allowed');
+            btn.classList.add('bg-white', 'text-black', 'hover:bg-zinc-200');
+            btn.innerText = "请先选择弱视眼以初始化";
+        }
+
+        function startGame() {
+            // First step: Go to Mode Select
+            document.getElementById('setup-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('mode-select-screen').style.display = 'flex';
+            }, 500);
+        }
+
+        function startMode(mode) {
+            document.getElementById('mode-select-screen').style.display = 'none';
+            state.mode = mode;
+            state.active = true;
+            state.score = 0;
+            state.level = 1;
+
+            if (mode === 'pong') {
+                document.getElementById('mode-badge').innerText = "立体破壁协议 (STEREO-BREAKER)";
+                document.getElementById('controls-hint').innerText = "移动鼠标控制挡板 • [ESC] 暂停";
+                resetBall();
+            } else {
+                document.getElementById('mode-badge').innerText = "加博信号猎手 (GABOR HUNTER)";
+                document.getElementById('controls-hint').innerText = "点击最特殊的斑点纹理 • [ESC] 暂停";
+                initGaborLevel();
+            }
+
+            gameLoop();
+
+            // Input Handling based on mode
+            if (mode === 'pong') {
+                window.addEventListener('mousemove', pongMouseMove);
+            } else {
+                window.addEventListener('click', gaborClick);
+            }
+        }
+
+        // --- GAME: PONG ---
+
+        function pongMouseMove(e) {
+            if (state.mode !== 'pong') return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            paddle.x = (e.clientX - rect.left) * scaleX - paddle.width / 2;
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+        }
+
+        function getEyeColors() {
+            // Left Eye Lazy (Red Lens): Ball = Cyan (visible to red), Paddle = Red (visible to cyan/strong)
+            if (state.lazyEye === 'left') {
+                return { ball: COLORS.CYAN, paddle: COLORS.RED };
+            } else {
+                return { ball: COLORS.RED, paddle: COLORS.CYAN };
+            }
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
+            ball.dy = -ball.speed;
+            ball.active = true;
+        }
+
+        function updatePong() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Walls
+            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) ball.dx = -ball.dx;
+            if (ball.y - ball.radius < 0) ball.dy = -ball.dy;
+
+            // Paddle
+            if (ball.y + ball.radius >= canvas.height - 40 &&
+                ball.y - ball.radius <= canvas.height - 40 + paddle.height) {
+
+                if (ball.x >= paddle.x && ball.x <= paddle.x + paddle.width) {
+                    ball.dy = -Math.abs(ball.dy * 1.05);
+                    const hitPoint = ball.x - (paddle.x + paddle.width / 2);
+                    ball.dx = hitPoint * 0.15;
+
+                    state.score += 10 + state.combo * 2;
+                    state.combo++;
+                    updateScore();
+                }
+            }
+
+            // Miss
+            if (ball.y - ball.radius > canvas.height) {
+                state.lives--;
+                state.combo = 0;
+                resetBall();
+            }
+        }
+
+        function drawPong() {
+            const colors = getEyeColors();
+
+            // Paddle (Strong Eye)
+            ctx.fillStyle = colors.paddle;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = colors.paddle;
+            ctx.fillRect(paddle.x, canvas.height - 40, paddle.width, paddle.height);
+            ctx.shadowBlur = 0;
+
+            // Ball (Weak Eye)
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = colors.ball;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = colors.ball;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // --- GAME: GABOR HUNTER ---
+
+        function initGaborLevel() {
+            gabors = [];
+            let count = 4 + state.level;
+            if (count > 15) count = 15;
+
+            // Randomly pick a target characteristic (e.g. angle)
+            const baseAngle = Math.random() * 180;
+            const targetAngle = baseAngle + 90;
+
+            // Pick a winner index
+            const winnerIdx = Math.floor(Math.random() * count);
+
+            for (let i = 0; i < count; i++) {
+                gabors.push({
+                    x: Math.random() * (canvas.width - 100) + 50,
+                    y: Math.random() * (canvas.height - 100) + 50,
+                    angle: i === winnerIdx ? targetAngle : baseAngle,
+                    isTarget: i === winnerIdx,
+                    phase: Math.random() * Math.PI * 2,
+                    drift: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+
+        function gaborClick(e) {
+            if (state.mode !== 'gabor') return;
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            let hit = false;
+            for (let g of gabors) {
+                const dist = Math.hypot(g.x - clickX, g.y - clickY);
+                if (dist < 40) { // 40 is approx radius
+                    if (g.isTarget) {
+                        state.score += 100;
+                        state.level++;
+                        updateScore();
+                        hit = true;
+                        // Flash Success
+                        flashScreen('#10b98133');
+                        initGaborLevel();
+                    } else {
+                        // Wrong
+                        state.score = Math.max(0, state.score - 50);
+                        updateScore();
+                        flashScreen('#ef444433');
+                    }
+                }
+            }
+        }
+
+        function flashScreen(color) {
+            const el = document.createElement('div');
+            el.style.position = 'absolute';
+            el.style.inset = '0';
+            el.style.background = color;
+            el.style.zIndex = '100';
+            el.style.pointerEvents = 'none';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 200);
+        }
+
+        function drawGaborPatch(x, y, angle, color) {
+            const size = 60;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle * Math.PI / 180);
+
+            // Draw lines for simplified Gabor
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            // Create a fading circle mask/gradient manually or just simple lines
+            // For dichoptic, we draw simpler lines to ensure color purity
+
+            for (let i = -20; i <= 20; i += 5) {
+                // Transparency falls off from center
+                const dist = Math.abs(i);
+                const alpha = 1 - (dist / 25);
+                if (alpha > 0) {
+                    ctx.globalAlpha = alpha;
+                    ctx.beginPath();
+                    ctx.moveTo(-20, i);
+                    ctx.lineTo(20, i);
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+            ctx.globalAlpha = 1.0;
+        }
+
+        function updateGabor() {
+            // Animate phase or drift if needed
+            gabors.forEach(g => {
+                g.x += Math.sin(Date.now() / 1000 + g.phase) * 0.5;
+                g.y += Math.cos(Date.now() / 1000 + g.phase) * 0.5;
+            });
+        }
+
+        function drawGaborGame() {
+            // Dichoptic Strategy for Gabor:
+            // Background Noise or Distractors in ONE color
+            // Target signal in OTHER color?
+            // OR:
+            // All Gabors have a 'Red' component and a 'Cyan' component
+            // But they are offset? 
+
+            // Simple Dichoptic Implementation:
+            // Distractors are drawn in BOTH colors (Fused, Easy to see) or Just Strong Eye?
+            // Target is drawn in WEAK EYE color?
+            // Actually, best for amblyopia:
+            // Signal (Orientation) should be WEAK EYE.
+            // Noise/Frame should be STRONG EYE.
+
+            // Let's force Weak Eye to identify orientation.
+            // We draw the Gabor lines in the WEAK EYE color.
+            // We draw a ring/frame around them in the STRONG EYE color to help fusion/lock.
+
+            const colors = getEyeColors();
+            // Ball color is Weak Eye visible (Cyan if Left Lazy)
+            // Paddle color is Strong Eye visible
+
+            const weakColor = colors.ball;   // Seen by lazy eye
+            const strongColor = colors.paddle; // Seen by strong eye
+
+            gabors.forEach(g => {
+                // Ring (Strong Eye - Anchor)
+                ctx.strokeStyle = strongColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(g.x, g.y, 30, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Gabor Lines (Weak Eye - Stimulus)
+                drawGaborPatch(g.x, g.y, g.angle, weakColor);
+            });
+        }
+
+        // --- LOOP ---
+
+        function updateScore() {
+            document.getElementById('score-display').innerText = state.score.toString().padStart(4, '0');
+            document.getElementById('level-display').innerText = 'Lvl ' + state.level;
+        }
+
+        function update() {
+            if (!state.active) return;
+            if (state.mode === 'pong') updatePong();
+            if (state.mode === 'gabor') updateGabor();
+        }
+
+        function draw() {
+            // Clear
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Common Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            const gridSize = 100;
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+            for (let y = 0; y < canvas.height; y += gridSize) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+            ctx.stroke();
+
+            if (state.mode === 'pong') drawPong();
+            if (state.mode === 'gabor') drawGaborGame();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            if (state.active) requestAnimationFrame(gameLoop);
+        }
+
+        // --- Utils ---
+        window.onload = () => {
+            resize();
+            // TraineeAuth.checkAuth();
+        };
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuro-Vision Training Hub - VisionGuard AI</title>
+    <meta name="description" content="VisionGuard 综合视觉训练中心。集成弱视双眼分视训练、加博斑视锐度激活、专注力训练及专业视觉评估工具。">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.2);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #06b6d4 0%, #f43f5e 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative">
+
+    <!-- Background Grid -->
+    <div class="fixed inset-0 grid-bg pointer-events-none -z-10"></div>
+
+    <!-- Navigation -->
+    <nav class="w-full p-6 flex justify-between items-center z-50">
+        <a href="index.html" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+            </svg>
+            <span class="font-mono text-sm">BACK TO HOME</span>
+        </a>
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span class="font-mono text-xs text-emerald-500">SYSTEM ONLINE</span>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="max-w-7xl mx-auto px-6 py-12 text-center">
+        <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-cyan-400 mb-6">
+            NEURO-PLASTICITY ENGINE V2.0
+        </div>
+        <h1 class="text-5xl md:text-7xl font-black tracking-tight mb-6">
+            VISION TRAINING <span class="hero-gradient">HUB</span>
+        </h1>
+        <p class="text-zinc-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            基于神经可塑性的综合视觉增强中心。集成弱视康复、视锐度激活与认知专注力训练工具。
+        </p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 pb-24 grid gap-16">
+
+        <!-- Section 1: Clinical Therapy (Weak Eye & Acuity) -->
+        <section>
+            <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-white">
+                <span class="w-1 h-6 bg-rose-500 rounded-full"></span>
+                临床级康复 (Clinical Therapy)
+                <span
+                    class="text-xs font-normal text-zinc-500 ml-auto font-mono border border-zinc-800 px-2 py-1 rounded">AMBLYOPIA
+                    & ACUITY</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Amblyopia Trainer -->
+                <a href="amblyopia_trainer.html" class="glass-panel p-8 rounded-2xl relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                    </div>
+                    <div class="inline-block px-2 py-1 bg-rose-500/20 text-rose-400 text-[10px] font-bold rounded mb-4">
+                        RECOMMENDED</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">神经融合训练</h3>
+                    <p class="text-zinc-400 text-sm mb-6">基于双眼分视 (Dichoptic) 的弱视治疗。包含立体破壁与加博信号猎手模式。</p>
+                    <div class="flex items-center gap-2 text-xs font-mono text-zinc-500">
+                        <span class="w-2 h-2 bg-rose-500 rounded-full"></span>
+                        需红蓝眼镜
+                    </div>
+                </a>
+
+                <!-- Gabor Patch -->
+                <a href="gabor_training.html" class="glass-panel p-8 rounded-2xl relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                        </svg>
+                    </div>
+                    <div class="inline-block px-2 py-1 bg-cyan-500/20 text-cyan-400 text-[10px] font-bold rounded mb-4">
+                        SCIENCE</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Gabor 视皮层激活</h3>
+                    <p class="text-zinc-400 text-sm mb-6">利用特定频率的光栅图案刺激大脑 V1 视觉皮层，提升视锐度与对比敏感度。</p>
+                    <div class="flex items-center gap-2 text-xs font-mono text-zinc-500">
+                        <span class="w-2 h-2 bg-cyan-500 rounded-full"></span>
+                        裸眼训练
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Section 2: Cognitive Focus (Brain & Eye) -->
+        <section>
+            <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-white">
+                <span class="w-1 h-6 bg-purple-500 rounded-full"></span>
+                认知与专注 (Focus & Cognition)
+                <span
+                    class="text-xs font-normal text-zinc-500 ml-auto font-mono border border-zinc-800 px-2 py-1 rounded">ATTENTION
+                    SPAN</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Schulte Grid -->
+                <a href="schulte_grid.html" class="glass-panel p-8 rounded-2xl relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 3h18v18H3V3zm2 2v14h14V5H5z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">舒尔特方格</h3>
+                    <p class="text-zinc-400 text-sm mb-4">经典的专注力与视幅广度训练。快速按顺序点击数字。</p>
+                </a>
+
+                <!-- N-Back -->
+                <a href="nback_trainer.html" class="glass-panel p-8 rounded-2xl relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">N-Back 工作记忆</h3>
+                    <p class="text-zinc-400 text-sm mb-4">提升视觉工作记忆能力。判断当前图像是否与前 N 次相同。</p>
+                </a>
+
+                <!-- Flash Trainer -->
+                <a href="flash_trainer.html" class="glass-panel p-8 rounded-2xl relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 2v11h3v9l7-12h-4l4-8z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">瞬视反应训练</h3>
+                    <p class="text-zinc-400 text-sm mb-4">毫秒级视觉捕捉训练。提升对快速移动物体的识别能力。</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Section 3: Assessment & Tools -->
+        <section>
+            <h2 class="text-2xl font-bold mb-8 flex items-center gap-3 text-white">
+                <span class="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                筛查与工具 (Assessment)
+                <span
+                    class="text-xs font-normal text-zinc-500 ml-auto font-mono border border-zinc-800 px-2 py-1 rounded">CHECKUP</span>
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="vision_chart.html"
+                    class="glass-panel p-6 rounded-xl flex flex-col items-center text-center hover:bg-zinc-800">
+                    <div class="text-4xl mb-3">E</div>
+                    <span class="text-sm font-bold text-zinc-300">标准视力表</span>
+                </a>
+                <a href="color_test.html"
+                    class="glass-panel p-6 rounded-xl flex flex-col items-center text-center hover:bg-zinc-800">
+                    <div class="text-4xl mb-3">🎨</div>
+                    <span class="text-sm font-bold text-zinc-300">色盲色弱测试</span>
+                </a>
+                <a href="astigmatism_test.html"
+                    class="glass-panel p-6 rounded-xl flex flex-col items-center text-center hover:bg-zinc-800">
+                    <div class="text-4xl mb-3">👁️</div>
+                    <span class="text-sm font-bold text-zinc-300">散光筛查</span>
+                </a>
+                <a href="dashboard.html"
+                    class="glass-panel p-6 rounded-xl flex flex-col items-center text-center border-emerald-500/30 hover:bg-emerald-500/10">
+                    <div class="text-4xl mb-3">📏</div>
+                    <span class="text-sm font-bold text-emerald-400">AI 距离监测</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 border-t border-zinc-900 text-center text-zinc-600 font-mono text-xs">
+        <p>VISION GUARD AI • NEURO-ENHANCEMENT DIVISION</p>
+    </footer>
+
+</body>
+
+</html>

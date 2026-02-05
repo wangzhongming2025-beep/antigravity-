@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroFlow | NSDR 深度休息</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            /* Soft purple/pink for rest */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            /* 16:9 */
+            height: 0;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(167, 139, 250, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .info-card {
+            margin-top: 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: left;
+            border-left: 4px solid #a78bfa;
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            color: #e2e8f0;
+        }
+
+        .info-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+
+        .nav-back:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="index.html" class="nav-back">
+        <span>←</span> 返回控制面板
+    </a>
+
+    <div class="container">
+        <h1>NSDR 非睡眠深度休息</h1>
+        <p class="subtitle">10分钟重置神经系统 | 提升多巴胺储备 | 加速学习记忆</p>
+
+        <div class="video-wrapper">
+            <!-- Huberman Lab NSDR (10 min) -->
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/pL02HRFk2vo?si=3kX-e5a9y2t5q_7-"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+
+        <div class="info-card">
+            <h3>为什么选择 NSDR?</h3>
+            <p>基于 Andrew Huberman 博士 (斯坦福神经生物学) 推荐的协议。NSDR (Non-Sleep Deep Rest) 能够通过特定的呼吸和身体扫描，让大脑进入类似睡眠的深度放松状态。即使只有 10
+                分钟，也能有效补充睡眠不足，恢复前额叶皮层的执行功能。</p>
+        </div>
+    </div>
+
+</body>
+
+</html>
