@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroFlow | 专为 ADHD 设计的神经优化系统</title>
+    <meta name="description" content="基于神经科学与执行功能理论，帮助你从混沌到有序，掌握大脑节奏。">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Coin Animation Container -->
+    <div id="coin-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2000;"></div>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">NEUROFLOW</div>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link active">控制面板</a>
+                <a href="training.html" class="nav-link">训练舱</a>
+                <a href="reset.html" class="nav-link">重启指南</a>
+                <a href="chronoview.html" class="nav-link">时间视角</a>
+                <a href="sensory.html" class="nav-link">感统桥接</a>
+                <!-- <a href="../courses.html" class="nav-link">课程</a> -->
+            </nav>
+            <div class="user-status">
+                <div class="coin-badge">
+                    <span>⚡</span> <span id="focus-coins">1,240</span> 专注币
+                </div>
+                <div class="glass-panel" style="padding: 8px 16px; border-radius: 12px; font-size: 14px;">
+                    🔥 连续 5 天
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Hero: Identity Statement -->
+            <div class="glass-panel hero-card main-module clickable" id="identity-engine">
+                <div class="card-title">当前身份宣言</div>
+                <div class="card-value">“我是节奏的掌握者，而非任务的奴隶。”</div>
+                <p style="margin-top: 12px; color: var(--text-muted);">点击刷新你的 AI 身份驱动词</p>
+            </div>
+
+            <!-- Module 1: Breathing Cabin -->
+            <div class="glass-panel main-module clickable" id="breath-cabin"
+                onclick="window.location.href='training.html'">
+                <div class="module-icon">🫁</div>
+                <h3 class="module-title">前额叶点火程序 (PFC Ignition Protocol)</h3>
+                <p class="module-desc">5分钟神经唤醒：生理性叹息法 (Physiological Sigh)。调整多巴胺基准线。</p>
+                <div class="breathing-portal" style="width: 60px; height: 60px; margin: 20px 0;"></div>
+                <button class="btn-primary">进入舱室</button>
+            </div>
+
+            <!-- Module 2: Task Deconstructor -->
+            <div class="glass-panel main-module clickable" id="task-deconstructor">
+                <div class="module-icon">🧩</div>
+                <h3 class="module-title">多巴胺任务切片机 (Dopamine Slicer)</h3>
+                <p class="module-desc">输入庞大任务，AI 自动切分为「极小可执行单元」。打破启动焦虑。</p>
+                <button class="btn-primary">开始拆解</button>
+            </div>
+
+            <!-- Module 3: Active Recall Test -->
+            <div class="glass-panel main-module clickable" id="recall-test">
+                <div class="module-icon">🧠</div>
+                <h3 class="module-title">回忆测试模式</h3>
+                <p class="module-desc">利用神经可塑性原理，通过「主动提取」强化记忆，而非反复阅读。</p>
+                <button class="btn-primary">启动测试</button>
+            </div>
+
+            <!-- Module 4: Reward Center -->
+            <div class="glass-panel main-module clickable" id="reward-shop">
+                <div class="module-icon">🎁</div>
+                <h3 class="module-title">奖励积分系统</h3>
+                <p class="module-desc">用专注币兑换多巴胺奖励：皮肤、徽章或专注音效。</p>
+                <div style="margin-top: 15px; display: flex; gap: 8px;">
+                    <span
+                        style="font-size: 12px; padding: 4px 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">新皮肤:
+                        CyberNight</span>
+                </div>
+            </div>
+
+            <!-- Module 5: Dopamine Detox Guide -->
+            <div class="glass-panel main-module clickable" id="dopamine-detox">
+                <div class="module-icon">🚭</div>
+                <h3 class="module-title">神经受体清洗计划 (Receptor Reset)</h3>
+                <p class="module-desc">制定 24 小时神经重置计划。控制屏幕时间与成瘾物质，恢复受体敏感度。</p>
+                <button class="btn-primary" style="background:var(--accent-purple);">制定重置计划</button>
+            </div>
+
+            <!-- Module 6: Neural Push Settings -->
+            <div class="glass-panel main-module clickable" id="neural-push">
+                <div class="module-icon">🔔</div>
+                <h3 class="module-title">神经原语同步</h3>
+                <p class="module-desc">自动推送身份宣言。在意志力薄弱的时段（如 15:00），给予外部神经提醒。</p>
+                <div
+                    style="margin-top:10px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--primary-neon);">
+                    <span id="push-status-dot"
+                        style="width:8px; height:8px; border-radius:50%; background:#888;"></span>
+                    <span id="push-status-text">未激活</span>
+                </div>
+            </div>
+
+            <!-- Module 7: Mobile Sync / Mini Program -->
+            <div class="glass-panel main-module" id="mobile-sync"
+                style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0, 242, 255, 0.05) 100%); border: 1px solid rgba(0, 242, 255, 0.2);">
+                <div class="module-icon">📱</div>
+                <h3 class="module-title">移动端实时同步</h3>
+                <p class="module-desc">扫码关注「小程序」，随时随地接收「神经原语」推送，在手机端完成感统训练。让专注力无处不在。</p>
+                <div style="margin-top: 20px; display: flex; justify-content: center;">
+                    <div
+                        style="padding: 10px; background: #fff; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); width: 140px; height: 140px; display: flex; align-items: center; justify-content: center;">
+                        <img src="wechat_qr.jpg" alt="小程序码" style="width: 130px; height: 130px; border-radius: 4px;">
+                    </div>
+                </div>
+                <div
+                    style="margin-top: 15px; text-align: center; font-size: 12px; color: var(--primary-neon); font-weight: 600;">
+                    微信扫一扫 · 开启神经同步</div>
+            </div>
+
+            <!-- Module 8: Weekly Report (Resized) -->
+            <div class="glass-panel main-module clickable" id="weekly-insights" style="grid-column: span 12;">
+                <div class="module-icon">📊</div>
+                <h3 class="module-title">神经优化日志 (AI 洞察)</h3>
+                <p class="module-desc">本周专注时长、任务漏斗分布及情绪稳定性分析。</p>
+                <div style="height: 300px; margin-top: 20px;">
+                    <canvas id="neuro-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <footer style="margin-top: 60px; text-align: center; color: var(--text-muted); font-size: 12px;">
+            <p>© 2026 NEUROFLOW SAAS | 基于 Huberman & Barkley 理论体系</p>
+        </footer>
+    </div>
+
+    <!-- Modals (Hidden by default) -->
+    <div id="modal-container"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="glass-panel" style="max-width: 500px; width: 90%; position: relative;">
+            <button id="close-modal"
+                style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; cursor: pointer; font-size: 20px;">✕</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="app.js?v=2"></script>
+</body>
+
+</html>

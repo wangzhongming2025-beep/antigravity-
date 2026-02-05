@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronoView | ADHD 时间与任务可视化</title>
+    <link rel="stylesheet" href="chronoview.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="chrono-theme">
+    <div id="chrono-app">
+        <!-- Background Fluid -->
+        <canvas id="fluidCanvas"></canvas>
+
+        <header class="glass-header">
+            <div class="logo">CHRONO<span>VIEW</span></div>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">控制面板</a>
+                <a href="training.html" class="nav-link">训练舱</a>
+                <a href="reset.html" class="nav-link">重启指南</a>
+                <a href="chronoview.html" class="nav-link active">时间视角</a>
+                <a href="sensory.html" class="nav-link">感统桥接</a>
+                <!-- <a href="../courses.html" class="nav-link">课程</a> -->
+            </nav>
+            <div class="audio-toggle" id="audioToggle">
+                <span class="icon">🔊</span>
+                <span class="status">磁性引导</span>
+            </div>
+        </header>
+
+        <main class="chrono-main">
+            <!-- Left: Task Configuration -->
+            <aside class="task-sidebar glass-panel">
+                <div class="panel-header">
+                    <h3>🎯 任务分布</h3>
+                    <p>将任务外置，分配时间块</p>
+                </div>
+
+                <div class="task-input-group">
+                    <input type="text" id="taskName" placeholder="新任务名称...">
+                    <select id="taskDuration">
+                        <option value="15">15 分钟</option>
+                        <option value="30" selected>30 分钟</option>
+                        <option value="45">45 分钟</option>
+                        <option value="60">60 分钟</option>
+                        <option value="90">90 分钟 (Huberman)</option>
+                    </select>
+                    <button id="addTaskBtn">+</button>
+                </div>
+
+                <div id="taskList" class="scroll-area">
+                    <!-- Tasks will be injected here -->
+                </div>
+
+                <div class="session-controls">
+                    <button id="startSessionBtn" class="btn-glow">启动时间流</button>
+                </div>
+            </aside>
+
+            <!-- Center: The Visualization -->
+            <section class="visualizer-container">
+                <div class="visualizer-deck">
+                    <!-- Time Funnel / Hourglass -->
+                    <div class="hourglass-wrapper">
+                        <div class="glass-top">
+                            <div class="liquid-source" id="liquidRemaining"></div>
+                        </div>
+                        <div class="glass-neck">
+                            <div class="drip"></div>
+                        </div>
+                        <div class="glass-bottom">
+                            <div class="liquid-fill" id="liquidConsumed"></div>
+                            <div id="achievementParticles"></div>
+                        </div>
+                    </div>
+
+                    <!-- Digital Display Backup -->
+                    <div class="timer-readout">
+                        <div id="timerDisplay">00:00:00</div>
+                        <div id="activeTaskLabel">等待任务选择...</div>
+                    </div>
+                </div>
+
+                <!-- Focus Map (Huberman intermitted feedback) -->
+                <div class="focus-bar-container glass-panel">
+                    <div class="bar-header">
+                        <span>神经元稳定性预测</span>
+                        <span id="stabilityVal">100%</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill" id="stabilityFill"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Distraction Catch & Insights -->
+            <aside class="insight-sidebar glass-panel">
+                <div class="panel-header">
+                    <h3>🧠 杂念捕获</h3>
+                    <p>Barkley: 立即释放工作记忆</p>
+                </div>
+                <div class="distraction-box">
+                    <input type="text" id="distractionInput" placeholder="突然想到的...">
+                    <ul id="distractionLog"></ul>
+                </div>
+
+                <div class="huberman-tip">
+                    <h4>💡 神经小技巧</h4>
+                    <p id="tipText">Huberman: 保持视觉锁定中心 30 秒，可提升基准多巴胺浓度。</p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="completionModal" class="modal">
+        <div class="glass-panel modal-content">
+            <h2>✨ 周期达成</h2>
+            <p>你的前额叶皮层完成了一次深度同步。</p>
+            <div class="reward-stat">+50 专注币</div>
+            <button onclick="chronoApp.closeModal()">继续下一个任务</button>
+        </div>
+    </div>
+
+    <script src="chronoview.js"></script>
+</body>
+
+</html>

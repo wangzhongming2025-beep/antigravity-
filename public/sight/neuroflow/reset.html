@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroReset | ADHD 神经系统重启协议</title>
+    <link rel="stylesheet" href="reset.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="reset-theme">
+    <div id="reset-app">
+        <!-- Background Elements -->
+        <div class="background-vignette"></div>
+        <div class="grain-overlay"></div>
+
+        <!-- Header -->
+        <header class="minimal-header">
+            <div class="logo">NEURO<span>RESET</span></div>
+            <nav class="reset-nav">
+                <a href="index.html" class="nav-link">控制面板</a>
+                <a href="training.html" class="nav-link">训练舱</a>
+                <a href="reset.html" class="nav-link active">重启指南</a>
+                <a href="chronoview.html" class="nav-link">时间视角</a>
+                <a href="sensory.html" class="nav-link">感统桥接</a>
+                <!-- <a href="../courses.html" class="nav-link">课程</a> -->
+            </nav>
+        </header>
+
+        <main id="reset-stage">
+            <!-- Phase 0: The Crisis Entry -->
+            <section id="phase-entry" class="phase active">
+                <div class="content-container">
+                    <h1 class="fade-in">感到混乱？</h1>
+                    <p class="subtitle fade-in delay-1">你的神经递质正在过载。让我们启动“神经重启协议”，在 5 分钟内找回节奏。</p>
+                    <button class="btn-reset-start fade-in delay-2" onclick="resetApp.startProtocol()">启动重启协议</button>
+                </div>
+            </section>
+
+            <!-- Phase 1: Physiological Brake (Huberman) -->
+            <section id="phase-brake" class="phase">
+                <div class="instruction">生理性叹息：紧急制动神经系统</div>
+                <div class="breathing-display">
+                    <div class="breath-circle" id="breathCircle"></div>
+                    <div class="breath-text" id="breathText">准备...</div>
+                </div>
+                <div class="counter" id="breathCounter">3 / 3</div>
+            </section>
+
+            <!-- Phase 2: Cognitive Dump (Barkley) -->
+            <section id="phase-dump" class="phase">
+                <div class="instruction">清空工作记忆：倾倒大脑杂念</div>
+                <p class="sub-instruction">输入当前缠绕你的每一个念头。按下回车，让它们离开你的大脑。</p>
+                <div class="dump-container">
+                    <input type="text" id="dumpInput" placeholder="写下现在的干扰项..." autocomplete="off">
+                    <div class="particle-view" id="particleView"></div>
+                </div>
+                <button class="btn-next" id="btnFinishDump" style="display: none;"
+                    onclick="resetApp.nextPhase()">我感觉清爽了，下一步</button>
+            </section>
+
+            <!-- Phase 3: Environment Shield -->
+            <section id="phase-shield" class="phase">
+                <div class="instruction">物理边界：重建执行环境</div>
+                <div class="checklist-grid">
+                    <div class="check-item" onclick="resetApp.toggleCheck(this)">
+                        <div class="check-box"></div>
+                        <div class="check-label">
+                            <h4>移出手机</h4>
+                            <p>将其放在视线范围之外（物理屏障）</p>
+                        </div>
+                    </div>
+                    <div class="check-item" onclick="resetApp.toggleCheck(this)">
+                        <div class="check-box"></div>
+                        <div class="check-label">
+                            <h4>清理桌面</h4>
+                            <p>移除 2 个引起分心的物理杂物</p>
+                        </div>
+                    </div>
+                    <div class="check-item" onclick="resetApp.toggleCheck(this)">
+                        <div class="check-box"></div>
+                        <div class="check-label">
+                            <h4>水分补充</h4>
+                            <p>喝 200ml 水，激活代谢</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-next" id="btnShieldNext" disabled onclick="resetApp.nextPhase()">边界已建立</button>
+            </section>
+
+            <!-- Phase 4: Visual Priming (Huberman) -->
+            <section id="phase-prime" class="phase">
+                <div class="instruction">视觉预热：唤醒前额叶皮层</div>
+                <p class="sub-instruction">视线不要离开运动的小球。保持高度锁定。</p>
+                <div class="priming-arena">
+                    <div class="prime-ball" id="primeBall"></div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="primeProgress"></div>
+                </div>
+            </section>
+
+            <!-- Phase 5: Result -->
+            <section id="phase-result" class="phase">
+                <div class="result-box">
+                    <div class="success-icon">✨</div>
+                    <h2>神经系统已重启</h2>
+                    <p>多巴胺基准线已稳定，执行功能已外置。你现在可以开始了。</p>
+                    <div class="action-footer">
+                        <button class="btn-primary" onclick="window.location.href='training.html'">进入训练舱</button>
+                        <button class="btn-secondary" onclick="window.location.href='index.html'">返回控制面板</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="reset.js"></script>
+</body>
+
+</html>

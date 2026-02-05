@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NeuroBridge | Sensory Architecture</title>
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --accent-pink: #ff00ff;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #7000ff;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --card-bg: #1a1a1a;
+            --border: #333;
+            --gradient: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            padding: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: left;
+            padding: 3rem 0 2rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(112, 0, 255, 0.2);
+            border: 1px solid var(--accent-purple);
+            border-radius: 100px;
+            color: var(--accent-cyan);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            letter-spacing: -1px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            border-left: 2px solid var(--accent-pink);
+            padding-left: 1rem;
+        }
+
+        /* Module Grid */
+        .module-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .module-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 1.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .module-card:active {
+            transform: scale(0.97);
+            background: #222;
+        }
+
+        .module-tag {
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 0, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+        }
+
+        .module-desc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 1.8rem;
+        }
+
+        .btn-launch {
+            width: 100%;
+            padding: 1.1rem;
+            background: none;
+            border: 1px solid var(--accent-pink);
+            border-radius: 16px;
+            color: var(--accent-pink);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .module-card:hover .btn-launch {
+            background: var(--accent-pink);
+            color: white;
+        }
+
+        /* Juggling Visual Sandbox (mini) */
+        .juggling-preview {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ball {
+            width: 20px;
+            height: 20px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 15px var(--accent-cyan);
+        }
+
+        /* Fullscreen Overlay for Mini-games */
+        #game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .game-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+        }
+
+        #game-canvas-container {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle at center, #111 0%, #050505 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* Juggling Game specifics */
+        .hand {
+            position: absolute;
+            bottom: 40px;
+            width: 60px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 10px;
+        }
+
+        #left-hand {
+            left: 20%;
+        }
+
+        #right-hand {
+            right: 20%;
+        }
+
+        .score-box {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        /* Nav Tab Bar (NeuroFlow Style) */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(5, 5, 5, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem 0 1.5rem;
+            z-index: 100;
+        }
+
+        .nav-item {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .nav-item.active {
+            color: var(--accent-pink);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-30px);
+            }
+        }
+
+        .animate-juggling .ball {
+            animation: float 2s infinite ease-in-out;
+        }
+
+        .optic-circle {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            box-shadow: 0 0 20px var(--accent-purple);
+            top: 50%;
+            left: -50px;
+        }
+
+        /* Juggling Visual Indicator */
+        .juggling-indicator {
+            position: absolute;
+            top: 1.8rem;
+            right: 1.8rem;
+            display: flex;
+            gap: 4px;
+        }
+
+        .indicator-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-pink);
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Overlay Game */
+        #game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        #game-canvas-container {
+            flex: 1;
+            position: relative;
+            touch-action: none;
+            overflow: hidden;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.1);
+        }
+
+        .hand-area {
+            position: absolute;
+            bottom: 0;
+            width: 50%;
+            height: 40%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 40px;
+        }
+
+        #left-area {
+            left: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #right-area {
+            right: 0;
+        }
+
+        .game-ball {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-pink);
+            border-radius: 50%;
+            box-shadow: 0 0 30px var(--accent-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .close-game {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2001;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>感统居家桥接计划</h1>
+            <p class="description">通过激活前庭觉 (Vestibular) 与本体觉 (Proprioception)，物理性提升大脑的觉醒度与专注质量。</p>
+        </header>
+
+        <div class="module-list">
+            <!-- Juggling Module -->
+            <div class="module-card">
+                <div class="juggling-indicator">
+                    <div class="indicator-dot" style="animation-delay: 0s"></div>
+                    <div class="indicator-dot" style="animation-delay: 0.2s"></div>
+                    <div class="indicator-dot" style="animation-delay: 0.4s"></div>
+                </div>
+                <div class="icon-box">🤹</div>
+                <h3 class="module-title">双侧协调：杂耍球节律</h3>
+                <p class="module-desc">Barkley 理论核心：通过交叉运动强化前额叶控制。点击落入击打区域的球，维持神经兴奋反馈。</p>
+                <button class="btn-launch" onclick="launchGame('juggling')">进入交互训练</button>
+            </div>
+
+            <!-- Balance Module -->
+            <div class="module-card">
+                <div class="icon-box">🌀</div>
+                <h3 class="module-title">前庭平衡觉测试</h3>
+                <p class="module-desc">建立物理稳态。Huberman 协议：通过加速感调节多巴胺基准线，消除专注时的“漂浮感”。</p>
+                <button class="btn-launch" onclick="launchGame('balance')">开始测试</button>
+            </div>
+
+            <!-- Proprioception Module -->
+            <div class="module-card">
+                <div class="icon-box">⚡</div>
+                <h3 class="module-title">本体觉爆发训练</h3>
+                <p class="module-desc">强化深层关节压力反馈，让大脑“感觉”到身体，消除思维游离与白日梦状态。</p>
+                <button class="btn-launch" onclick="launchGame('proprio')">查看动作指南</button>
+            </div>
+
+            <!-- Vision Module -->
+            <div class="module-card">
+                <div class="icon-box" style="position: relative; overflow: hidden;">
+                    👁
+                    <div id="optic-ball"
+                        style="position: absolute; width: 4px; height: 4px; background: var(--accent-cyan); border-radius: 50%; top: 50%; left: -10px;">
+                    </div>
+                </div>
+                <h3 class="module-title">视觉运动协调</h3>
+                <p class="module-desc">利用 Optic Flow (平滑光流) 抑制冲动性微跳视。强化视固定的神经回路。</p>
+                <button class="btn-launch" onclick="launchGame('vision')">开始追踪</button>
+            </div>
+        </div>
+
+        <div style="height: 120px;"></div>
+    </div>
+
+    <!-- Game Overlay -->
+    <div id="game-overlay">
+        <button class="close-game" onclick="exitGame()">✕</button>
+        <div id="game-canvas-container">
+            <!-- Game Logic Injected Here -->
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <a href="index.html" class="nav-item">控制面板</a>
+        <a href="training.html" class="nav-item">训练舱</a>
+        <a href="sensory.html" class="nav-item active">感统桥接</a>
+        <a href="chronoview.html" class="nav-item">时间视角</a>
+    </nav>
+
+    <script>
+        const overlay = document.getElementById('game-overlay');
+        const container = document.getElementById('game-canvas-container');
+        let gameActive = false;
+        let balls = [];
+        let score = 0;
+        let animationId;
+        let gameIntervals = [];
+
+        function cleanup() {
+            gameActive = false;
+            if (animationId) cancelAnimationFrame(animationId);
+            gameIntervals.forEach(clearInterval);
+            gameIntervals = [];
+        }
+
+        function launchGame(type) {
+            cleanup();
+            overlay.style.display = 'flex';
+            container.innerHTML = '';
+            gameActive = true;
+
+            if (type === 'juggling') {
+                score = 0;
+                balls = [];
+                initJuggling();
+            } else if (type === 'vision') {
+                initOpticFlow();
+            } else if (type === 'balance') {
+                initBalance();
+            } else if (type === 'proprio') {
+                initProprio();
+            } else {
+                container.innerHTML = `<div style="padding: 100px; text-align: center; color: var(--text-dim);">模块 [${type}] 正在加载神经协议...</div>`;
+            }
+        }
+
+        function exitGame() {
+            cleanup();
+            overlay.style.display = 'none';
+        }
+
+        function initJuggling() {
+            container.innerHTML = `
+                <div class="score-display" id="score">00</div>
+                <div class="hand-area" id="left-area">
+                    <div style="font-size: 0.7rem; color: #444; margin-bottom: 20px;">LEFT TAP</div>
+                </div>
+                <div class="hand-area" id="right-area">
+                    <div style="font-size: 0.7rem; color: #444; margin-bottom: 20px;">RIGHT TAP</div>
+                </div>
+            `;
+
+            const scoreEl = document.getElementById('score');
+
+            function spawnBall() {
+                if (!gameActive) return;
+                const ball = {
+                    x: Math.random() > 0.5 ? window.innerWidth * 0.25 : window.innerWidth * 0.75,
+                    y: -50,
+                    vy: 2 + Math.random() * 2,
+                    el: document.createElement('div')
+                };
+                ball.el.className = 'game-ball';
+                ball.el.innerText = '●';
+                container.appendChild(ball.el);
+                balls.push(ball);
+            }
+
+            function spawners() {
+                if (!gameActive) return;
+                spawnBall();
+                const spawner = setTimeout(spawners, 1500 - Math.min(score * 20, 1000));
+                gameIntervals.push(spawner);
+            }
+            spawners();
+
+            function loop() {
+                if (!gameActive) return;
+
+                balls.forEach((ball, index) => {
+                    ball.y += ball.vy;
+                    ball.el.style.transform = `translate(${ball.x - 25}px, ${ball.y - 25}px)`;
+
+                    if (ball.y > window.innerHeight) {
+                        ball.el.remove();
+                        balls.splice(index, 1);
+                        if (score > 0) score = Math.max(0, score - 1);
+                        scoreEl.innerText = score.toString().padStart(2, '0');
+                    }
+                });
+
+                animationId = requestAnimationFrame(loop);
+            }
+            animationId = requestAnimationFrame(loop);
+
+            const handleTap = (side) => {
+                const tapX = side === 'left' ? window.innerWidth * 0.25 : window.innerWidth * 0.75;
+                balls.forEach((ball, index) => {
+                    if (ball.y > window.innerHeight * 0.6 && Math.abs(ball.x - tapX) < 50) {
+                        ball.vy = -(8 + Math.random() * 4);
+                        score++;
+                        scoreEl.innerText = score.toString().padStart(2, '0');
+                        ball.el.style.backgroundColor = 'var(--accent-cyan)';
+                        ball.el.style.boxShadow = '0 0 40px var(--accent-cyan)';
+                        setTimeout(() => {
+                            ball.el.style.backgroundColor = 'var(--accent-pink)';
+                            ball.el.style.boxShadow = '0 0 30px var(--accent-pink)';
+                        }, 200);
+                    }
+                });
+            };
+
+            document.getElementById('left-area').ontouchstart = () => handleTap('left');
+            document.getElementById('right-area').ontouchstart = () => handleTap('right');
+            document.getElementById('left-area').onclick = () => handleTap('left');
+            document.getElementById('right-area').onclick = () => handleTap('right');
+        }
+
+        // --- GAME LOGIC: OPTIC FLOW ---
+        function initOpticFlow() {
+            container.innerHTML = `
+                <div style="position: absolute; top: 20px; width: 100%; text-align: center; color: var(--text-dim); font-size: 0.8rem;">保持头部不动，双眼紧盯光球轨迹</div>
+                <div id="optic-target" style="width: 50px; height: 50px; background: radial-gradient(circle, var(--accent-cyan), transparent); border-radius: 50%; box-shadow: 0 0 30px var(--accent-cyan); position: absolute;"></div>
+            `;
+            const target = document.getElementById('optic-target');
+            let angle = 0;
+
+            function update() {
+                if (!gameActive) return;
+                angle += 0.02;
+                const x = Math.sin(angle) * (window.innerWidth * 0.35) + (window.innerWidth / 2) - 25;
+                const y = Math.cos(angle * 0.6) * (window.innerHeight * 0.3) + (window.innerHeight / 2) - 25;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                animationId = requestAnimationFrame(update);
+            }
+            animationId = requestAnimationFrame(update);
+        }
+
+        function initBalance() {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div id="balance-ball" style="width: 60px; height: 60px; background: var(--gradient); border-radius: 50%; margin: 2rem auto; transition: transform 0.1s; box-shadow: 0 0 30px rgba(255,0,255,0.4);"></div>
+                    <h3 style="margin-bottom: 1rem;">单脚闭目平衡</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2rem;">Huberman 协议：闭上双眼，单脚站立。尝试保持身体重心，抵抗干扰分心。</p>
+                    <div id="timer" style="font-size: 3rem; font-weight: 800; color: var(--accent-cyan);">00:00</div>
+                    <button class="btn-launch" id="start-balance" style="margin-top: 2rem; width: 200px; display: inline-flex;">开始计时</button>
+                </div>
+            `;
+
+            let startTime;
+            const timerEl = document.getElementById('timer');
+            const ballEl = document.getElementById('balance-ball');
+            const startBtn = document.getElementById('start-balance');
+
+            startBtn.onclick = () => {
+                startBtn.style.display = 'none';
+                startTime = Date.now();
+                const interval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const secs = (elapsed % 60).toString().padStart(2, '0');
+                    timerEl.innerText = `${mins}:${secs}`;
+
+                    const shake = Math.sin(Date.now() / 100) * 5;
+                    ballEl.style.transform = `translateX(${shake}px)`;
+                }, 100);
+                gameIntervals.push(interval);
+            };
+        }
+
+        function initProprio() {
+            container.innerHTML = `
+                <div style="padding: 2rem; width: 100%; max-width: 400px;">
+                    <h3 style="margin-bottom: 1.5rem; text-align: center;">本体觉重置指令</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 16px; border-left: 4px solid var(--accent-pink);">
+                            <div style="font-weight: 700; margin-bottom: 0.4rem;">1. 深层挤压 (Deep Pressure)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-dim);">用力回抱双臂，感受肋骨与肌肉的压力反馈。</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 16px; border-left: 4px solid var(--accent-cyan);">
+                            <div style="font-weight: 700; margin-bottom: 0.4rem;">2. 关节抗阻 (Joint Loading)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-dim);">原地进行 5 次垂直跳跃，着地时感受关节压力。</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 16px; border-left: 4px solid var(--accent-purple);">
+                            <div style="font-weight: 700; margin-bottom: 0.4rem;">3. 自重对抗 (Wall Push)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-dim);">双手用力推墙 10 秒，激活上肢运动皮层。</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // SIMPLE OPTIC PREVIEW ANIMATION
+        const previewDot = document.getElementById('optic-ball');
+        let prevX = -50;
+        setInterval(() => {
+            if (previewDot) {
+                prevX += 2;
+                if (prevX > 300) prevX = -50;
+                previewDot.style.left = prevX + 'px';
+            }
+        }, 16);
+
+    </script>
+
+</body>
+
+</html>

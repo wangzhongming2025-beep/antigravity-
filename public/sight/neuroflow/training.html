@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroFlow | ADHD 神经递质优化训练</title>
+    <link rel="stylesheet" href="training.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="cyber-theme">
+    <div id="app-container">
+        <!-- Background Elements -->
+        <div class="glow-sphere"></div>
+        <div class="grid-overlay"></div>
+
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="logo">NEURO<span>FLOW</span></div>
+            <nav class="training-nav">
+                <a href="index.html" class="nav-link">控制面板</a>
+                <a href="training.html" class="nav-link active">训练舱</a>
+                <a href="reset.html" class="nav-link">重启指南</a>
+                <a href="chronoview.html" class="nav-link">时间视角</a>
+                <a href="sensory.html" class="nav-link">感统桥接</a>
+                <!-- <a href="../courses.html" class="nav-link">课程</a> -->
+            </nav>
+            <div class="audio-toggle" id="audioToggle">
+                <span class="icon">🔊</span>
+                <span class="status">声音开启</span>
+            </div>
+        </header>
+
+        <main id="main-stage">
+            <!-- Stage 0: Intro / State Selection -->
+            <section id="stage-intro" class="stage active">
+                <div class="content-box">
+                    <h1 class="glitch-text" data-text="神经唤醒程序">神经唤醒程序</h1>
+                    <p class="subtitle">我们将通过视觉锁定、时间外置和即时多巴胺反馈来重构你的认知流。</p>
+                    <button class="btn-primary pulse" onclick="app.startFlow()">启动神经启动协议</button>
+                </div>
+            </section>
+
+            <!-- Stage 1: Huberman Focus (Visual Anchor) -->
+            <section id="stage-focus" class="stage">
+                <div class="instruction">请凝视中心点，保持呼吸</div>
+                <div class="focus-timer" id="focusTimer">60s</div>
+                <div class="anchor-container">
+                    <div class="anchor-ring"></div>
+                    <div class="anchor-dot"></div>
+                </div>
+                <div class="breathing-guide" id="breathingGuide">生理性叹息：吸气... 再次快速吸气... 深呼气...</div>
+            </section>
+
+            <!-- Stage 2: Barkley Decomposition (External Brain) -->
+            <section id="stage-decompose" class="stage">
+                <div class="content-box wide">
+                    <h2 class="section-title">外置你的大脑计划</h2>
+                    <p class="section-desc">ADHD 的大脑不擅长保留计划。让我们把它们写下来。</p>
+
+                    <div class="input-group">
+                        <label>当前核心目标 (BIG GOAL)</label>
+                        <input type="text" id="mainTask" placeholder="例如：完成项目报告...">
+                    </div>
+
+                    <div class="subtasks-container">
+                        <label>拆解为 3 个微行动 (10分钟内可完成)</label>
+                        <div class="subtask-row">
+                            <span class="num">1</span>
+                            <input type="text" class="subtask-input" placeholder="极琐碎的首个行动...">
+                        </div>
+                        <div class="subtask-row">
+                            <span class="num">2</span>
+                            <input type="text" class="subtask-input" placeholder="后续连带动作...">
+                        </div>
+                        <div class="subtask-row">
+                            <span class="num">3</span>
+                            <input type="text" class="subtask-input" placeholder="阶段性完成标志...">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="app.confirmTasks()">锁定并进入专注流</button>
+                </div>
+            </section>
+
+            <!-- Stage 3: The Flow (Timer & Distraction Catch) -->
+            <section id="stage-timer" class="stage">
+                <div class="flow-layout">
+                    <div class="timer-column">
+                        <div class="visual-timer">
+                            <svg class="timer-svg" viewBox="0 0 100 100">
+                                <circle class="timer-base" cx="50" cy="50" r="45"></circle>
+                                <circle class="timer-progress" id="timerCircle" cx="50" cy="50" r="45"></circle>
+                            </svg>
+                            <div class="timer-display" id="mainCountdown">25:00</div>
+                        </div>
+                        <div class="current-focus" id="currentFocusTask">正在处理：未设置</div>
+                    </div>
+
+                    <div class="action-column">
+                        <div class="distraction-box glass-panel">
+                            <h3>🧠 干扰收集器 (外置记忆)</h3>
+                            <p>突然冒出的想法？写在这里，然后忘掉它。</p>
+                            <div class="catch-input">
+                                <input type="text" id="distractionInput" placeholder="记录突发奇想...">
+                                <button onclick="app.catchDistraction()">捕获</button>
+                            </div>
+                            <ul id="distractionList"></ul>
+                        </div>
+
+                        <div class="tasks-checklist glass-panel">
+                            <h3>🎯 当前拆解步骤</h3>
+                            <ul id="activeSubtasks"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stage 4: Reward / Completion -->
+            <section id="stage-reward" class="stage">
+                <div class="reward-content">
+                    <div class="reward-icon">🏆</div>
+                    <h2 class="glitch-text">神经连接已强化</h2>
+                    <p>你完成了一个专注周期。多巴胺正在基准线平衡。</p>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="val">25m</span>
+                            <span class="lbl">专注时长</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="val" id="rewardCoins">+10</span>
+                            <span class="lbl">专注能量</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="location.reload()">开启新循环</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Audio Synthesis Manager -->
+    <script src="training.js"></script>
+</body>
+
+</html>
