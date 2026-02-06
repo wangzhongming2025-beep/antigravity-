@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 职业性格测试 | 深度解析</title>
+    <meta name="description" content="基于荣格心理学理论的MBTI性格测试，探索您的性格类型，发现职业潜能。专业、免费、深度解析。">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(160deg, #0a0f1a 0%, #0d1520 50%, #0a0f1a 100%);
+            min-height: 100vh;
+            color: #f1f5f9;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .btn-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(14, 165, 233, 0.5);
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background-color: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border-color: #0ea5e9;
+            color: white;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+        }
+
+        /* Animated background blob */
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .blob-1 {
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 300px;
+            background: #0ea5e9;
+            animation: moveBlob1 10s infinite alternate;
+        }
+
+        .blob-2 {
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: #8b5cf6;
+            animation: moveBlob2 12s infinite alternate;
+        }
+
+        @keyframes moveBlob1 {
+            from {
+                transform: translate(-20%, -20%);
+            }
+
+            to {
+                transform: translate(10%, 10%);
+            }
+        }
+
+        @keyframes moveBlob2 {
+            from {
+                transform: translate(20%, 20%);
+            }
+
+            to {
+                transform: translate(-10%, -10%);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="overflow-x-hidden relative">
+
+    <!-- Background Ambience -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- Header -->
+    <nav class="fixed top-0 w-full z-50 glass-card border-b-0 border-b-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center font-bold text-white text-sm">
+                    V</div>
+                <span class="font-bold text-lg tracking-tight text-white">VisionGuard</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-sm text-slate-400 hover:text-white transition-colors">返回首页</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-12 px-6 min-h-screen flex items-center justify-center">
+        <div class="max-w-3xl w-full mx-auto relative z-10">
+
+            <!-- SCREEN: START -->
+            <div id="screen-start" class="text-center fade-in">
+                <div
+                    class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-purple-500 to-indigo-500 mb-8 shadow-2xl shadow-purple-500/20">
+                    <span class="text-4xl">🔮</span>
+                </div>
+                <h1
+                    class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 mb-6">
+                    MBTI 性格类型测试
+                </h1>
+                <p class="text-lg text-slate-400 mb-10 max-w-xl mx-auto leading-relaxed">
+                    基于荣格心理学理论，通过 4 个维度解构您的性格密码。<br>
+                    <span class="text-slate-500 text-sm mt-2 block">不仅是一个标签，更是了解自我的开始。</span>
+                </p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-2xl mx-auto">
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <div class="text-cyan-400 font-bold text-xl mb-1">E / I</div>
+                        <div class="text-xs text-slate-500">能量来源</div>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <div class="text-purple-400 font-bold text-xl mb-1">S / N</div>
+                        <div class="text-xs text-slate-500">感知方式</div>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <div class="text-pink-400 font-bold text-xl mb-1">T / F</div>
+                        <div class="text-xs text-slate-500">判断决策</div>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl text-center">
+                        <div class="text-emerald-400 font-bold text-xl mb-1">J / P</div>
+                        <div class="text-xs text-slate-500">生活态度</div>
+                    </div>
+                </div>
+
+                <button onclick="startTest()"
+                    class="btn-hover bg-white text-slate-900 font-bold px-10 py-4 rounded-full text-lg shadow-xl shadow-white/10 group flex items-center gap-2 mx-auto">
+                    开始探索
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </button>
+                <p class="text-xs text-slate-600 mt-6">共 28 题 · 约 5 分钟</p>
+            </div>
+
+            <!-- SCREEN: TEST -->
+            <div id="screen-test" class="hidden fade-in">
+                <!-- Progress -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-2xl font-bold text-white"><span id="current-q">1</span><span
+                                class="text-lg text-slate-600 font-normal"> / <span id="total-q">28</span></span></span>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-medium"
+                            id="dimension-tag">能量来源</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div id="progress-bar"
+                            class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 transition-all duration-500 ease-out"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Card -->
+                <div
+                    class="glass-card p-8 md:p-12 rounded-3xl min-h-[400px] flex flex-col justify-center relative overlow-hidden">
+                    <div
+                        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent">
+                    </div>
+
+                    <h2 id="question-text"
+                        class="text-2xl md:text-3xl font-medium text-center text-white mb-12 leading-relaxed">
+                        在社交聚会上，你通常更喜欢...
+                    </h2>
+
+                    <div class="space-y-4 max-w-xl mx-auto w-full">
+                        <button onclick="answer(1)"
+                            class="option-btn w-full p-5 rounded-2xl border border-slate-700 bg-slate-800/30 text-left group">
+                            <div class="flex items-center justify-between">
+                                <span id="option-a-text"
+                                    class="text-slate-200 group-hover:text-white transition-colors text-lg">主动与不同的人交谈</span>
+                                <div
+                                    class="w-5 h-5 rounded-full border-2 border-slate-600 group-hover:border-cyan-400 transition-colors">
+                                </div>
+                            </div>
+                        </button>
+                        <button onclick="answer(-1)"
+                            class="option-btn w-full p-5 rounded-2xl border border-slate-700 bg-slate-800/30 text-left group">
+                            <div class="flex items-center justify-between">
+                                <span id="option-b-text"
+                                    class="text-slate-200 group-hover:text-white transition-colors text-lg">只与熟悉的少数人交流</span>
+                                <div
+                                    class="w-5 h-5 rounded-full border-2 border-slate-600 group-hover:border-cyan-400 transition-colors">
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <button onclick="prevQuestion()" id="btn-prev"
+                        class="text-slate-500 hover:text-slate-300 text-sm py-2 px-4 rounded-lg transition-colors disabled:opacity-0">
+                        ← 上一题
+                    </button>
+                </div>
+            </div>
+
+            <!-- SCREEN: RESULT -->
+            <div id="screen-result" class="hidden fade-in">
+                <div class="text-center mb-10">
+                    <h2 class="text-xl text-slate-400 mb-2">您的性格类型是</h2>
+                    <h1 id="result-type"
+                        class="text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 mb-4 tracking-tighter"
+                        style="text-shadow: 0 0 60px rgba(139, 92, 246, 0.3);">INTJ</h1>
+                    <h3 id="result-title" class="text-2xl text-white font-bold mb-6">建筑师 (Architect)</h3>
+                    <p id="result-desc" class="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">
+                        富有想象力和战略性的思想家，一切皆在计划之中。
+                    </p>
+                </div>
+
+                <!-- Analysis Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <!-- Energy -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-slate-400 text-sm">能量来源</span>
+                            <span class="font-mono text-cyan-400 font-bold" id="score-ei">I: 68%</span>
+                        </div>
+                        <div class="relative h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-1000"
+                                id="bar-e" style="width: 50%"></div>
+                            <div class="absolute top-0 right-0 h-full bg-purple-500 transition-all duration-1000"
+                                id="bar-i" style="width: 50%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs font-bold text-slate-500">
+                            <span>外向 (E)</span>
+                            <span>内向 (I)</span>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-slate-400 text-sm">信息获取</span>
+                            <span class="font-mono text-purple-400 font-bold" id="score-sn">N: 72%</span>
+                        </div>
+                        <div class="relative h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-1000"
+                                id="bar-s" style="width: 50%"></div>
+                            <div class="absolute top-0 right-0 h-full bg-purple-500 transition-all duration-1000"
+                                id="bar-n" style="width: 50%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs font-bold text-slate-500">
+                            <span>实感 (S)</span>
+                            <span>直觉 (N)</span>
+                        </div>
+                    </div>
+
+                    <!-- Decision -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-slate-400 text-sm">决策方式</span>
+                            <span class="font-mono text-pink-400 font-bold" id="score-tf">T: 85%</span>
+                        </div>
+                        <div class="relative h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-1000"
+                                id="bar-t" style="width: 50%"></div>
+                            <div class="absolute top-0 right-0 h-full bg-purple-500 transition-all duration-1000"
+                                id="bar-f" style="width: 50%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs font-bold text-slate-500">
+                            <span>理智 (T)</span>
+                            <span>情感 (F)</span>
+                        </div>
+                    </div>
+
+                    <!-- Lifestyle -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-slate-400 text-sm">生活态度</span>
+                            <span class="font-mono text-emerald-400 font-bold" id="score-jp">J: 60%</span>
+                        </div>
+                        <div class="relative h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-1000"
+                                id="bar-j" style="width: 50%"></div>
+                            <div class="absolute top-0 right-0 h-full bg-purple-500 transition-all duration-1000"
+                                id="bar-p" style="width: 50%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs font-bold text-slate-500">
+                            <span>判断 (J)</span>
+                            <span>感知 (P)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 justify-center">
+                    <button onclick="location.reload()"
+                        class="px-8 py-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition-colors">
+                        重新测试
+                    </button>
+                    <button onclick="window.location.href='index.html'"
+                        class="px-8 py-3 rounded-full bg-white text-slate-900 font-bold hover:scale-105 transition-transform">
+                        返回首页
+                    </button>
+                </div>
+
+                <!-- Pro Tip -->
+                <div class="mt-12 p-6 rounded-2xl bg-white/5 border border-white/5 text-center">
+                    <p class="text-slate-400 text-sm">想获取更详细的职业发展建议与性格盲点分析？</p>
+                    <button onclick="alert('功能开发中，敬请期待！')"
+                        class="mt-3 text-cyan-400 text-sm hover:text-cyan-300 font-medium font-mono">
+                        查看完整报告 (PRO) →
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- DATA ---
+        // Questions: Each has a dimension (EI, SN, TF, JP) and a positive/negative weight
+        // E+, I-
+        // S+, N-
+        // T+, F-
+        // J+, P-
+
+        const QUESTIONS = [
+            // E vs I (7 questions)
+            { d: 'EI', text: "在疲惫的时候，你更倾向于如何恢复精力？", a: "找朋友聚会或出去走走 (E)", b: "独自一人在安静的环境中休息 (I)", w: 1 },
+            { d: 'EI', text: "在新的社交圈子里，你通常是...", a: "主动介绍自己，很容易认识新朋友 (E)", b: "等待别人来介绍，比较慢热 (I)", w: 1 },
+            { d: 'EI', text: "你更喜欢哪种工作环境？", a: "开放式、经常与人讨论交流的 (E)", b: "独立、安静、可以专注思考的 (I)", w: 1 },
+            { d: 'EI', text: "遇到问题时，你习惯...", a: "找人商量，边说边理清思路 (E)", b: "自己先在脑子里想清楚再表达 (I)", w: 1 },
+            { d: 'EI', text: "你认为自己是一个...", a: "容易被了解的人 (E)", b: "深沉难懂的人 (I)", w: 1 },
+            { d: 'EI', text: "在聚会上，你通常待到...", a: "很晚，并且精力充沛 (E)", b: "早早离开，或者感到精疲力尽 (I)", w: 1 },
+            { d: 'EI', text: "你更喜欢...", a: "广度：认识很多人，即使交情不深 (E)", b: "深度：只有几个亲密朋友，但关系很铁 (I)", w: 1 },
+
+            // S vs N (7 questions)
+            { d: 'SN', text: "你更关注...", a: "当下的现实和具体的细节 (S)", b: "未来的可能性和潜在的含义 (N)", w: 1 },
+            { d: 'SN', text: "你是如何获取信息的？", a: "相信确凿的证据、数据和经验 (S)", b: "相信直觉、灵感和理论模型 (N)", w: 1 },
+            { d: 'SN', text: "你更喜欢哪种类型的描述？", a: "具体的、按步骤的 (S)", b: "比喻的、概念性的 (N)", w: 1 },
+            { d: 'SN', text: "在做计划时，你倾向于...", a: "参考过去类似的经验 (S)", b: "尝试全新的、未经验证的方法 (N)", w: 1 },
+            { d: 'SN', text: "你认为自己更务实还是更有想象力？", a: "务实 (S)", b: "有想象力 (N)", w: 1 },
+            { d: 'SN', text: "你更擅长...", a: "处理具体的日常事务 (S)", b: "构思宏大的蓝图 (N)", w: 1 },
+            { d: 'SN', text: "你对事物的看法通常是...", a: "见树 (S)", b: "见林 (N)", w: 1 },
+
+            // T vs F (7 questions)
+            { d: 'TF', text: "做决定时，你更看重...", a: "逻辑、客观和公平 (T)", b: "价值观、和谐和对他人的影响 (F)", w: 1 },
+            { d: 'TF', text: "如果朋友犯了错，你会...", a: "直率地指出问题所在 (T)", b: "委婉地表达，照顾对方情绪 (F)", w: 1 },
+            { d: 'TF', text: "你认为哪种品质更重要？", a: "坚定、理智 (T)", b: "仁慈、体贴 (F)", w: 1 },
+            { d: 'TF', text: "在争论中，你更在乎...", a: "谁是对的（追求真理） (T)", b: "大家的感受（追求和谐） (F)", w: 1 },
+            { d: 'TF', text: "你更容易被什么说服？", a: "逻辑推导 (T)", b: "情感共鸣 (F)", w: 1 },
+            { d: 'TF', text: "工作中的你是...", a: "以任务为导向 (T)", b: "以人为导向 (F)", w: 1 },
+            { d: 'TF', text: "你通常被认为...", a: "冷静甚至有点冷漠 (T)", b: "热情且富有同情心 (F)", w: 1 },
+
+            // J vs P (7 questions)
+            { d: 'JP', text: "你的生活方式更接近...", a: "井井有条、有计划的 (J)", b: "随性、灵活、顺其自然的 (P)", w: 1 },
+            { d: 'JP', text: "对于最后期限 (Deadline)，你通常...", a: "提前完成，避免匆忙 (J)", b: "在最后一刻爆发惊人的效率 (P)", w: 1 },
+            { d: 'JP', text: "旅行前，你会...", a: "制定详细的行程表 (J)", b: "到了目的地再看心情决定 (P)", w: 1 },
+            { d: 'JP', text: "你更喜欢...", a: "事情一旦决定就确定下来 (J)", b: "保持开放，直到最后时刻 (P)", w: 1 },
+            { d: 'JP', text: "你的工作区域通常是...", a: "整洁有序的 (J)", b: "虽然乱但找得到东西的 (P)", w: 1 },
+            { d: 'JP', text: "在完成任务时，你喜欢...", a: "先工作再玩，完成后才放松 (J)", b: "边玩边做，或者在压力下工作 (P)", w: 1 },
+            { d: 'JP', text: "你更看重...", a: "结果和完成度 (J)", b: "过程和体验 (P)", w: 1 }
+        ];
+
+        // Format questions to be cleaner for UI
+        const PROCESSED_QUESTIONS = QUESTIONS.map(q => ({
+            d: q.d,
+            text: q.text,
+            a: q.a.replace(/\s\([A-Z]\)$/, ''),
+            b: q.b.replace(/\s\([A-Z]\)$/, ''),
+            wa: q.w, // weight if A is chosen (Positive)
+            wb: -1 * q.w // weight if B is chosen (Negative)
+        }));
+
+        // Type Descriptions
+        const TYPES = {
+            "ISTJ": { title: "物流师 (Logistician)", desc: "实际、注重事实。值得信赖的现实主义者。" },
+            "ISFJ": { title: "守卫者 (Defender)", desc: "非常专注而温暖的保护者，时刻准备着保护爱的一方。" },
+            "INFJ": { title: "提倡者 (Advocate)", desc: "安静而神秘，同时鼓舞人心且不知疲倦的理想主义者。" },
+            "INTJ": { title: "建筑师 (Architect)", desc: "富有想象力和战略性的思想家，一切皆在计划之中。" },
+            "ISTP": { title: "鉴赏家 (Virtuoso)", desc: "大胆而实际的实验家，擅长使用各种形式的工具。" },
+            "ISFP": { title: "探险家 (Adventurer)", desc: "灵活有魅力的艺术家，时刻准备着探索和体验新鲜事物。" },
+            "INFP": { title: "调停者 (Mediator)", desc: "诗意，善良的利他主义者，总是热情地为正当理由提供帮助。" },
+            "INTP": { title: "逻辑学家 (Logician)", desc: "具有创造力的发明家，对知识有着止不住的渴望。" },
+            "ESTP": { title: "企业家 (Entrepreneur)", desc: "聪明，精力充沛，善于感知身边的事物。享受冒险。" },
+            "ESFP": { title: "表演者 (Entertainer)", desc: "自发的，精力充沛而热情的表演者。" },
+            "ENFP": { title: "竞选者 (Campaigner)", desc: "热情，有创造力，爱社交的自由人，总能找到理由微笑。" },
+            "ENTP": { title: "辩论家 (Debater)", desc: "追根究底，聪明好奇的思想者，难以抵挡智力挑战的诱惑。" },
+            "ESTJ": { title: "总经理 (Executive)", desc: "出色的管理者，在管理事情或人的方面无与伦比。" },
+            "ESFJ": { title: "执政官 (Consul)", desc: "极有同情心，爱社交，受欢迎的人们，总是热心提供帮助。" },
+            "ENFJ": { title: "主人公 (Protagonist)", desc: "富有魅力，鼓舞人心的领导者，有能力让人们为他着迷。" },
+            "ENTJ": { title: "指挥官 (Commander)", desc: "大胆，富有想象力且意志强大的领导者，总能找到或创造解决方法。" }
+        };
+
+        // --- STATE ---
+        let currentIdx = 0;
+        let scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+        // We will store actual answers to possibly allow 'back' in future, 
+        // but for now simplistic accumulating score is fine for a quick MVP,
+        // Actually to support 'prev', we should store history.
+        let history = []; // stores { idx: 0, val: 1 }
+
+        // --- DOM Elements ---
+        const screenStart = document.getElementById('screen-start');
+        const screenTest = document.getElementById('screen-test');
+        const screenResult = document.getElementById('screen-result');
+
+        const qText = document.getElementById('question-text');
+        const optA = document.getElementById('option-a-text');
+        const optB = document.getElementById('option-b-text');
+        const qNum = document.getElementById('current-q');
+        const qTotal = document.getElementById('total-q');
+        const pBar = document.getElementById('progress-bar');
+        const dTag = document.getElementById('dimension-tag');
+        const btnPrev = document.getElementById('btn-prev');
+
+        // --- INIT ---
+        qTotal.textContent = PROCESSED_QUESTIONS.length;
+
+        function startTest() {
+            screenStart.classList.add('hidden');
+            screenTest.classList.remove('hidden');
+            loadQuestion(0);
+        }
+
+        function loadQuestion(idx) {
+            currentIdx = idx;
+            const q = PROCESSED_QUESTIONS[idx];
+
+            qText.textContent = q.text;
+            optA.textContent = q.a;
+            optB.textContent = q.b;
+            qNum.textContent = idx + 1;
+
+            const progress = (idx / PROCESSED_QUESTIONS.length) * 100;
+            pBar.style.width = `${progress}%`;
+            btnPrev.disabled = idx === 0;
+            btnPrev.style.opacity = idx === 0 ? 0 : 1;
+
+            // Optional: Map dimension code to readable label
+            let label = "";
+            if (q.d === 'EI') label = "能量来源 (E/I)";
+            if (q.d === 'SN') label = "感知方式 (S/N)";
+            if (q.d === 'TF') label = "判断决策 (T/F)";
+            if (q.d === 'JP') label = "生活态度 (J/P)";
+            dTag.textContent = label;
+        }
+
+        window.answer = function (val) {
+            // val is 1 (A) or -1 (B)
+            // Store answer
+            history[currentIdx] = val;
+
+            if (currentIdx < PROCESSED_QUESTIONS.length - 1) {
+                // Next
+                loadQuestion(currentIdx + 1);
+            } else {
+                // Finish
+                calculateAndShowResult();
+            }
+        };
+
+        window.prevQuestion = function () {
+            if (currentIdx > 0) {
+                loadQuestion(currentIdx - 1);
+            }
+        }
+
+        function calculateAndShowResult() {
+            // Reset scores
+            scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+
+            // Tally
+            // A = +1, B = -1
+            history.forEach((val, i) => {
+                const dim = PROCESSED_QUESTIONS[i].d;
+                scores[dim] += val; // Simple addition. E>0 means E, E<0 means I.
+            });
+
+            // Determine Type
+            const type = [
+                scores.EI >= 0 ? 'E' : 'I',
+                scores.SN >= 0 ? 'S' : 'N',
+                scores.TF >= 0 ? 'T' : 'F',
+                scores.JP >= 0 ? 'J' : 'P'
+            ].join('');
+
+            // Calculate Percentages (for visualization)
+            // Each dim has 7 questions. Max score +7, Min -7
+            // Range 14. 
+            // Percentage of dominant trait:
+            // if score is 3. (3 - (-7)) / 14 = 10/14 approx 71% ? 
+            // No, let's say 4 A's and 3 B's. Score = 4-3 = 1. E is dominant.
+            // How strong? 4 out of 7 is 57%. 
+
+            // Let's count specific responses for better %
+            let counts = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            history.forEach((val, i) => {
+                const dim = PROCESSED_QUESTIONS[i].d;
+                if (dim === 'EI') val > 0 ? counts.E++ : counts.I++;
+                if (dim === 'SN') val > 0 ? counts.S++ : counts.N++;
+                if (dim === 'TF') val > 0 ? counts.T++ : counts.F++;
+                if (dim === 'JP') val > 0 ? counts.J++ : counts.P++;
+            });
+
+            const getPct = (a, b) => Math.round((a / (a + b)) * 100);
+
+            // Hide test, show result
+            screenTest.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+
+            // Set Content
+            document.getElementById('result-type').textContent = type;
+            document.getElementById('result-title').textContent = TYPES[type].title;
+            document.getElementById('result-desc').textContent = TYPES[type].desc;
+
+            // Render Bars
+            function setBar(dim, leftChar, rightChar, leftCount, rightCount) {
+                const leftPct = getPct(leftCount, rightCount);
+                const rightPct = 100 - leftPct;
+
+                // Labels e.g. "I: 68%"
+                const dominantChar = leftCount >= rightCount ? leftChar : rightChar;
+                const dominantPct = leftCount >= rightCount ? leftPct : rightPct;
+
+                // Color Logic: Using Tailwind colors manually for JS
+                let colorClass = "";
+                if (dim === 'EI') colorClass = "text-cyan-400"; // Just reusing one color for text for now
+                if (dim === 'SN') colorClass = "text-purple-400";
+
+                document.getElementById(`score-${dim.toLowerCase()}`).textContent = `${dominantChar}: ${dominantPct}%`;
+
+                // Widths
+                // Note: The UI has two bars. Left bar width = leftPct, Right bar width = rightPct?
+                // Actually the UI design was:
+                // [ Left Bar (Color A) | Right Bar (Color B) ]
+                // So width A = leftPct, width B = rightPct.
+
+                document.getElementById(`bar-${leftChar.toLowerCase()}`).style.width = `${leftPct}%`;
+                document.getElementById(`bar-${rightChar.toLowerCase()}`).style.width = `${rightPct}%`;
+
+                // Opacity to highlight dominant
+                if (leftPct < 50) document.getElementById(`bar-${leftChar.toLowerCase()}`).style.opacity = '0.3';
+                if (rightPct < 50) document.getElementById(`bar-${rightChar.toLowerCase()}`).style.opacity = '0.3';
+            }
+
+            setBar('EI', 'E', 'I', counts.E, counts.I);
+            setBar('SN', 'S', 'N', counts.S, counts.N);
+            setBar('TF', 'T', 'F', counts.T, counts.F);
+            setBar('JP', 'J', 'P', counts.J, counts.P);
+        }
+
+    </script>
+</body>
+
+</html>
