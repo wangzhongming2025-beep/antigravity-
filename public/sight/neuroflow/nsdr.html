@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuroFlow | NSDR 深度休息</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="tracker.js"></script>
     <style>
         body {
             background-color: #050505;
@@ -227,6 +228,7 @@
 
         // Helper to stop video when switching
         function resetIframe(wrapper) {
+            if (window.NeuroTracker) window.NeuroTracker.updateStress(-10); // NSDR reduction impact
             // Handle Iframe
             const iframe = wrapper.querySelector('iframe');
             if (iframe) {

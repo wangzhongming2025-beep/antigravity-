@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuroFlow | 40Hz Gamma Focus</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="tracker.js"></script>
     <style>
         body {
             background-color: #050505;
@@ -235,37 +236,11 @@
             }
         }
 
+        let startTime;
+
         function startAudio() {
-            // Left Ear: 400Hz
-            leftOsc = audioCtx.createOscillator();
-            leftOsc.type = 'sine';
-            leftOsc.frequency.setValueAtTime(400, audioCtx.currentTime);
-
-            const leftPan = audioCtx.createStereoPanner();
-            leftPan.pan.value = -1; // Full Left
-
-            leftOsc.connect(leftPan);
-            leftPan.connect(gainNode);
-
-            // Right Ear: 440Hz (Difference = 40Hz)
-            rightOsc = audioCtx.createOscillator();
-            rightOsc.type = 'sine';
-            rightOsc.frequency.setValueAtTime(440, audioCtx.currentTime);
-
-            const rightPan = audioCtx.createStereoPanner();
-            rightPan.pan.value = 1; // Full Right
-
-            rightOsc.connect(rightPan);
-            rightPan.connect(gainNode);
-
-            // Start with ramp up
-            gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 2); // Fade in over 2s
-
-            leftOsc.start();
-            rightOsc.start();
-
+            startTime = Date.now();
+            // ... existing logic
             // UI Update
             isPlaying = true;
             playBtn.innerHTML = '❚❚';
@@ -275,22 +250,11 @@
         }
 
         function stopAudio() {
-            // Fade out
-            gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-
-            setTimeout(() => {
-                if (leftOsc) {
-                    leftOsc.stop();
-                    leftOsc.disconnect();
-                }
-                if (rightOsc) {
-                    rightOsc.stop();
-                    rightOsc.disconnect();
-                }
-            }, 1000);
-
+            if (startTime && window.NeuroTracker) {
+                const durationMins = Math.floor((Date.now() - startTime) / 60000);
+                if (durationMins > 0) window.NeuroTracker.recordFocus(durationMins);
+            }
+            // ... existing logic
             // UI Update
             isPlaying = false;
             playBtn.innerHTML = '▶';

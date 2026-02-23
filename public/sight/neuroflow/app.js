@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dashVal) dashVal.innerText = savedIdentity;
     }
 
+    // Inject Tracker Script if not loaded
+    if (!window.NeuroTracker) {
+        const s = document.createElement('script');
+        s.src = 'tracker.js';
+        document.head.appendChild(s);
+    }
+
     // DOM Elements
     const modalContainer = document.getElementById('modal-container');
     const modalContent = document.getElementById('modal-content');
@@ -94,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.choices && data.choices[0]) {
                 return data.choices[0].message.content;
             }
+            if (data.content) return data; // It's already parsed JSON from the new API
             return "AI 暂时没有给出有效指令，请重试。";
         } catch (e) {
             console.error("请求失败:", e);
@@ -189,10 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', async () => {
             const val = input.value.trim() || "正常";
             btn.innerText = "同步神经数据...";
-            const aiResponse = await callNeuroAI('identity', val);
-            // Handle if aiResponse is the error string
-            const cleanResponse = aiResponse.startsWith('神经中枢') ? aiResponse : `“${aiResponse.replace(/\"/g, '')}”`;
+            const aiData = await callNeuroAI('identity', val);
+            const content = aiData.content || aiData;
+            const cleanResponse = `“${content.replace(/\"/g, '')}”`;
             idText.innerText = cleanResponse;
+
+            // Track Stress if AI provided impact
+            if (aiData.stress_impact && window.NeuroTracker) {
+                window.NeuroTracker.updateStress(aiData.stress_impact);
+            }
 
             // Sync to Dashboard & LocalStorage
             localStorage.setItem('neuro_identity', cleanResponse);
@@ -223,10 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const task = document.getElementById('task-input').value;
             if (!task) return;
             btn.innerText = "AI 拆解中...";
-            const aiResponse = await callNeuroAI('task', task);
-            document.getElementById('task-list').innerText = aiResponse;
+            const aiData = await callNeuroAI('task', task);
+            document.getElementById('task-list').innerText = aiData.content || aiData;
             document.getElementById('task-res').style.display = 'block';
             btn.style.display = 'none';
+
+            // Gain small focus coins for planning
+            triggerCoinEffect();
         });
     }
 
@@ -257,13 +273,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const recall = document.getElementById('recall-input').value;
             const btn = document.getElementById('btn-eval');
             btn.innerText = "比对中...";
-            const aiMsg = await callNeuroAI('recall_eval', "", { original, recall });
-            const scoreMatch = aiMsg.match(/\[(\d+)\]/);
-            const score = scoreMatch ? scoreMatch[1] : "??";
+            const aiData = await callNeuroAI('recall_eval', "", { original, recall });
+            const score = aiData.score || 0;
             document.getElementById('neuro-score').innerText = score;
-            document.getElementById('ai-eval').innerText = aiMsg.replace(/\[\d+\]/, '').trim();
+            document.getElementById('ai-eval').innerText = aiData.feedback || (typeof aiData === 'string' ? aiData : "分析完毕");
             s2.style.display = 'none'; res.style.display = 'block';
-            if (parseInt(score) > 60) triggerCoinEffect();
+            if (parseInt(score) > 60) {
+                triggerCoinEffect();
+                if (window.NeuroTracker) window.NeuroTracker.recordFocus(5); // 5 min bonus for recall
+            }
         });
     }
 
@@ -301,9 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!habits) return;
             btn.innerText = "分析中...";
             btn.disabled = true; // 防止重复点击
-            const aiMsg = await callNeuroAI('detox', habits);
-            document.getElementById('detox-res').innerText = aiMsg;
+            const aiData = await callNeuroAI('detox', habits);
+            document.getElementById('detox-res').innerText = aiData.content || aiData;
             document.getElementById('detox-res').style.display = 'block';
+            if (window.NeuroTracker) window.NeuroTracker.updateStress(-5); // Motivation boost
             btn.innerText = "重新生成计划";
             btn.disabled = false;
         });
@@ -394,13 +413,15 @@ document.addEventListener('DOMContentLoaded', () => {
         gradient.addColorStop(0, 'rgba(0, 255, 194, 0.4)');
         gradient.addColorStop(1, 'rgba(0, 255, 194, 0)');
 
+        const logs = (window.NeuroTracker) ? window.NeuroTracker.getWeeklyData() : { focus: [45, 120, 80, 190, 140, 210, 180], stress: [80, 60, 90, 40, 50, 30, 40] };
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
                 datasets: [{
                     label: '深度专注时长 (分钟)',
-                    data: [45, 120, 80, 190, 140, 210, 180],
+                    data: logs.focus,
                     borderColor: '#00ffc2',
                     backgroundColor: gradient,
                     fill: true,
@@ -410,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 {
                     label: '皮质醇水平 (焦虑度)',
-                    data: [80, 60, 90, 40, 50, 30, 40],
+                    data: logs.stress,
                     borderColor: '#FF4B4B',
                     borderDash: [5, 5],
                     fill: false,

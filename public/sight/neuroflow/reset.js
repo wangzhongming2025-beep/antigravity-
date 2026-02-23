@@ -169,6 +169,7 @@ const resetApp = {
 
             if (progress >= 1) {
                 this.nextPhase();
+                if (window.NeuroTracker) window.NeuroTracker.updateStress(-20);
                 this.speak("协议执行完毕。你现在的状态非常棒。");
                 return;
             }

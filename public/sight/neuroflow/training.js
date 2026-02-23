@@ -188,6 +188,7 @@ const app = {
 
             if (this.state.flowTimeRemaining <= 0) {
                 clearInterval(this.state.timerInterval);
+                if (window.NeuroTracker) window.NeuroTracker.recordFocus(25);
                 this.switchStage('reward');
             }
         }, 1000);

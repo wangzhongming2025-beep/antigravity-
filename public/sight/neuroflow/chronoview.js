@@ -179,6 +179,10 @@ const chronoApp = {
         this.renderTasks();
 
         this.elements.modal.style.display = 'flex';
+        if (window.NeuroTracker) {
+            const mins = Math.floor(this.state.totalSessionTime / 60);
+            window.NeuroTracker.recordFocus(mins);
+        }
         this.speak("太棒了。你成功捕获了这段时间。多巴胺正在重置。");
     },
 

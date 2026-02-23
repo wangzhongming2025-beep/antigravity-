@@ -16,16 +16,16 @@ export default async function handler(req, res) {
     let user_prompt = "";
 
     if (type === 'identity') {
-        system_prompt += " Create a powerful, 1-sentence 'Identity Statement' (身份宣言) in Chinese. It should be punchy, rhythmic, and focus on agency/control. Start with '我是' (I am). Avoid generic advice. Use evocative language like '点火' (ignition), '主宰' (master), '节奏' (rhythm).";
-        user_prompt = `Current state: ${content || "正常"}. Generate a powerful identity statement for someone feeling this way.`;
+        system_prompt += " Create a powerful, 1-sentence 'Identity Statement' (身份宣言) in Chinese. Start with '我是'. Also assess the sentiment stress level on a scale of 0 to 20 (0 = zen, 20 = high anxiety). Return JSON format: {\"content\": \"...\", \"stress_impact\": number}";
+        user_prompt = `Current state: ${content || "正常"}. Generate statement and stress score.`;
     } else if (type === 'task') {
-        system_prompt += " You are a 'Dopamine Slicer'. Break down the task into 3-5 'micro-actions' that take < 2 minutes each. Use Chinese. Focus on overcoming start-anxiety.";
+        system_prompt += " You are a 'Dopamine Slicer'. Return JSON format: {\"content\": \"...\", \"estimated_minutes\": number}";
         user_prompt = `Task to deconstruct: ${content}`;
     } else if (type === 'detox') {
-        system_prompt += " You are a 'Receptor Reset' specialist. Create a 24-hour dopamine detox plan for the following habits. Use Chinese. Be firm but encouraging.";
+        system_prompt += " You are a 'Receptor Reset' specialist. Return JSON format: {\"content\": \"...\"}";
         user_prompt = `Habits to reset: ${content}`;
     } else if (type === 'recall_eval') {
-        system_prompt += " Compare the original text and the student's recall. Rate accuracy out of 100 in format [Score]. Provide brief, helpful feedback in Chinese on what was missed or correctly identified.";
+        system_prompt += " Rate accuracy out of 100 in format [Score]. Return JSON format: {\"score\": number, \"feedback\": \"...\"}";
         user_prompt = `Original: ${req.body.original}\nRecall: ${req.body.recall}`;
     } else {
         return res.status(400).json({ error: 'Unknown type' });
@@ -44,6 +44,7 @@ export default async function handler(req, res) {
                     { role: 'system', content: system_prompt },
                     { role: 'user', content: user_prompt }
                 ],
+                response_format: { type: "json_object" },
                 temperature: 0.7,
                 max_tokens: 500
             })
@@ -55,7 +56,9 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        return res.status(200).json(data);
+        // Extract the JSON content from the assistant's message
+        const result = JSON.parse(data.choices[0].message.content);
+        return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
