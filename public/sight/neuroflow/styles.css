@@ -260,3 +260,54 @@ header {
     filter: brightness(1.2);
     box-shadow: 0 0 20px rgba(0, 255, 194, 0.4);
 }
+
+#chart-info-btn:hover {
+    background: var(--primary-neon) !important;
+    color: var(--bg-deep) !important;
+}
+
+.how-to-guide h2 {
+    color: #fff;
+    margin-bottom: 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+}
+
+.how-to-guide h4 {
+    color: var(--primary-neon);
+    margin: 20px 0 10px;
+    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.how-to-guide p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: var(--text-main);
+}
+
+.how-to-guide ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.how-to-guide li {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    border-left: 3px solid var(--secondary-neon);
+    color: var(--text-main);
+}
+
+.how-to-guide .tip-badge {
+    background: var(--gradient-main);
+    color: var(--bg-deep);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    margin-right: 8px;
+    font-size: 11px;
+}

@@ -450,15 +450,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    });
     }
 
-    // Push Loop (System Level)
-    setInterval(() => {
-        if (localStorage.getItem('neuro_push') === 'true') {
-            sendNeuralPush("神经同步提醒");
-        }
-    }, 600000); // 调整为10分钟一次，避免骚扰
+// Chart Info Modal
+const infoBtn = document.getElementById('chart-info-btn');
+if (infoBtn) {
+    infoBtn.onclick = () => {
+        const modalContainer = document.getElementById('modal-container');
+        const modalContent = document.getElementById('modal-content');
+        modalContainer.style.display = 'flex';
+        modalContent.innerHTML = `
+                <div class="how-to-guide">
+                    <h2>📈 神经优化手册</h2>
+                    
+                    <h4>1. 如何解读图表？</h4>
+                    <p>这是一个<strong>双轴趋势图</strong>，记录了您的执行功能状态：</p>
+                    <ul>
+                        <li>🟢 <strong>深度专注时长 (Focus)</strong>: 每天进入高效工作状态的累计分钟数。理想状态是线条稳定在高位。</li>
+                        <li>🔴 <strong>皮质醇水平 (Stress)</strong>: 代表神经系统的焦虑与负荷。理想状态是与专注曲线形成“反向关系”。</li>
+                    </ul>
 
-    // Startup: Sync UI status
-    updatePushStatus(localStorage.getItem('neuro_push') === 'true');
+                    <h4>2. 数据是如何计算的？</h4>
+                    <ul>
+                        <li>⚡ <strong>实时捕获</strong>: 25分钟计时器每完成一个周期，自动记录 25min；40Hz 专注波开启时，每分钟实时累加。</li>
+                        <li>🤖 <strong>AI 情感分析</strong>: 当您刷新身份宣言时，AI 会分析您的语义情绪，自动换算为 0-20 点的焦虑度冲击。</li>
+                        <li>💾 <strong>本地持久化</strong>: 所有数据存储在您的浏览器中，每周会自动开启新的统计周期。</li>
+                    </ul>
+
+                    <h4>3. 神经优化策略</h4>
+                    <ul>
+                        <li><span class="tip-badge">巅峰</span> <strong>黄金交叉点</strong>：当绿色冲顶且红色探底时，是您的学习或创作最佳时机。</li>
+                        <li><span class="tip-badge">警报</span> <strong>神经赤字</strong>：若红色虚线高于绿色，说明皮质醇过载。此时应强制开启 <strong>NSDR 休息</strong> 或 <strong>Dopamine Detox</strong>。</li>
+                    </ul>
+                </div>
+            `;
+    };
+}
+
+// Push Loop (System Level)
+setInterval(() => {
+    if (localStorage.getItem('neuro_push') === 'true') {
+        sendNeuralPush("神经同步提醒");
+    }
+}, 600000); // 调整为10分钟一次，避免骚扰
+
+// Startup: Sync UI status
+updatePushStatus(localStorage.getItem('neuro_push') === 'true');
 });
