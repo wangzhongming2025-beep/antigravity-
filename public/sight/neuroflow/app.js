@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
 
-            const response = await fetch('neuro_api.php', {
+            const response = await fetch('/api/neuro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type, content, ...extra }),
@@ -86,7 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.error) {
                 console.error("服务器报错:", data.error);
-                return `神经中枢异常：${data.error}`;
+                // Ensure data.error is a string if it's an object from curl/http error
+                const errorMsg = typeof data.error === 'object' ? JSON.stringify(data.error) : data.error;
+                return `神经中枢异常：${errorMsg}`;
             }
 
             if (data.choices && data.choices[0]) {
@@ -188,7 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = input.value.trim() || "正常";
             btn.innerText = "同步神经数据...";
             const aiResponse = await callNeuroAI('identity', val);
-            const cleanResponse = `“${aiResponse.replace(/\"/g, '')}”`;
+            // Handle if aiResponse is the error string
+            const cleanResponse = aiResponse.startsWith('神经中枢') ? aiResponse : `“${aiResponse.replace(/\"/g, '')}”`;
             idText.innerText = cleanResponse;
 
             // Sync to Dashboard & LocalStorage

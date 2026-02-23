@@ -349,9 +349,92 @@
                 <!-- Pro Tip -->
                 <div class="mt-12 p-6 rounded-2xl bg-white/5 border border-white/5 text-center">
                     <p class="text-slate-400 text-sm">想获取更详细的职业发展建议与性格盲点分析？</p>
-                    <button onclick="alert('功能开发中，敬请期待！')"
-                        class="mt-3 text-cyan-400 text-sm hover:text-cyan-300 font-medium font-mono">
+                    <button onclick="showFullReport()"
+                        class="mt-3 text-cyan-400 text-sm hover:text-cyan-300 font-medium font-mono border border-cyan-400/30 px-6 py-2 rounded-full hover:bg-cyan-400/10 transition-colors">
                         查看完整报告 (PRO) →
+                    </button>
+                </div>
+            </div>
+
+            <!-- SCREEN: REPORT (New) -->
+            <div id="screen-report" class="hidden fade-in relative">
+                <button onclick="hideFullReport()"
+                    class="absolute top-0 left-0 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    返回结果
+                </button>
+
+                <div class="text-center mt-12 mb-10">
+                    <span
+                        class="inline-block py-1 px-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold tracking-wider mb-4">PREMIUM
+                        REPORT</span>
+                    <h2 id="report-type" class="text-5xl font-black text-white mb-2">INTJ</h2>
+                    <h3 id="report-title" class="text-2xl text-slate-400">建筑师</h3>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Strengths -->
+                    <div class="glass-card p-8 rounded-3xl border-l-4 border-l-cyan-400">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <span class="text-2xl">🌟</span> 核心优势
+                        </h3>
+                        <ul id="report-strengths" class="space-y-3 text-slate-300">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Weaknesses -->
+                    <div class="glass-card p-8 rounded-3xl border-l-4 border-l-pink-400">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <span class="text-2xl">⚠️</span> 潜在盲点
+                        </h3>
+                        <ul id="report-weaknesses" class="space-y-3 text-slate-300">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Career -->
+                    <div class="glass-card p-8 rounded-3xl border-l-4 border-l-purple-400">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <span class="text-2xl">💼</span> 职业方向
+                        </h3>
+                        <p id="report-career" class="text-slate-300 leading-relaxed mb-4"></p>
+                    </div>
+
+                    <!-- Relationships -->
+                    <div class="glass-card p-8 rounded-3xl border-l-4 border-l-emerald-400">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <span class="text-2xl">❤️</span> 情感与人际
+                        </h3>
+                        <p id="report-relationships" class="text-slate-300 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Advice -->
+                    <div class="glass-card p-8 rounded-3xl border-l-4 border-l-yellow-400">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <span class="text-2xl">🚀</span> 成长建议
+                        </h3>
+                        <p id="report-advice" class="text-slate-300 leading-relaxed italic"></p>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-center">
+                    <button onclick="window.print()"
+                        class="text-slate-500 hover:text-white text-sm flex items-center justify-center gap-2 mx-auto transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        保存报告
+                    </button>
+                    <button onclick="hideFullReport()"
+                        class="mt-8 px-8 py-3 rounded-full bg-slate-800 text-white font-bold hover:bg-slate-700 transition-colors">
+                        返回简报
                     </button>
                 </div>
             </div>
@@ -417,22 +500,150 @@
 
         // Type Descriptions
         const TYPES = {
-            "ISTJ": { title: "物流师 (Logistician)", desc: "实际、注重事实。值得信赖的现实主义者。" },
-            "ISFJ": { title: "守卫者 (Defender)", desc: "非常专注而温暖的保护者，时刻准备着保护爱的一方。" },
-            "INFJ": { title: "提倡者 (Advocate)", desc: "安静而神秘，同时鼓舞人心且不知疲倦的理想主义者。" },
-            "INTJ": { title: "建筑师 (Architect)", desc: "富有想象力和战略性的思想家，一切皆在计划之中。" },
-            "ISTP": { title: "鉴赏家 (Virtuoso)", desc: "大胆而实际的实验家，擅长使用各种形式的工具。" },
-            "ISFP": { title: "探险家 (Adventurer)", desc: "灵活有魅力的艺术家，时刻准备着探索和体验新鲜事物。" },
-            "INFP": { title: "调停者 (Mediator)", desc: "诗意，善良的利他主义者，总是热情地为正当理由提供帮助。" },
-            "INTP": { title: "逻辑学家 (Logician)", desc: "具有创造力的发明家，对知识有着止不住的渴望。" },
-            "ESTP": { title: "企业家 (Entrepreneur)", desc: "聪明，精力充沛，善于感知身边的事物。享受冒险。" },
-            "ESFP": { title: "表演者 (Entertainer)", desc: "自发的，精力充沛而热情的表演者。" },
-            "ENFP": { title: "竞选者 (Campaigner)", desc: "热情，有创造力，爱社交的自由人，总能找到理由微笑。" },
-            "ENTP": { title: "辩论家 (Debater)", desc: "追根究底，聪明好奇的思想者，难以抵挡智力挑战的诱惑。" },
-            "ESTJ": { title: "总经理 (Executive)", desc: "出色的管理者，在管理事情或人的方面无与伦比。" },
-            "ESFJ": { title: "执政官 (Consul)", desc: "极有同情心，爱社交，受欢迎的人们，总是热心提供帮助。" },
-            "ENFJ": { title: "主人公 (Protagonist)", desc: "富有魅力，鼓舞人心的领导者，有能力让人们为他着迷。" },
-            "ENTJ": { title: "指挥官 (Commander)", desc: "大胆，富有想象力且意志强大的领导者，总能找到或创造解决方法。" }
+            "ISTJ": {
+                title: "物流师 (Logistician)",
+                desc: "实际、注重事实。值得信赖的现实主义者。",
+                strengths: ["诚实正直，说到做到", "意志坚定，责任心强", "冷静实际，注重细节", "善于从混乱中创建秩序"],
+                weaknesses: ["固执，有时难以变通", "不善于表达情感", "可能过度自责", "对新事物持排斥态度"],
+                career: "适合需要高度组织性、准确性和独立工作的职业，如：会计、审计、公务员、程序员、医生、法官、军官等。",
+                relationships: "忠诚可靠的伴侣，但可能因为过于强调理性和规则而忽略伴侣的情感需求。需要学习表达爱意。",
+                advice: "尝试接受不可控的变化，学会表达内心的感受，不要对他人的不足过于苛刻。"
+            },
+            "ISFJ": {
+                title: "守卫者 (Defender)",
+                desc: "非常专注而温暖的保护者，时刻准备着保护爱的一方。",
+                strengths: ["支持他人，乐于助人", "可靠耐心，极具责任感", "观察力敏锐，关注细节", "忠诚且努力"],
+                weaknesses: ["过于谦虚，容易被低估", "把事情看得太重，易感压力", "不善于拒绝，易被利用", "抗拒改变"],
+                career: "适合服务导向和需要细心关怀的职业，如：护士、教师、社会工作者、人力资源、行政助理、室内设计等。",
+                relationships: "非常投入和照顾伴侣，但可能过度牺牲自己。需要学会表达自己的需求，避免积压委屈。",
+                advice: "学会说“不”，关注自己的需求同样重要。尝试接受新的做事方式，不要害怕冲突。"
+            },
+            "INFJ": {
+                title: "提倡者 (Advocate)",
+                desc: "安静而神秘，同时鼓舞人心且不知疲倦的理想主义者。",
+                strengths: ["富有创造力和洞察力", "坚持原则，充满激情", "利他主义，善于鼓舞他人", "追求意义和深度"],
+                weaknesses: ["完美主义，容易在此中耗尽", "极其敏感，易受批评影响", "过于注重隐私", "可能变得极度狂热"],
+                career: "适合符合价值观且能帮助他人的职业，如：心理咨询师、作家、非营利组织领导、教师、艺术家、医疗保健等。",
+                relationships: "寻求深层的灵魂连接，对伴侣要求高。有时会因为过于理想化而失望。需要通过沟通落地现实。",
+                advice: "不要把所有世界的重担都扛在肩上。允许自己不完美，学会放松和享受当下。"
+            },
+            "INTJ": {
+                title: "建筑师 (Architect)",
+                desc: "富有想象力和战略性的思想家，一切皆在计划之中。",
+                strengths: ["理性客观，思维缜密", "独立自主，自信坚定", "好奇心强，终身学习", "善于宏观战略规划"],
+                weaknesses: ["傲慢，可能轻视他人", "过度分析，忽视情感", "愤世嫉俗", "对社交规则不屑一顾"],
+                career: "适合需要复杂分析和独立判断的职业，如：系统架构师、科学家、战略规划师、投资银行家、工程师、教授等。",
+                relationships: "理性的伴侣，但可能显得冷漠。需要理解情感逻辑也是逻辑的一种，学习欣赏伴侣的情感表达。",
+                advice: "尝试理解社交礼仪的价值，培养同理心。当事情不如预期时，学会接受并调整。"
+            },
+            "ISTP": {
+                title: "鉴赏家 (Virtuoso)",
+                desc: "大胆而实际的实验家，擅长使用各种形式的工具。",
+                strengths: ["乐观充满活力", "富有创造力和实用性", "危机处理能力强", "随性自然，灵活变通"],
+                weaknesses: ["固执且难以预测", "爱冒险，容易冲动", "容易感到厌倦", "不擅长承诺和长期规划"],
+                career: "适合需动手操作和解决突发问题的职业，如：机械师、工程师、飞行员、警察、急诊医生、数据分析师等。",
+                relationships: "有趣且独立的伴侣，但需要大量个人空间。可能难以猜测，不善于言辞表达情感。",
+                advice: "尝试制定并坚持长期目标。在人际交往中，多考虑他人的情感反应，提高耐心。"
+            },
+            "ISFP": {
+                title: "探险家 (Adventurer)",
+                desc: "灵活有魅力的艺术家，时刻准备着探索和体验新鲜事物。",
+                strengths: ["迷人热情", "富有艺术感和想象力", "充满激情和好奇心", "敏锐的审美"],
+                weaknesses: ["极度独立，难以被掌控", "不可预测，情绪化", "容易感到压力", "缺乏长远规划"],
+                career: "适合允许自由表达和审美的职业，如：设计师、艺术家、音乐家、摄影师、厨师、花艺师等。",
+                relationships: "温柔体贴，重视当下的体验。但非常敏感，需要伴侣的不断肯定和理解。",
+                advice: "在这个复杂的世界里，学会规划未来。不要太在意他人的批评，通过具体行动建立自信。"
+            },
+            "INFP": {
+                title: "调停者 (Mediator)",
+                desc: "诗意，善良的利他主义者，总是热情地为正当理由提供帮助。",
+                strengths: ["理想主义，追求和谐", "开放包容，适应力强", "富有激情和奉献精神", "极具创造力"],
+                weaknesses: ["过于理想化，不切实际", "太在意他人看法", "难以从伤痛中恢复", "如果不感兴趣很难专注"],
+                career: "适合符合个人价值观和创造性的职业，如：作家、心理顾问、人力资源、艺术家、社会活动家、图书管理员等。",
+                relationships: "浪漫且深情，憧憬完美的爱情。可能会为了避免冲突而压抑自己。需要学习面对现实中的不完美。",
+                advice: "设立切合实际的目标，把你的理想转化为具体的行动。学会保护自己的边界。"
+            },
+            "INTP": {
+                title: "逻辑学家 (Logician)",
+                desc: "具有创造力的发明家，对知识有着止不住的渴望。",
+                strengths: ["善于分析和抽象思维", "独创性强，富有想象力", "思想开放，客观公正", "诚实直率"],
+                weaknesses: ["非常孤僻，难以接近", "对情感迟钝", "厌恶规则和按部就班", "经常自我怀疑，害怕失败"],
+                career: "适合需深度思考和解决抽象问题的职业，如：科学家、程序员、数学家、教授、系统分析师、研究员等。",
+                relationships: "真诚且聪明，但可能忽略伴侣的情感需求。需要刻意提醒自己关注他人的感受。",
+                advice: "尝试将你的想法付诸实践，而不仅仅停留在脑海中。理解情感也是人类经验的重要部分。"
+            },
+            "ESTP": {
+                title: "企业家 (Entrepreneur)",
+                desc: "聪明，精力充沛，善于感知身边的事物。享受冒险。",
+                strengths: ["大胆直接，行动力强", "理性实用", "观察敏锐，善于社交", "善于即兴发挥"],
+                weaknesses: ["不耐烦，冲动", "不顾后果，爱冒险", "难以遵守规则", "忽视抽象理论"],
+                career: "适合充满变化和挑战的职业，如：企业家、销售、急救人员、股票经纪人、运动员、承包商等。",
+                relationships: "充满激情和乐趣，喜欢新鲜感。可能难以安定下来，需要伴侣能跟上你的节奏。",
+                advice: "在行动前多思考长远后果。学会欣赏那些似乎“无聊”但必要的规则和程序。"
+            },
+            "ESFP": {
+                title: "表演者 (Entertainer)",
+                desc: "自发的，精力充沛而热情的表演者。",
+                strengths: ["大胆，喜爱表现", "独创性，审美极佳", "实际，观察力强", "极佳的人际交往能力"],
+                weaknesses: ["敏感，易受伤害", "难以集中注意力", "规划能力弱", "容易厌倦"],
+                career: "适合与人打交道和展示自我的职业，如：演员、时装设计、销售、公关、活动策划、导游等。",
+                relationships: "充满乐趣和爱意，喜欢制造惊喜。可能逃避严肃的话题。需要学习面对关系中的困难。",
+                advice: "虽然活在当下很好，但也要为未来做一点规划。学会接受批评，视其为成长的机会。"
+            },
+            "ENFP": {
+                title: "竞选者 (Campaigner)",
+                desc: "热情，有创造力，爱社交的自由人，总能找到理由微笑。",
+                strengths: ["充满好奇，富有想象力", "观察力敏锐", "热情洋溢，善于沟通", "受欢迎且友善"],
+                weaknesses: ["想得多做得少", "容易感到压力", "情绪化", "过度思考"],
+                career: "适合需创造力和人际互动的职业，如：记者、广告创意、顾问、活动策划、教师、艺术家等。",
+                relationships: "热情且投入，渴望灵魂伴侣。但新鲜感过后可能难以维持。需要寻找关系中的深层价值。",
+                advice: "专注于完成一件事，而不是同时也开始十件事。学会拒绝，不要为了讨好他人而透支自己。"
+            },
+            "ENTP": {
+                title: "辩论家 (Debater)",
+                desc: "追根究底，聪明好奇的思想者，难以抵挡智力挑战的诱惑。",
+                strengths: ["知识丰富，思维敏捷", "独创性强，善于通过辩论发现真理", "极具魅力", "精力充沛"],
+                weaknesses: ["非常爱争辩", "缺乏极度敏感", "难以集中注意力", "厌恶实际事务"],
+                career: "适合即使创新和挑战权威的职业，如：律师、企业家、顾问、工程师、创意总监、政治家等。",
+                relationships: "充满刺激和成长，但可能让伴侣感到疲惫。需要学会退一步，不是每件事都需要争个输赢。",
+                advice: "学会妥协和合作，这不代表你认输。将你的聪明才智用于建设性的解决问题。"
+            },
+            "ESTJ": {
+                title: "总经理 (Executive)",
+                desc: "出色的管理者，在管理事情或人的方面无与伦比。",
+                strengths: ["奉献精神，意志坚定", "直接诚实", "忠诚，耐心，可靠", "出色的组织能力"],
+                weaknesses: ["固执己见", "对他人的情感不敏感", "难以放松", "过分关注社会地位"],
+                career: "适合结构化和管理型职业，如：公司高管、军官、法官、教师、项目经理、警官等。",
+                relationships: "稳定可靠，重视传统。但可能过于控制。需要尊重伴侣的独立性和不同的观点。",
+                advice: "尝试倾听他不一样的声音，不要急于下判断。学会放松，工作不是生活的全部。"
+            },
+            "ESFJ": {
+                title: "执政官 (Consul)",
+                desc: "极有同情心，爱社交，受欢迎的人们，总是热心提供帮助。",
+                strengths: ["极强的责任感", "极度忠诚", "敏感 warm", "善于建立人际联系"],
+                weaknesses: ["不善于临场发挥", "缺乏灵活性", "易受批评影响", "太想被需要"],
+                career: "适合服务和组织型职业，如：教师、护士、行政管理、公关、餐饮管理、社会工作者等。",
+                relationships: "全心全意地投入，非常重视家庭和谐。需要伴侣的赞赏。需要学会独立，不完全依赖他人的评价。",
+                advice: "在照顾世界之前，先照顾好自己。不要害怕冲突，这有时是解决问题的必要途径。"
+            },
+            "ENFJ": {
+                title: "主人公 (Protagonist)",
+                desc: "富有魅力，鼓舞人心的领导者，有能力让人们为他着迷。",
+                strengths: ["宽容，可靠", "富有魅力", "利他主义", "天生的领导力"],
+                weaknesses: ["过于无私", "过于敏感", "摇摆不定", "自尊心波动大"],
+                career: "适合需人际影响力和领导力的职业，如：教师、人力资源、公关、政治家、非营利组织领导、培训师等。",
+                relationships: "极具支持性，致力于伴侣的成长。但可能过度干涉。需要给伴侣留出成长的空间。",
+                advice: "由于你对他人的感受非常敏感，要注意不要迷失自我。学会接受并不是所有人都能被拯救。"
+            },
+            "ENTJ": {
+                title: "指挥官 (Commander)",
+                desc: "大胆，富有想象力且意志强大的领导者，总能找到或创造解决方法。",
+                strengths: ["高效，精力充沛", "自信，意志强大", "战略思维", "富有魅力和感召力"],
+                weaknesses: ["固执，独断专行", "不耐烦", "傲慢", "处理情感能力差"],
+                career: "适合需战略规划和领导的职业，如：CEO、创业者、管理顾问、法官、教授、律师等。",
+                relationships: "主导且充满活力，希望共同进步。但可能显得霸道。需要学习在关系中示弱和倾听。",
+                advice: "记住，情感因素在决策中也是重要的变量。练习耐心，允许他人按照自己的节奏成长。"
+            }
         };
 
         // --- STATE ---
@@ -447,6 +658,7 @@
         const screenStart = document.getElementById('screen-start');
         const screenTest = document.getElementById('screen-test');
         const screenResult = document.getElementById('screen-result');
+        const screenReport = document.getElementById('screen-report');
 
         const qText = document.getElementById('question-text');
         const optA = document.getElementById('option-a-text');
@@ -591,6 +803,38 @@
             setBar('SN', 'S', 'N', counts.S, counts.N);
             setBar('TF', 'T', 'F', counts.T, counts.F);
             setBar('JP', 'J', 'P', counts.J, counts.P);
+        }
+
+        function showFullReport() {
+            // Get current type (from result screen)
+            const type = document.getElementById('result-type').textContent;
+            const data = TYPES[type];
+
+            if (!data) return;
+
+            // Populate Report
+            document.getElementById('report-type').textContent = type;
+            document.getElementById('report-title').textContent = data.title.split(' ')[0]; // Just the Chinese title part
+
+            // Helpers
+            const createList = (items) => items.map(i => `<li class="flex items-start gap-2"><span class="text-cyan-400 mt-1.5">•</span><span>${i}</span></li>`).join('');
+
+            document.getElementById('report-strengths').innerHTML = createList(data.strengths);
+            document.getElementById('report-weaknesses').innerHTML = createList(data.weaknesses);
+            document.getElementById('report-career').textContent = data.career;
+            document.getElementById('report-relationships').textContent = data.relationships;
+            document.getElementById('report-advice').textContent = `"${data.advice}"`;
+
+            // Switch Screen
+            screenResult.classList.add('hidden');
+            screenReport.classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function hideFullReport() {
+            screenReport.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
     </script>
