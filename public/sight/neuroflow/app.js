@@ -287,23 +287,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initRewardModule(container) {
         container.innerHTML = `
-            <h2 class="module-title">奖励 & 订阅</h2>
-            <div class="glass-panel" style="background:#000; padding:20px; text-align:center; border:1px solid var(--primary-neon);">
-                <h3>NeuroFlow Pro</h3>
-                <p style="font-size:24px; margin:10px 0;">¥69 / 月</p>
-                <button class="btn-primary" id="btn-sub">立即升级</button>
+            <div style="text-align:center; padding: 20px;">
+                <h2 class="module-title" style="color:var(--primary-neon);">NeuroFlow Pro</h2>
+                <p style="color:var(--text-muted); margin-bottom:25px;">解锁无限神经潜力，获得全模块深度追踪</p>
+                
+                <div class="glass-panel" style="background:rgba(0,0,0,0.4); padding:30px; border:1px solid rgba(0,255,194,0.3); position:relative; overflow:hidden;">
+                    <div style="font-size:12px; color:var(--primary-neon); margin-bottom:10px; font-family:Orbitron;">PREMIUM PLAN</div>
+                    <div style="font-size:36px; font-weight:800; margin-bottom:5px;">¥69 <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ mo</span></div>
+                    <p style="font-size:13px; color:var(--text-muted);">订阅即享 AI 实时分析与云端同步</p>
+                    <button class="btn-primary" id="btn-sub" style="margin-top:25px; box-shadow:0 0 30px rgba(0,255,194,0.3);">立即升级</button>
+                </div>
+
+                <div style="margin-top:20px; text-align:left; font-size:12px; color:var(--text-muted);">
+                    <div style="margin-bottom:8px;">✅ 无限次身份重塑</div>
+                    <div style="margin-bottom:8px;">✅ 深度 40Hz 专注报表</div>
+                    <div>✅ 专属感统训练计划</div>
+                </div>
             </div>
         `;
-        document.getElementById('btn-sub').addEventListener('click', () => {
-            container.innerHTML = `
-                <div style="text-align:center;">
-                    <h2 class="module-title">扫码加入 Pro 计划</h2>
-                    <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">支持微信支付 | 开启无限神经潜力</p>
-                    <img src="pay_qr.jpg" style="width:220px; border-radius:12px; border:4px solid var(--primary-neon); margin:0 auto; display:block; box-shadow: 0 0 20px rgba(0,255,194,0.3);">
-                    <button class="btn-primary" style="margin-top:20px; background:var(--accent-purple);" onclick="hideModal()">我已完成支付</button>
-                </div>
-            `;
-        });
+        const subBtn = document.getElementById('btn-sub');
+        if (subBtn) {
+            subBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 10px;">
+                        <h2 class="module-title" style="margin-bottom:10px;">扫码加入 Pro 计划</h2>
+                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">支持微信支付 | 即刻开启无限可能</p>
+                        <div style="position:relative; width:220px; height:220px; margin:0 auto; padding:10px; background:#fff; border-radius:16px; box-shadow: 0 0 40px rgba(0,255,194,0.2);">
+                            <img src="pay_qr.jpg" style="width:200px; height:200px; border-radius:8px; display:block;">
+                        </div>
+                        <p style="margin-top:20px; font-size:12px; color:var(--primary-neon); font-family:Orbitron;">SECURE PAYMENT GATEWAY</p>
+                        <button class="btn-primary" style="margin-top:25px; background:var(--accent-purple); box-shadow:0 0 20px rgba(138,43,226,0.3);" onclick="hideModal()">我已完成支付</button>
+                    </div>
+                `;
+            });
+        }
     }
 
     function initDetoxModule(container) {
@@ -455,7 +473,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chart Info Modal
     const infoBtn = document.getElementById('chart-info-btn');
     if (infoBtn) {
-        infoBtn.onclick = () => {
+        infoBtn.onclick = (e) => {
+            e.stopPropagation();
             const modalContainer = document.getElementById('modal-container');
             const modalContent = document.getElementById('modal-content');
             modalContainer.style.display = 'flex';
