@@ -150,7 +150,11 @@
             <!-- Module 8: Weekly Report (Resized) -->
             <div class="glass-panel main-module clickable" id="weekly-insights" style="grid-column: span 12;">
                 <div class="module-icon">📊</div>
-                <h3 class="module-title">神经优化日志 (AI 洞察)</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 class="module-title" style="margin-bottom: 0;">神经优化日志 (AI 洞察)</h3>
+                    <button id="chart-info-btn"
+                        style="background: rgba(0, 255, 194, 0.1); border: 1px solid var(--primary-neon); color: var(--primary-neon); padding: 4px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600;">使用说明</button>
+                </div>
                 <p class="module-desc">本周专注时长、任务漏斗分布及情绪稳定性分析。</p>
                 <div style="height: 300px; margin-top: 20px;">
                     <canvas id="neuro-chart"></canvas>
