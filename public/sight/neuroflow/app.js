@@ -450,17 +450,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    });
     }
 
-// Chart Info Modal
-const infoBtn = document.getElementById('chart-info-btn');
-if (infoBtn) {
-    infoBtn.onclick = () => {
-        const modalContainer = document.getElementById('modal-container');
-        const modalContent = document.getElementById('modal-content');
-        modalContainer.style.display = 'flex';
-        modalContent.innerHTML = `
+    // Chart Info Modal
+    const infoBtn = document.getElementById('chart-info-btn');
+    if (infoBtn) {
+        infoBtn.onclick = () => {
+            const modalContainer = document.getElementById('modal-container');
+            const modalContent = document.getElementById('modal-content');
+            modalContainer.style.display = 'flex';
+            modalContent.innerHTML = `
                 <div class="how-to-guide">
                     <h2>📈 神经优化手册</h2>
                     
@@ -485,16 +484,16 @@ if (infoBtn) {
                     </ul>
                 </div>
             `;
-    };
-}
-
-// Push Loop (System Level)
-setInterval(() => {
-    if (localStorage.getItem('neuro_push') === 'true') {
-        sendNeuralPush("神经同步提醒");
+        };
     }
-}, 600000); // 调整为10分钟一次，避免骚扰
 
-// Startup: Sync UI status
-updatePushStatus(localStorage.getItem('neuro_push') === 'true');
+    // Push Loop (System Level)
+    setInterval(() => {
+        if (localStorage.getItem('neuro_push') === 'true') {
+            sendNeuralPush("神经同步提醒");
+        }
+    }, 600000); // 调整为10分钟一次，避免骚扰
+
+    // Startup: Sync UI status
+    updatePushStatus(localStorage.getItem('neuro_push') === 'true');
 });
