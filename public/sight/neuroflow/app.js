@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         由“首席渐构师”亲自 1:1 战略辅导，对接千万级流量变现体系。
                     </p>
                     <div style="position:relative; width:220px; height:220px; margin:0 auto; padding:10px; background:#fff; border-radius:16px; box-shadow: 0 0 40px rgba(0,255,194,0.2);">
-                        <img src="wechat_qr.jpg" style="width:200px; height:200px; border-radius:8px; display:block;">
+                        <img src="lwdz2026.jpg" style="width:200px; height:200px; border-radius:8px; display:block;">
                     </div>
                     <p style="margin-top:20px; font-size:12px; color:var(--primary-neon); font-family:Orbitron;">SCAN TO APPLY VIA WECHAT</p>
                     <p style="font-size:12px; color:var(--text-muted); margin-top:10px;">添加时请备注：合伙人申请</p>
