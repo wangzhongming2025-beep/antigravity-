@@ -515,4 +515,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Startup: Sync UI status
     updatePushStatus(localStorage.getItem('neuro_push') === 'true');
+
+    // --- Business & Partnership Logic ---
+    const partnerLink = document.getElementById('partner-link');
+    const partnerBannerBtn = document.querySelector('#partner-banner button');
+    const floatWechatBtn = document.getElementById('float-wechat-btn');
+
+    const showPartnerModal = () => {
+        showModal((container) => {
+            container.innerHTML = `
+                <div style="text-align:center; padding: 20px;">
+                    <h2 class="module-title" style="color:var(--primary-neon);">2026 脑科学商业合伙人</h2>
+                    <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; line-height:1.6;">
+                        如果您拥有资源、流量或对脑科学商业化有极高热情，欢迎申请成为我们的核心合伙人。<br>
+                        由“首席渐构师”亲自 1:1 战略辅导，对接千万级流量变现体系。
+                    </p>
+                    <div style="position:relative; width:220px; height:220px; margin:0 auto; padding:10px; background:#fff; border-radius:16px; box-shadow: 0 0 40px rgba(0,255,194,0.2);">
+                        <img src="wechat_qr.jpg" style="width:200px; height:200px; border-radius:8px; display:block;">
+                    </div>
+                    <p style="margin-top:20px; font-size:12px; color:var(--primary-neon); font-family:Orbitron;">SCAN TO APPLY VIA WECHAT</p>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:10px;">添加时请备注：合伙人申请</p>
+                    <button class="btn-primary" style="margin-top:25px;" onclick="hideModal()">了解更多</button>
+                </div>
+            `;
+        });
+    };
+
+    if (partnerLink) partnerLink.addEventListener('click', (e) => { e.preventDefault(); showPartnerModal(); });
+    if (partnerBannerBtn) partnerBannerBtn.addEventListener('click', showPartnerModal);
+    if (floatWechatBtn) floatWechatBtn.addEventListener('click', showPartnerModal);
 });

@@ -7,6 +7,7 @@
     <title>NeuroFlow | 专为 ADHD 设计的神经优化系统</title>
     <meta name="description" content="基于神经科学与执行功能理论，帮助你从混沌到有序，掌握大脑节奏。">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="business.css">
     <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="tracker.js"></script>
@@ -28,7 +29,7 @@
                 <a href="sensory.html" class="nav-link">感统桥接</a>
                 <a href="40hz.html" class="nav-link">40Hz专注</a>
                 <a href="nsdr.html" class="nav-link">NSDR休息</a>
-                <!-- <a href="../courses.html" class="nav-link">课程</a> -->
+                <a href="#" class="nav-link partner-highlight" id="partner-link">合伙人计划</a>
             </nav>
             <div class="user-status">
                 <div class="coin-badge">
@@ -39,6 +40,16 @@
                 </div>
             </div>
         </header>
+
+        <!-- Business Banner -->
+        <div class="glass-panel business-banner" id="partner-banner">
+            <div class="banner-content">
+                <span class="badge-new">🔥 限时招募</span>
+                <h3>2026 脑科学商业合伙人计划</h3>
+                <p>与“首席渐构师”深度共创，渐构你的千万级 AI 商业版图。</p>
+            </div>
+            <button class="btn-primary" style="width: auto; margin-top: 0;">立即申请</button>
+        </div>
 
         <!-- Main Dashboard Grid -->
         <div class="dashboard-grid">
@@ -167,7 +178,6 @@
         </footer>
     </div>
 
-    <!-- Modals (Hidden by default) -->
     <div id="modal-container"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center;">
         <div class="glass-panel" style="max-width: 500px; width: 90%; position: relative;">
@@ -175,6 +185,12 @@
                 style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; cursor: pointer; font-size: 20px;">✕</button>
             <div id="modal-content"></div>
         </div>
+    </div>
+
+    <!-- Floating CTA -->
+    <div class="float-cta" id="float-wechat-btn" title="咨询首席渐构师">
+        <span class="cta-icon">👤</span>
+        <span class="cta-text">咨询老王</span>
     </div>
 
     <script src="app.js?v=2"></script>
