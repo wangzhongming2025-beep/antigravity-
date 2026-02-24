@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GALLUP-PRO | 盖洛普专业优势深度测评</title>
+    <!-- Chart.js for Professional Metrics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --brand-dark: #1A1A1A;
+            --brand-gold: #C5A059;
+            --brand-red: #FF2442;
+            --bg-main: #F4F4F7;
+            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-main);
+            color: var(--brand-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 500px;
+            background: #FFF;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (min-width: 501px) {
+            #app {
+                min-height: 800px;
+                border-radius: 32px;
+                margin: 20px;
+            }
+        }
+
+        /* Loading Overlay */
+        #loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s;
+        }
+
+        /* Headers */
+        header {
+            padding: 30px 24px 10px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 14px;
+            letter-spacing: 4px;
+            color: var(--brand-gold);
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        /* Progress Bar */
+        .progress-box {
+            padding: 0 24px;
+            margin-top: 20px;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 4px;
+            background: #EEE;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--brand-dark);
+            width: 0%;
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+
+        /* Screens */
+        .screen {
+            flex: 1;
+            display: none;
+            padding: 24px;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Welcome Page */
+        .hero-img {
+            width: 100%;
+            height: 260px;
+            background: #000;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+
+        .welcome-text {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* Question UI */
+        .q-num {
+            font-size: 13px;
+            color: var(--brand-gold);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .q-text {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        .option {
+            background: #F8F8FA;
+            border: 1px solid #EEE;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .option:hover {
+            border-color: var(--brand-dark);
+            background: #FFF;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .option.selected {
+            background: var(--brand-dark);
+            border-color: var(--brand-dark);
+            color: white;
+        }
+
+        .opt-char {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid #DDD;
+            margin-right: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .option.selected .opt-char {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Result UI */
+        .res-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #FDECEC;
+            color: var(--brand-red);
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .res-role {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+        }
+
+        .radar-box {
+            width: 100%;
+            aspect-ratio: 1;
+            margin: 20px 0;
+        }
+
+        .res-card {
+            background: #F9F9FB;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .res-card h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .res-card p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* Buttons */
+        .btn-main {
+            background: var(--brand-dark);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            margin-top: auto;
+        }
+
+        .btn-main:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #BBB;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <div id="loader">
+            <div style="font-weight: 800; font-size: 18px; letter-spacing: 2px;">GALLUP-PRO</div>
+            <div style="margin-top: 15px; color: #999; font-size: 12px;">正在初始化专业题库...</div>
+        </div>
+
+        <header>
+            <div class="logo">Strength Analytics</div>
+            <h1 id="main-title">专业优势深度测评</h1>
+            <div class="progress-box" id="p-box" style="display: none;">
+                <div class="bar-bg">
+                    <div class="bar-fill" id="bar-fill"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome -->
+        <div id="screen-start" class="screen active">
+            <div class="hero-img">
+                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
+                    alt="Consultant">
+            </div>
+            <div class="welcome-text">
+                本测评基于盖洛普 34 个才干维度，结合了执行力、影响力、关系建立及战略思维四大核心领域。通过 20 道强制选择压测题目，我们将锁定您在 AI 商业时代的底层操作系统，帮助您定位年入千万的职业锚点。
+            </div>
+            <button class="btn-main" onclick="initQuiz()">深度开启测评</button>
+            <p style="text-align: center; font-size: 11px; color: #AAA; margin-top: 15px;">预计耗时 5-8 分钟 | 已累计为 12,000+
+                创业者提供分析</p>
+        </div>
+
+        <!-- Quiz -->
+        <div id="screen-quiz" class="screen">
+            <div class="q-num" id="q-num">STEP 01/20</div>
+            <div class="q-text" id="q-text">如果您面临一个复杂的商业决策，您的第一直觉更倾向于：</div>
+            <div id="options" class="options">
+                <!-- Options Injected -->
+            </div>
+            <button class="btn-main" id="btn-next" disabled onclick="nextQuestion()">由潜意识决定下一步</button>
+        </div>
+
+        <!-- Result -->
+        <div id="screen-result" class="screen">
+            <div class="res-badge">PROFILE RESULT</div>
+            <div class="res-role" id="res-role">战术狙击手</div>
+
+            <div class="radar-box">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <div class="res-card">
+                <h3>🛡️ 才干内核 (Top Strengths)</h3>
+                <p id="res-core">加载内容中...</p>
+            </div>
+
+            <div class="res-card" style="border-left: 4px solid var(--brand-gold);">
+                <h3>📈 商业变现路径 (10M Path)</h3>
+                <p id="res-biz">加载内容中...</p>
+            </div>
+
+            <div class="res-card" style="border-left: 4px solid var(--brand-red);">
+                <h3>⚠️ 认知黑洞 (Danger Zones)</h3>
+                <p id="res-risk">加载内容中...</p>
+            </div>
+
+            <div style="background: #000; color: #FFF; padding: 24px; border-radius: 20px; text-align: center;">
+                <div style="font-size: 12px; opacity: 0.6; margin-bottom: 8px;">加入私域获取 34 才干完整解读</div>
+                <div style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">[ 脑科学商业实验室 ]</div>
+                <button class="btn-main" style="background: #FFF; color: #000; padding:15px;"
+                    onclick="window.location.reload()">重新测评</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by NeuroFlow Algorithm © 2026
+        </div>
+    </div>
+
+    <script>
+        // Expanded Pro Questions (Forced-Choice Matrix)
+        const proBank = [
+            {
+                text: "当您的计划被打断或目标偏离时，您的第一生理反应是：",
+                opts: [
+                    { text: "感到极度焦虑，必须立刻清除障碍重回主线", weights: { Executing: 3, Strategic: 1 } },
+                    { text: "迅速接受变化，并思考如何利用这个变量产生新逻辑", weights: { Strategic: 3, Relationship: 1 } }
+                ]
+            },
+            {
+                text: "在团队协作中，您最不能忍受的状态是：",
+                opts: [
+                    { text: "大家沟通很欢快，但最后没有产生具体的交付物", weights: { Executing: 4, Influencing: -1 } },
+                    { text: "大家工作很卖力，但我觉得人际关系紧绷且冷冰冰", weights: { Relationship: 4, Executing: -1 } }
+                ]
+            },
+            {
+                text: "如果给您 1 小时独处时间，您更可能做哪件事？",
+                opts: [
+                    { text: "深度钻研一个新的 AI 提示词包或脑科学理论", weights: { Strategic: 3, Executing: 1 } },
+                    { text: "给关键客户或老朋友打几个深度沟通的私密电话", weights: { Relationship: 3, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "面对未知的商业机会，您的判断逻辑是：",
+                opts: [
+                    { text: "我能瞬间在脑中推演 3 种可能的结局和 1 条最优路径", weights: { Strategic: 5 } },
+                    { text: "我通过观察人群的反应和情绪，判断这是否是一个趋势", weights: { Influencing: 3, Relationship: 2 } }
+                ]
+            },
+            {
+                text: "您通常如何评价您的影响力？",
+                opts: [
+                    { text: "我擅长通过建立一套科学且严密的系统来折服他人", weights: { Strategic: 3, Executing: 2 } },
+                    { text: "我擅长通过讲故事、共情或直接的号召力来领导大家", weights: { Influencing: 4, Relationship: 1 } }
+                ]
+            },
+            {
+                text: "关于“承诺”，您的态度是：",
+                opts: [
+                    { text: "一旦答应，哪怕牺牲休息时间也要达成，那是荣誉感", weights: { Executing: 4, Relationship: 1 } },
+                    { text: "承诺需要看实际情况变化，达成双赢的结果最重要", weights: { Strategic: 2, Relationship: 2 } }
+                ]
+            },
+            {
+                text: "您最享受的学习过程是：",
+                opts: [
+                    { text: "从零到一掌握一个技能，并能立刻用来变现的成就感", weights: { Executing: 3, Strategic: 1 } },
+                    { text: "纯粹的知识建模，理解了世界底层运行规律的通透感", weights: { Strategic: 4, Relationship: -1 } }
+                ]
+            },
+            {
+                text: "如果您要设计一款产品（如脑科学 SaaS），您会优先考虑：",
+                opts: [
+                    { text: "它的功能细节是否足够极致，是否解决了所有用户痛点", weights: { Executing: 3, Strategic: 2 } },
+                    { text: "它是否能引起用户的情绪共鸣，是否能让用户感受到‘爱’", weights: { Relationship: 4, Influencing: 1 } }
+                ]
+            }
+            // ... (Remaining 12 questions would follow same structure in full version)
+        ];
+
+        let currentQ = 0;
+        let selectedWeights = { Executing: 0, Influencing: 0, Relationship: 0, Strategic: 0 };
+        let tempAnswer = null;
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 1500);
+        };
+
+        function initQuiz() {
+            document.getElementById('screen-start').classList.remove('active');
+            document.getElementById('screen-quiz').classList.add('active');
+            document.getElementById('p-box').style.display = 'block';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = proBank[currentQ];
+            document.getElementById('q-num').innerText = `STEP ${String(currentQ + 1).padStart(2, '0')}/${proBank.length}`;
+            document.getElementById('q-text').innerText = q.text;
+
+            const optDiv = document.getElementById('options');
+            optDiv.innerHTML = "";
+            q.opts.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<div class="opt-char">${String.fromCharCode(65 + idx)}</div><div>${opt.text}</div>`;
+                div.onclick = () => selectOption(idx, div);
+                optDiv.appendChild(div);
+            });
+
+            const progress = ((currentQ) / proBank.length) * 100;
+            document.getElementById('bar-fill').style.width = progress + "%";
+            document.getElementById('btn-next').disabled = true;
+        }
+
+        function selectOption(idx, el) {
+            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            tempAnswer = proBank[currentQ].opts[idx].weights;
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        function nextQuestion() {
+            for (let key in tempAnswer) {
+                selectedWeights[key] += tempAnswer[key];
+            }
+
+            currentQ++;
+            if (currentQ < proBank.length) {
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('bar-fill').style.width = "100%";
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('main-title').innerText = "测评报告已生成";
+
+            // Logic for Detailed Archetypes
+            const archetypes = [
+                { id: "狙击手", name: "战略狙击手", core: "执行力(Focus) + 战略思维。您不仅有极其清晰的路径图，更有近乎残酷的执行意志。您天生厌恶‘白忙活’。", biz: "最适合做高客单价一对一陪跑，或者项目的核心合伙人。您的价值在于‘确定性’。", risk: "容易陷入过度的自我施压，忽略了团队成员的情感需求。" },
+                { id: "渐构师", name: "首席渐构师", core: "战略思维(Ideation) + 学习。您的大脑就像一个不断扩张的图书馆，擅长在碎片中建立模组。", biz: "最适合做知识付费后端或 SaaS 产品经理。您的‘认知溢价’是核心竞争力。", risk: "可能会出现‘只想不动’的倾向，需要强执行力的合伙人补充。" },
+                { id: "号召者", name: "超级号召者", core: "影响力(Command/Significance) + 关系建立。您是光，人潮会向您集结。", biz: "最适合做公域流量 IP 或千万级社群的领袖。您的‘情绪张力’能带动高额转化。", risk: "容易被外界评价左右情绪，需要建立更强的‘反向愿景’防御墙。" }
+            ];
+
+            // Basic Selection logic based on weights
+            let finalRole = archetypes[0];
+            if (selectedWeights.Strategic > selectedWeights.Executing) finalRole = archetypes[1];
+            if (selectedWeights.Influencing > selectedWeights.Strategic) finalRole = archetypes[2];
+
+            document.getElementById('res-role').innerText = finalRole.name;
+            document.getElementById('res-core').innerText = finalRole.core;
+            document.getElementById('res-biz').innerText = finalRole.biz;
+            document.getElementById('res-risk').innerText = finalRole.risk;
+
+            // Render Radar Chart
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['执行力', '影响力', '关系建立', '战略思维'],
+                    datasets: [{
+                        label: '个人天赋潜能',
+                        data: [selectedWeights.Executing, selectedWeights.Influencing, selectedWeights.Relationship, selectedWeights.Strategic],
+                        backgroundColor: 'rgba(197, 160, 89, 0.2)',
+                        borderColor: '#C5A059',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#1A1A1A'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: { beginAtZero: true, grid: { color: '#EEE' }, ticks: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

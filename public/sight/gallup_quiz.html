@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>盖洛普优势自测 - 解锁你的千万级天赋</title>
+    <style>
+        :root {
+            --primary-color: #FF2442;
+            --bg-color: #F9F9F9;
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --accent-blue: #4A90E2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #EEEEEE;
+            border-radius: 2px;
+            margin-bottom: 30px;
+        }
+        #progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 12px; text-align: center; }
+        p.subtitle { color: var(--text-sub); font-size: 14px; text-align: center; margin-bottom: 30px; }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: opacity 0.2s;
+            margin-top: auto;
+        }
+        .btn:active { opacity: 0.8; }
+
+        /* Quiz UI */
+        .question-text { font-size: 18px; font-weight: 600; margin-bottom: 24px; color: #000; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option-card {
+            background: #F5F5F7;
+            padding: 18px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            font-size: 15px;
+        }
+        .option-card:hover, .option-card:active {
+            background: #FFFFFF;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(255, 36, 66, 0.1);
+        }
+
+        /* Result UI */
+        .result-title { font-size: 20px; color: var(--text-sub); margin-bottom: 8px; text-align: center;}
+        .result-name { font-size: 32px; font-weight: 800; color: var(--primary-color); margin-bottom: 24px; text-align: center; }
+        .result-box {
+            background: #FFF5F6;
+            padding: 24px;
+            border-radius: 18px;
+            margin-bottom: 30px;
+        }
+        .result-box h3 { font-size: 16px; margin-bottom: 10px; color: #8C4343; }
+        .result-box p { font-size: 14px; color: #A66363; line-height: 1.8; }
+
+        .cta-section {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #EEE;
+        }
+        .cta-text { font-size: 13px; color: var(--text-sub); margin-bottom: 15px; }
+
+        /* Media Queries */
+        @media (max-width: 400px) {
+            #app { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- Welcome Screen -->
+    <div id="screen-welcome" class="screen active">
+        <h1>🚀 盖洛普优势自测</h1>
+        <p class="subtitle">解锁你的千万级天赋，发现属于你的商业角色</p>
+        <div style="text-align:center; margin: 40px 0;">
+            <img src="https://api.iconify.design/solar:star-rainbow-bold-duotone.svg?color=%23ff2442&width=80" alt="icon">
+        </div>
+        <p style="font-size: 14px; color: #888; text-align: center; margin-bottom: 40px;">
+            基于盖洛普 34 才干模型精选场景<br>助力 AI 时代一人公司转型
+        </p>
+        <button class="btn" onclick="startQuiz()">立即开启测试</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="screen-quiz" class="screen">
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="question-container">
+            <div class="question-text" id="q-text">问题加载中...</div>
+            <div class="options" id="q-options">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="screen-result" class="screen">
+        <div class="result-title">你的核心优势角色是</div>
+        <div class="result-name" id="res-name">首席执行官</div>
+        
+        <div class="result-box">
+            <h3>核心天赋亮点</h3>
+            <p id="res-desc">加载中...</p>
+        </div>
+
+        <div class="result-box" style="background: #F0F7FF;">
+            <h3 style="color: #2F5A8C;">千万级变现建议</h3>
+            <p id="res-biz" style="color: #4A709D;">加载中...</p>
+        </div>
+
+        <div class="cta-section">
+            <p class="cta-text">想要更深度的 34 才干报告与避坑指南？</p>
+            <button class="btn" style="width: 100%;" onclick="alert('即将跳转私域，请长按保存结果并关注！')">加入 AI 商业实验室</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            text: "当你拿到一个全新的 AI 工具（如即梦或豆包）时：",
+            options: [
+                { text: "立刻上手试错，在解决问题中掌握它", domain: "Executing" }, // 执行力：排难
+                { text: "疯狂搜集相关教程和提示词包，建立资料库", domain: "Strategic" }, // 战略：搜集/学习
+                { text: "思考如何用它组合出颠覆性的内容玩法", domain: "Strategic" }, // 战略：理念/前瞻
+                { text: "思考如何把它标准化，分发给团队提高人效", domain: "Executing" } // 执行力：专注/统筹
+            ]
+        },
+        {
+            text: "在社群里看到两个用户为了技术细节发生争执，你会：",
+            options: [
+                { text: "引导大家找共同点，平息火药味，维持氛围", domain: "Relationship" }, // 关系：和谐
+                { text: "直接亮出权威数据或事实，定分止争", domain: "Influencing" }, // 影响力：指挥
+                { text: "分析谁的底层逻辑更扎实，并给出中立建议", domain: "Strategic" }, // 战略：分析
+                { text: "谁对谁错不重要，看看他们的争论能产生什么新需求", domain: "Strategic" } // 战略：理念
+            ]
+        },
+        {
+            text: "如果你面前有一份年入千万的商业计划：",
+            options: [
+                { text: "我能一眼看出那 3 个关键漏洞和 1 条捷径", domain: "Strategic" }, // 战略：战略
+                { text: "只要目标确定，除了主线我谁都不理", domain: "Executing" }, // 执行力：专注
+                { text: "我有信心能感召到最顶级的合伙人一起干", domain: "Influencing" }, // 影响力：指挥/取悦
+                { text: "我会先分析每一个环节的风险，做好防御预案", domain: "Executing" } // 执行力：审慎
+            ]
+        },
+        {
+            text: "关于“学习”这件事，你的真实爽感来自于：",
+            options: [
+                { text: "“终于学会了”那一瞬间的成就感", domain: "Executing" }, // 执行力：成就
+                { text: "“原来世界是这么运作的”逻辑打通后的快感", domain: "Strategic" }, // 战略：学习
+                { text: "学到新东西并把它教给别人，看他变强的感觉", domain: "Relationship" }, // 关系：伯乐
+                { text: "学到这个技能后，我可以在某些领域超越竞争对手", domain: "Influencing" } // 影响力：竞争
+            ]
+        },
+        {
+            text: "忙碌了一整天回到家，怎样的状态最让你满足？",
+            options: [
+                { text: "待办清单上所有钩都打上了，这种控制感很爽", domain: "Executing" }, // 执行力：成就
+                { text: "和志同道合的人深度沟通了一整天，心很近", domain: "Relationship" }, // 关系：交往
+                { text: "研究出了一个新项目路径，感觉非常有未来", domain: "Strategic" }, // 战略：前瞻
+                { text: "我的内容又在全网爆了，粉丝都在疯狂催更", domain: "Influencing" } // 影响力：追求/意义
+            ]
+        }
+    ];
+
+    const results = {
+        Executing: {
+            name: "战略狙击手",
+            desc: "你不仅是行动派，更是目标导向的专家。你对结果有近乎偏执的追求，极其反感低效和白忙活。你是团队中最值得信性的骨干。",
+            biz: "建议做‘重交付、高客单’产品，或者作为项目的首席运营官。利用你的专注力去死磕转化闭环，千万目标对你来说只是清单上的一个钩。"
+        },
+        Strategic: {
+            name: "首席渐构师",
+            desc: "你擅长在迷雾中发现路径，大脑中有一个清晰的逻辑地图。你沉迷于知识的建模和新事物的连接，是天生的战略家和内容输出者。",
+            biz: "建议走‘知识溢价’路线。利用你的理念和战略，开发出能帮别人解决问题的底层系统，通过规模化授权或课程实现千万营收。"
+        },
+        Influencing: {
+            name: "超级号召者",
+            desc: "你有一种天生的能量去影响他人。你渴望被看见，也擅长传递你的信念。在你的影响下，资源和人才会不自觉地向你集结。",
+            biz: "建议担任‘个人品牌 IP’或‘商务合伙人’。你的舞台在公域流量池，利用你的沟通和感召力，做一个百万粉丝的行业领袖。"
+        },
+        Relationship: {
+            name: "信任架构师",
+            desc: "你一眼就能看透人性的独特，擅长建立深度的信任锚点。在你的运营下，冷冰冰的关系会变得温暖且具备极高粘性。",
+            biz: "建议深挖‘私域陪跑’或‘高端母校/社群运营’。你的利润来自于用户终身价值（LTV）的挖掘，这种稳固的安全感是你最大的资产。"
+        }
+    };
+
+    let currentStep = 0;
+    let scores = { Executing: 0, Influencing: 0, Relationship: 0, Strategic: 0 };
+
+    function startQuiz() {
+        document.getElementById('screen-welcome').classList.remove('active');
+        document.getElementById('screen-quiz').classList.add('active');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = questions[currentStep];
+        document.getElementById('q-text').innerText = (currentStep + 1) + ". " + q.text;
+        const optionsDiv = document.getElementById('q-options');
+        optionsDiv.innerHTML = "";
+        
+        q.options.forEach(opt => {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.innerText = opt.text;
+            card.onclick = () => selectOption(opt.domain);
+            optionsDiv.appendChild(card);
+        });
+
+        const progress = ((currentStep) / questions.length) * 100;
+        document.getElementById('progress-bar').style.width = progress + "%";
+    }
+
+    function selectOption(domain) {
+        scores[domain]++;
+        currentStep++;
+        
+        if (currentStep < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('progress-bar').style.width = "100%";
+        document.getElementById('screen-quiz').classList.remove('active');
+        document.getElementById('screen-result').classList.add('active');
+
+        // Find max domain
+        let maxDomain = 'Executing';
+        let maxScore = -1;
+        for (let d in scores) {
+            if (scores[d] > maxScore) {
+                maxScore = scores[d];
+                maxDomain = d;
+            }
+        }
+
+        const res = results[maxDomain];
+        document.getElementById('res-name').innerText = res.name;
+        document.getElementById('res-desc').innerText = res.desc;
+        document.getElementById('res-biz').innerText = res.biz;
+    }
+</script>
+
+</body>
+</html>

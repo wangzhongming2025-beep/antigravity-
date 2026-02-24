@@ -101,6 +101,7 @@
             margin-bottom: 10px;
             background: linear-gradient(to right, #00f2ff, #00ff9d);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -213,6 +214,7 @@
         const statusText = document.getElementById('statusText');
 
         function initAudio() {
+            if (audioCtx) return;
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
 
@@ -239,8 +241,37 @@
         let startTime;
 
         function startAudio() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
             startTime = Date.now();
-            // ... existing logic
+
+            // Left Oscillator (400Hz)
+            leftOsc = audioCtx.createOscillator();
+            leftOsc.type = 'sine';
+            leftOsc.frequency.setValueAtTime(400, audioCtx.currentTime);
+
+            const leftPanner = audioCtx.createStereoPanner();
+            leftPanner.pan.setValueAtTime(-1, audioCtx.currentTime);
+
+            leftOsc.connect(leftPanner);
+            leftPanner.connect(gainNode);
+
+            // Right Oscillator (440Hz)
+            rightOsc = audioCtx.createOscillator();
+            rightOsc.type = 'sine';
+            rightOsc.frequency.setValueAtTime(440, audioCtx.currentTime);
+
+            const rightPanner = audioCtx.createStereoPanner();
+            rightPanner.pan.setValueAtTime(1, audioCtx.currentTime);
+
+            rightOsc.connect(rightPanner);
+            rightPanner.connect(gainNode);
+
+            leftOsc.start();
+            rightOsc.start();
+
             // UI Update
             isPlaying = true;
             playBtn.innerHTML = '❚❚';
@@ -254,7 +285,18 @@
                 const durationMins = Math.floor((Date.now() - startTime) / 60000);
                 if (durationMins > 0) window.NeuroTracker.recordFocus(durationMins);
             }
-            // ... existing logic
+
+            if (leftOsc) {
+                leftOsc.stop();
+                leftOsc.disconnect();
+                leftOsc = null;
+            }
+            if (rightOsc) {
+                rightOsc.stop();
+                rightOsc.disconnect();
+                rightOsc = null;
+            }
+
             // UI Update
             isPlaying = false;
             playBtn.innerHTML = '▶';
