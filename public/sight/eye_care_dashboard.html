@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能护眼控制舱 - 老王队长优选版</title>
+    <style>
+        :root {
+            --bg-color: #f4f7fb;
+            --card-bg: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --border-color: #e5e7eb;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --radius-btn: 8px;
+            --radius-card: 16px;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* 主题方案 (Themes) */
+        body.theme-light { }
+        body.theme-yellow {
+            --bg-color: #fdf6e3;
+            --card-bg: #fffbf0;
+            --text-primary: #4a4a4a;
+        }
+        body.theme-dark {
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --primary-color: #4f46e5;
+        }
+        body.theme-green {
+            --bg-color: #ebf5eb;
+            --card-bg: #f5fbf5;
+            --text-primary: #2d3748;
+            --primary-color: #059669;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 屏幕调节的全局滤镜层 */
+        #screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: multiply;
+            background-color: transparent;
+            transition: background-color 0.2s;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            z-index: 10;
+            transition: filter 0.2s;
+        }
+
+        /* 页面大标题 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .page-header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.4s, background-color 0.4s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        /* 网格布局 */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-box {
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            padding: 24px 20px;
+            border-left: 4px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: background-color 0.4s;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* 计时器特有 */
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-family: monospace;
+            letter-spacing: 4px;
+            margin: 15px 0;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.15);
+        }
+
+        /* 按钮系统 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: var(--radius-btn);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+            color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            box-shadow: none;
+        }
+        
+        /* 状态按钮 */
+        .btn-active {
+            background-color: var(--accent-green) !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        /* 主题切换按钮 */
+        .theme-btn { padding: 8px 16px; font-size: 0.9rem; }
+        .theme-btn.light { background-color: #3b82f6; }
+        .theme-btn.yellow { background-color: #f59e0b; color: #fff;}
+        .theme-btn.dark { background-color: #374151; }
+        .theme-btn.green { background-color: #10b981; }
+
+        /* 滑块定制 */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: var(--border-color);
+            border-radius: 4px;
+            transition: background 0.4s;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s, background 0.4s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* 模态框/提示 (Eye Exercise Animation) */
+        #exercise-toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150px);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            padding: 18px 40px;
+            border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            font-weight: 600;
+            font-size: 1.1rem;
+            z-index: 10000;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 2px solid var(--primary-color);
+        }
+        #exercise-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast-icon { 
+            font-size: 1.8rem; 
+            animation: pulse 1s infinite alternate; 
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+    </style>
+</head>
+<body class="theme-light">
+    <!-- 物理护眼滤镜层 -->
+    <div id="screen-overlay"></div>
+
+    <div class="container" id="main-content">
+        <!-- 页面顶部 -->
+        <div class="page-header">
+            <h1>👁️ 智能护眼控制舱</h1>
+            <p>为您的视觉健康提供全方位、系统化的守护方案</p>
+        </div>
+
+        <!-- 模块 1: 休息提醒 -->
+        <div class="card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">⏱️</span>
+                <span class="card-title">休息提醒</span>
+            </div>
+            <p class="card-desc">长时间盯着屏幕容易导致视觉疲劳。严格遵循国际公认的<strong>“20-20-20”科学法则</strong>：每工作20分钟，将视线转移到20英尺（约6米）外，注视20秒。设置定时提醒可以帮助您定期休息。</p>
+            
+            <div class="feature-box" style="border-left-color: var(--accent-orange); align-items: center;">
+                <h3>20-20-20 规则计时器</h3>
+                <p>每20分钟，看20英尺（约6米）外的物体20秒</p>
+                <div class="timer-display" id="timer">20:00</div>
+                <div class="btn-group" style="justify-content: center;">
+                    <button class="btn" id="btn-start" onclick="toggleTimer()">开始专注</button>
+                    <button class="btn btn-outline" onclick="resetTimer()">清零重置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块 2: 屏幕调节 -->
+        <div class="card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">🖥️</span>
+                <span class="card-title">屏幕调节 (实时生效)</span>
+            </div>
+            <p class="card-desc">通过底层的软件级滤镜调整屏幕参数。调整屏幕设置可以大幅减少眩光刺眼与防蓝光疲劳。</p>
+            
+            <div class="grid-3">
+                <div class="feature-box">
+                    <h3>蓝光过滤器</h3>
+                    <p>减少屏幕发出的高频蓝光，降低对眼睛和褪黑素的刺激。</p>
+                    <div class="slider-container">
+                        <input type="range" id="blue-light" min="0" max="100" value="0" oninput="updateScreen()">
+                        <span id="blue-val" style="width: 50px; text-align: right;">0%</span>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <h3>全局亮度调节</h3>
+                    <p>根据当前环境的光线强弱调整绝对亮度，预防刺眼。</p>
+                    <div class="slider-container">
+                        <input type="range" id="brightness" min="20" max="100" value="100" oninput="updateScreen()">
+                        <span id="bright-val" style="width: 50px; text-align: right;">100%</span>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <h3>水墨对比度</h3>
+                    <p>优化文字和背景的强弱对比区间，模拟纸质书阅读反差。</p>
+                    <div class="slider-container">
+                        <input type="range" id="contrast" min="50" max="150" value="100" oninput="updateScreen()">
+                        <span id="contrast-val" style="width: 50px; text-align: right;">100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块 3: 动态眼保健操 -->
+        <div class="card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">🧘‍♂️</span>
+                <span class="card-title">视觉微体操（互动引导）</span>
+            </div>
+            <p class="card-desc">针对长期看近处导致的睫状肌僵硬，进行定向的舒缓性眼部运动，缓解眼疲劳。</p>
+            
+            <div class="grid-3">
+                <div class="feature-box" style="border-left-color: var(--primary-color);">
+                    <h3>眼球转动练习</h3>
+                    <p>缓慢转动眼球，上下左右各看5秒，充分拉伸眼外肌。</p>
+                    <button class="btn btn-outline" onclick="startExercise('眼球转动', '请眼球向上看 👆... 停留5秒...', 5000)">开始练习</button>
+                </div>
+
+                <div class="feature-box" style="border-left-color: #8b5cf6;">
+                    <h3>远近调节练习</h3>
+                    <p>交替看近处（如手指）和远处（窗外）的物体，锻炼睫状肌。</p>
+                    <button class="btn btn-outline" style="color:#8b5cf6; border-color:#8b5cf6;" onclick="startExercise('远近交替', '请看屏幕 💻... 现在看向窗外 🌳...', 5000)">开始练习</button>
+                </div>
+
+                <div class="feature-box" style="border-left-color: var(--accent-green);">
+                    <h3>眨眼肌肉练习</h3>
+                    <p>有意识地用力眨眼，促进泪液分泌防干涩，保持眼睛湿润。</p>
+                    <button class="btn btn-outline" style="color:var(--accent-green); border-color:var(--accent-green);" onclick="startExercise('用力眨眼', '用力闭紧双眼 😣... 然后猛然睁开 😳！', 4000)">开始练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块 4: 一键阅读模式 -->
+        <div class="card">
+            <div class="card-header">
+                <span style="font-size: 1.8rem;">📖</span>
+                <span class="card-title">阅读模式 (环境光适配)</span>
+            </div>
+            <p class="card-desc">纯净的阅读体验，选择适合长时间阅读或睡前的色彩配搭。</p>
+            
+            <div class="feature-box" style="border-left-color: transparent;">
+                <h3>页面颜色一键调整</h3>
+                <p style="margin-bottom: 15px;">选择适合当前环境或个人喜好的长时段配图方案。</p>
+                <div class="btn-group">
+                    <button class="btn theme-btn light" onclick="setTheme('light')">浅色模式 (原色)</button>
+                    <button class="btn theme-btn yellow" onclick="setTheme('yellow')">纸质护眼黄 (抗疲劳)</button>
+                    <button class="btn theme-btn dark" onclick="setTheme('dark')">深邃暗夜模式 (弱光)</button>
+                    <button class="btn theme-btn green" onclick="setTheme('green')">自然豆沙绿 (舒缓)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 动态提示浮窗 -->
+    <div id="exercise-toast">
+        <span class="toast-icon">👀</span>
+        <span id="toast-text">准备开始练习...</span>
+    </div>
+
+    <script>
+        // --- 计时器逻辑 ---
+        let timerInterval;
+        let isRunning = false;
+        let defaultTime = 20 * 60; // 20分钟
+        let totalSeconds = defaultTime; 
+        const timerDisplay = document.getElementById('timer');
+        const btnStart = document.getElementById('btn-start');
+
+        function updateTimerDisplay() {
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                btnStart.textContent = '继续计时';
+                btnStart.classList.remove('btn-active');
+            } else {
+                btnStart.textContent = '⏸ 暂停专注';
+                btnStart.classList.add('btn-active');
+                timerInterval = setInterval(() => {
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        btnStart.textContent = '叮！重新开始';
+                        btnStart.classList.remove('btn-active');
+                        // 结束提示
+                        triggerToast("🚨 叮！20分钟到了，请看向6米外的远方发呆20秒！", 10000);
+                        totalSeconds = defaultTime; 
+                    }
+                }, 1000);
+            }
+            isRunning = !isRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            btnStart.textContent = '开始专注';
+            btnStart.classList.remove('btn-active');
+            totalSeconds = defaultTime;
+            updateTimerDisplay();
+        }
+
+        // --- 屏幕滤镜模拟调节 ---
+        function updateScreen() {
+            const blueVal = document.getElementById('blue-light').value;
+            const brightVal = document.getElementById('brightness').value;
+            const contrastVal = document.getElementById('contrast').value;
+
+            // 更新展示文本
+            document.getElementById('blue-val').textContent = blueVal + '%';
+            document.getElementById('bright-val').textContent = brightVal + '%';
+            document.getElementById('contrast-val').textContent = contrastVal + '%';
+
+            // 1. 蓝光过滤：增加黄色透明图层 (Mix-blend-mode 叠加)
+            // 蓝光 100% 对应 rgba(255, 170, 0, 0.4) 的极度黄光护眼
+            const alphaYellow = (blueVal / 100) * 0.4; 
+            
+            const overlay = document.getElementById('screen-overlay');
+            if (blueVal > 0) {
+                overlay.style.backgroundColor = `rgba(255, 160, 0, ${alphaYellow})`;
+            } else {
+                overlay.style.backgroundColor = `transparent`;
+            }
+            
+            // 2. 亮度和对比度通过 CSS Filter 动态施加给主容器
+            document.getElementById('main-content').style.filter = `brightness(${brightVal}%) contrast(${contrastVal}%)`;
+        }
+
+        // --- 眼保健操交互弹窗 ---
+        let toastTimeout;
+        function triggerToast(text, duration = 4000) {
+            const toast = document.getElementById('exercise-toast');
+            document.getElementById('toast-text').textContent = text;
+            toast.classList.add('show');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        function startExercise(name, guideText, duration) {
+            triggerToast(`正在进行【${name}】: ${guideText}`, duration);
+        }
+
+        // --- 一键主题切换 ---
+        function setTheme(theme) {
+            document.body.className = `theme-${theme}`;
+        }
+
+        // 初始化
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
