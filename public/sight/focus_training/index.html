@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>专注力训练中心 | Focus Training</title>
+    <title>全维认知训练中心 | Cognitive Pro</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -13,55 +13,84 @@
         <nav class="sidebar glass-sidebar">
             <div class="logo">
                 <div class="logo-icon"></div>
-                <h2>Focus Pro</h2>
+                <h2>Cognitive Pro</h2>
             </div>
-            <ul class="nav-links">
-                <li class="active" data-view="dashboard">
-                    <span class="icon">📊</span>
-                    <span>数据面板</span>
-                </li>
-                <li data-view="schulte">
-                    <span class="icon">🔢</span>
-                    <span>舒尔特方格</span>
-                </li>
-                <li data-view="tracker">
-                    <span class="icon">🎯</span>
-                    <span>动态追踪</span>
-                </li>
-                <li data-view="breathing">
-                    <span class="icon">🌬️</span>
-                    <span>正念呼吸</span>
-                </li>
-            </ul>
+            
+            <div class="nav-section">
+                <p class="nav-label">概览</p>
+                <ul class="nav-links">
+                    <li class="active" data-view="dashboard">
+                        <span class="icon">📊</span><span>数据中心</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <p class="nav-label">视觉与加工</p>
+                <ul class="nav-links">
+                    <li data-view="schulte"><span class="icon">🔢</span><span>舒尔特方格</span></li>
+                    <li data-view="tracker"><span class="icon">🎯</span><span>动态追踪</span></li>
+                    <li data-view="vis-speed"><span class="icon">⚡</span><span>加工速度</span></li>
+                    <li data-view="vis-cancel"><span class="icon">🚫</span><span>防漏看训练</span></li>
+                    <li data-view="vis-video"><span class="icon">🎬</span><span>视频分辨</span></li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <p class="nav-label">听觉与记忆</p>
+                <ul class="nav-links">
+                    <li data-view="aud-react"><span class="icon">👂</span><span>听觉反应</span></li>
+                    <li data-view="aud-inter"><span class="icon">🔊</span><span>听觉干扰</span></li>
+                    <li data-view="aud-span"><span class="icon">🔢</span><span>听觉广度</span></li>
+                    <li data-view="mem-repeat"><span class="icon">🗣️</span><span>复述训练</span></li>
+                    <li data-view="mem-reverse"><span class="icon">🔄</span><span>正话反说</span></li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <p class="nav-label">综合评测</p>
+                <ul class="nav-links">
+                    <li data-view="assessment-wechsler"><span class="icon">🏆</span><span>韦氏评测</span></li>
+                    <li data-view="breathing"><span class="icon">🌬️</span><span>正念呼吸</span></li>
+                </ul>
+            </div>
         </nav>
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Headers -->
             <header class="top-nav">
-                <h1 id="view-title">数据面板</h1>
+                <h1 id="view-title">数据中心</h1>
                 <div class="user-stats">
-                    <div class="stat-badge">🔥 <span id="streak-count">0</span> 天连胜</div>
+                    <div class="stat-badge">🔥 <span id="streak-count">1</span> 天连胜</div>
                 </div>
             </header>
 
-            <!-- Views Container -->
             <div class="views-wrapper">
                 
                 <!-- Dashboard View -->
                 <section id="dashboard" class="view active-view">
-                    <div class="dashboard-cards">
-                        <div class="card glass">
-                            <h3>Schulte Grid 最佳成绩 (5x5)</h3>
-                            <div class="score" id="ds-schulte-best">--:--</div>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-main glass">
+                            <h3>最近训练趋势</h3>
+                            <div class="chart-placeholder">[训练趋势图表占位]</div>
                         </div>
-                        <div class="card glass">
-                            <h3>动态追踪 等级</h3>
-                            <div class="score" id="ds-tracker-best">Lv 1</div>
-                        </div>
-                        <div class="card glass">
-                            <h3>今日呼吸累积</h3>
-                            <div class="score" id="ds-breath-time">0 分钟</div>
+                        <div class="dashboard-stats">
+                            <div class="card glass">
+                                <h3>舒尔特 (5x5)</h3>
+                                <div class="score" id="ds-schulte-best">--:--</div>
+                            </div>
+                            <div class="card glass">
+                                <h3>动态追踪</h3>
+                                <div class="score" id="ds-tracker-best">Lv 1</div>
+                            </div>
+                            <div class="card glass">
+                                <h3>听觉广度</h3>
+                                <div class="score" id="ds-aud-span-best">--</div>
+                            </div>
+                            <div class="card glass">
+                                <h3>呼吸时长</h3>
+                                <div class="score" id="ds-breath-time">0 分</div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -91,19 +120,104 @@
                 <section id="tracker" class="view">
                     <div class="game-header">
                         <div class="score-display">连续成功: <span id="tracker-score">0</span></div>
-                        <div class="level-display">等级: <span id="tracker-level">1</span> (球数/移速增加)</div>
+                        <div class="level-display">等级: <span id="tracker-level">1</span></div>
                     </div>
                     <div class="tracker-container glass">
                         <canvas id="tracker-canvas"></canvas>
                         <div id="tracker-overlay" class="overlay">
                             <h3 id="tracker-overlay-title">准备开始动态追踪</h3>
-                            <p id="tracker-overlay-desc">记住闪烁的高亮目标，运动停止后点击它们。</p>
+                            <p id="tracker-overlay-desc">记住闪烁的高亮目标。</p>
                             <button id="tracker-start" class="btn primary">开始</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Breathing View -->
+                <!-- Visual Processing Speed (vis-speed) -->
+                <section id="vis-speed" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">左侧符号是否出现在右侧组中？尽快判断。</div>
+                        <div class="timer" id="vis-speed-timer">60</div>
+                    </div>
+                    <div class="vis-speed-container glass">
+                        <div class="target-symbol" id="vis-speed-target">?</div>
+                        <div class="separator"></div>
+                        <div class="search-group" id="vis-speed-group"></div>
+                    </div>
+                    <div class="action-bar-speed">
+                        <button class="btn danger" id="vis-speed-no">不存在 (N)</button>
+                        <button class="btn primary" id="vis-speed-yes">存在 (Y)</button>
+                    </div>
+                </section>
+
+                <!-- Visual Cancellation (vis-cancel) -->
+                <section id="vis-cancel" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">找出所有的目标字符：<span id="vis-cancel-target-char" class="highlight">p</span></div>
+                        <div class="timer" id="vis-cancel-timer">45</div>
+                    </div>
+                    <div id="vis-cancel-grid" class="cancel-grid glass"></div>
+                    <div class="action-bar">
+                        <button id="vis-cancel-start" class="btn primary">开始搜索</button>
+                    </div>
+                </section>
+
+                <!-- Video Discrimination (vis-video) -->
+                <section id="vis-video" class="view">
+                    <div class="video-placeholder glass">
+                        <canvas id="video-canvas"></canvas>
+                        <div id="video-overlay" class="overlay">
+                            <h3>观察视频中的细节...</h3>
+                            <button id="video-start" class="btn primary">播放动画</button>
+                        </div>
+                    </div>
+                    <div id="video-question-box" class="question-box glass hidden">
+                        <p id="video-question">刚才视频中出现了几个红色的正方形？</p>
+                        <div class="options-grid" id="video-options"></div>
+                    </div>
+                </section>
+
+                <!-- Auditory Reaction (aud-react) -->
+                <section id="aud-react" class="view">
+                    <div class="auditory-center">
+                        <div class="audio-visualizer glass">
+                            <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                        </div>
+                        <p class="instruction-text">听到指令后立即点击对应颜色的按钮</p>
+                        <div class="aud-react-btns">
+                            <button class="btn-circle red" data-color="red"></button>
+                            <button class="btn-circle blue" data-color="blue"></button>
+                            <button class="btn-circle green" data-color="green"></button>
+                        </div>
+                        <button id="aud-react-start" class="btn primary">开始听令</button>
+                    </div>
+                </section>
+
+                <!-- Auditory Span (aud-span) -->
+                <section id="aud-span" class="view">
+                    <div class="auditory-center">
+                        <div class="status-icon" id="aud-span-status">👂</div>
+                        <p id="aud-span-msg" class="instruction-text">准备好听数字序列了吗？</p>
+                        <div id="aud-span-input-box" class="hidden">
+                            <input type="text" id="aud-span-input" placeholder="输入你听到的数字" autofocus>
+                            <button id="aud-span-submit" class="btn primary">提交</button>
+                        </div>
+                        <button id="aud-span-start" class="btn primary">开始听音</button>
+                    </div>
+                </section>
+
+                <!-- Reverse Speech (mem-reverse) -->
+                <section id="mem-reverse" class="view">
+                    <div class="auditory-center">
+                        <div class="glass-input-card">
+                            <h3>正话反说挑战</h3>
+                            <p id="mem-rev-text">系统会读出一个词，请逆序输入它。</p>
+                            <input type="text" id="mem-rev-input" class="modern-input" placeholder="倒着写回来..." disabled>
+                            <button id="mem-rev-start" class="btn primary">发音</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Breathing View (Repurposed to combined assessment end) -->
                 <section id="breathing" class="view">
                     <div class="breathing-container">
                         <div class="b-circle-wrapper">
@@ -117,7 +231,7 @@
                     <div class="action-bar b-actions">
                         <select id="breathing-pattern">
                             <option value="478">4-7-8 深度放松</option>
-                            <option value="4444">4-4-4-4 盒式呼吸(平稳)</option>
+                            <option value="4444">4-4-4-4 盒式呼吸</option>
                         </select>
                         <button id="breathing-start" class="btn primary">开始呼吸</button>
                     </div>
