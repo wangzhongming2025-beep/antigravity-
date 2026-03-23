@@ -115,6 +115,8 @@ function initView(viewId) {
         case 'mem-repeat': initMemRepeat(); break;
         case 'mem-reverse': initMemReverse(); break;
         case 'stroop': initStroop(); break;
+        case 'breathing': initBreathing(); break;
+        case 'house-search': initHouseSearch(); break;
     }
 }
 
@@ -128,7 +130,12 @@ function stopAllActivities() {
     if(visDiscrimState.isPlaying) endVisDiscrim(false);
     if(videoState.isPlaying) videoState.isPlaying = false;
     if(audReactState.isPlaying) audReactState.isPlaying = false;
+    if(audInterState.isPlaying) initAudInter(); // Reset auditory interference
     if(audSpanState.isPlaying) audSpanState.isPlaying = false;
+    if(memRepeatState.isPlaying) memRepeatState.isPlaying = false;
+    if(memReverseState.isPlaying) initMemReverse(); // Reset memory reverse
+    if(breathingInterval) stopBreathing(); // Stop breathing exercise
+    if(houseSearchState.isPlaying) { clearInterval(houseSearchState.timer); houseSearchState.isPlaying = false; } // Stop house search
     if(state.speechEnabled) window.speechSynthesis.cancel();
 }
 
@@ -556,6 +563,152 @@ function initDecodingConn() {
         });
     }
 }
+let breathingInterval = null;
+const breathingPatterns = {
+    '478': [
+        { name: '吸气', duration: 4, class: 'inhale' },
+        { name: '憋气', duration: 7, class: 'hold' },
+        { name: '呼气', duration: 8, class: 'exhale' }
+    ],
+    '4444': [
+        { name: '吸气', duration: 4, class: 'inhale' },
+        { name: '憋气', duration: 4, class: 'hold' },
+        { name: '呼气', duration: 4, class: 'exhale' },
+        { name: '准备', duration: 4, class: 'hold' }
+    ],
+    '55': [
+        { name: '吸气', duration: 5, class: 'inhale' },
+        { name: '呼气', duration: 5, class: 'exhale' }
+    ]
+};
+
+function initBreathing() {
+    stopBreathing();
+    const circle = document.getElementById('b-circle');
+    if(circle) circle.className = 'b-circle';
+    const text = document.getElementById('b-text');
+    if(text) text.textContent = '准备';
+    const setup = document.getElementById('b-setup');
+    if(setup) setup.classList.remove('hidden');
+    const prog = document.getElementById('b-progress');
+    if(prog) prog.style.width = '0%';
+}
+
+function startBreathing() {
+    const patternKey = document.getElementById('breathing-pattern').value;
+    const pattern = breathingPatterns[patternKey];
+    const setup = document.getElementById('b-setup');
+    const circle = document.getElementById('b-circle');
+    const text = document.getElementById('b-text');
+    const prog = document.getElementById('b-progress');
+    const ripple = document.getElementById('b-ripple');
+    
+    if(setup) setup.classList.add('hidden');
+    
+    let currentPhase = 0;
+    let phaseStart = Date.now();
+    
+    const runPhase = () => {
+        const p = pattern[currentPhase];
+        if(circle) {
+            circle.className = 'b-circle ' + p.class;
+        }
+        if(text) text.textContent = p.name;
+        if(ripple) {
+            ripple.style.display = (p.class === 'exhale') ? 'block' : 'none';
+        }
+    };
+    
+    runPhase();
+    
+    breathingInterval = setInterval(() => {
+        const p = pattern[currentPhase];
+        const elapsed = (Date.now() - phaseStart) / 1000;
+        const percent = Math.min(100, (elapsed / p.duration) * 100);
+        
+        if(prog) prog.style.width = percent + '%';
+        
+        if(elapsed >= p.duration) {
+            currentPhase = (currentPhase + 1) % pattern.length;
+            phaseStart = Date.now();
+            runPhase();
+        }
+    }, 50);
+}
+
+function stopBreathing() {
+    if(breathingInterval) {
+        clearInterval(breathingInterval);
+        breathingInterval = null;
+    }
+}
+
+// ====== House Search Module (Based on User Image) ======
+function drawHouse(ctx, x, y, size, windows) {
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath();
+    // Body
+    ctx.rect(x - size/2, y - size/4, size, size/2);
+    // Roof
+    ctx.moveTo(x - size/2, y - size/4); ctx.lineTo(x, y - size/2); ctx.lineTo(x + size/2, y - size/4);
+    ctx.stroke();
+    // Windows (simple bitmask)
+    if(windows & 1) ctx.strokeRect(x - size/3.5, y - size/6, size/5, size/5);
+    if(windows & 2) ctx.strokeRect(x + size/10, y - size/6, size/5, size/5);
+    // Door
+    ctx.strokeRect(x - size/8, y + size/10, size/4, size/6.5);
+}
+
+function initHouseSearch() {
+    const grid = document.getElementById('house-search-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    const targetBox = document.getElementById('house-target-canvas').getContext('2d');
+    targetBox.clearRect(0,0,100,100);
+}
+
+function startHouseSearch() {
+    houseSearchState.isPlaying = true; houseSearchState.found = 0;
+    const targetWindows = Math.floor(Math.random()*4);
+    houseSearchState.target = targetWindows;
+    houseSearchState.timeLeft = 60;
+    
+    // Draw target
+    const tCtx = document.getElementById('house-target-canvas').getContext('2d');
+    tCtx.clearRect(0,0,100,100); drawHouse(tCtx, 50, 50, 60, targetWindows);
+    
+    const grid = document.getElementById('house-search-grid');
+    grid.innerHTML = '';
+    for(let i=0; i<150; i++) {
+        const win = Math.floor(Math.random()*4);
+        const canvas = document.createElement('canvas'); canvas.width = 60; canvas.height = 60;
+        const ctx = canvas.getContext('2d');
+        drawHouse(ctx, 30, 30, 40, win);
+        canvas.onclick = () => {
+            if(!houseSearchState.isPlaying) return;
+            if(win === targetWindows) {
+                if(!canvas.classList.contains('found')) {
+                    canvas.classList.add('found');
+                    canvas.style.background = 'rgba(46,160,67,0.3)';
+                    houseSearchState.found++;
+                }
+            } else {
+                canvas.style.background = 'rgba(218,54,51,0.3)';
+                setTimeout(() => canvas.style.background = '', 400);
+            }
+        };
+        grid.appendChild(canvas);
+    }
+    
+    houseSearchState.timer = setInterval(() => {
+        if(--houseSearchState.timeLeft <= 0) {
+            clearInterval(houseSearchState.timer);
+            houseSearchState.isPlaying = false;
+            alert(`搜寻结束！共找到 ${houseSearchState.found} 个目标房屋。`);
+        }
+        const timerEl = document.getElementById('house-search-timer');
+        if(timerEl) timerEl.textContent = houseSearchState.timeLeft;
+    }, 1000);
+}
 function startDecodingConn() {
     const grid = document.getElementById('decoding-conn-grid');
     if(!grid || grid.innerHTML === '') initDecodingConn(); // Ensure initialized
@@ -731,7 +884,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    bindClick('breathing-start', () => alert('开始呼吸练习'));
+    bindClick('breathing-start', startBreathing);
+    bindClick('house-search-start', startHouseSearch);
 });
 
 function resizeCanvas() {

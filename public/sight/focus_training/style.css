@@ -545,10 +545,97 @@ input[type="text"] {
     box-shadow: 0 10px 30px var(--primary-glow);
 }
 
-.assessment-scores {
+/* Breathing Module - Zen Style */
+.breathing-view {
     display: flex;
-    justify-content: space-around;
-    margin: 3rem 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    gap: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.b-circle-wrapper {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.b-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(64,196,255,0.2) 0%, rgba(64,196,255,0.05) 70%, transparent 100%);
+    border: 2px solid rgba(64,196,255,0.3);
+    box-shadow: 0 0 50px rgba(64,196,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+.b-circle.inhale { transform: scale(1.5); background-color: rgba(64,196,255,0.3); }
+.b-circle.exhale { transform: scale(1.0); background-color: rgba(126,87,194,0.2); }
+.b-circle.hold { transform: scale(1.5); background-color: rgba(46,160,67,0.2); }
+
+.b-text {
+    position: absolute;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0,0,0,0.5);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.b-ripple {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid var(--primary);
+    animation: ripple 3s infinite ease-out;
+    opacity: 0;
+    z-index: 1;
+}
+
+@keyframes ripple {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+.b-setup-card {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 450px;
+}
+
+.b-timer {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+}
+
+.b-progress-container {
+    width: 300px;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.b-progress-bar {
+    height: 100%;
+    background: var(--primary);
+    width: 100%;
+    transition: width 0.1s linear;
 }
 
 .a-card {
