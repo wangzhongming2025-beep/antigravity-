@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专注力训练中心 | Focus Training</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-sidebar">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h2>Focus Pro</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-view="dashboard">
+                    <span class="icon">📊</span>
+                    <span>数据面板</span>
+                </li>
+                <li data-view="schulte">
+                    <span class="icon">🔢</span>
+                    <span>舒尔特方格</span>
+                </li>
+                <li data-view="tracker">
+                    <span class="icon">🎯</span>
+                    <span>动态追踪</span>
+                </li>
+                <li data-view="breathing">
+                    <span class="icon">🌬️</span>
+                    <span>正念呼吸</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Headers -->
+            <header class="top-nav">
+                <h1 id="view-title">数据面板</h1>
+                <div class="user-stats">
+                    <div class="stat-badge">🔥 <span id="streak-count">0</span> 天连胜</div>
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <div class="views-wrapper">
+                
+                <!-- Dashboard View -->
+                <section id="dashboard" class="view active-view">
+                    <div class="dashboard-cards">
+                        <div class="card glass">
+                            <h3>Schulte Grid 最佳成绩 (5x5)</h3>
+                            <div class="score" id="ds-schulte-best">--:--</div>
+                        </div>
+                        <div class="card glass">
+                            <h3>动态追踪 等级</h3>
+                            <div class="score" id="ds-tracker-best">Lv 1</div>
+                        </div>
+                        <div class="card glass">
+                            <h3>今日呼吸累积</h3>
+                            <div class="score" id="ds-breath-time">0 分钟</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Schulte View -->
+                <section id="schulte" class="view">
+                    <div class="game-header">
+                        <div class="controls">
+                            <label>难度: </label>
+                            <select id="schulte-size">
+                                <option value="3">3x3 小试牛刀</option>
+                                <option value="4">4x4 进阶挑战</option>
+                                <option value="5" selected>5x5 标准模式</option>
+                            </select>
+                        </div>
+                        <div class="timer" id="schulte-timer">00.00</div>
+                    </div>
+                    <div class="schulte-container">
+                        <div id="schulte-grid" class="grid glass"></div>
+                    </div>
+                    <div class="action-bar">
+                        <button id="schulte-start" class="btn primary">开始挑战</button>
+                    </div>
+                </section>
+
+                <!-- Tracker View -->
+                <section id="tracker" class="view">
+                    <div class="game-header">
+                        <div class="score-display">连续成功: <span id="tracker-score">0</span></div>
+                        <div class="level-display">等级: <span id="tracker-level">1</span> (球数/移速增加)</div>
+                    </div>
+                    <div class="tracker-container glass">
+                        <canvas id="tracker-canvas"></canvas>
+                        <div id="tracker-overlay" class="overlay">
+                            <h3 id="tracker-overlay-title">准备开始动态追踪</h3>
+                            <p id="tracker-overlay-desc">记住闪烁的高亮目标，运动停止后点击它们。</p>
+                            <button id="tracker-start" class="btn primary">开始</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Breathing View -->
+                <section id="breathing" class="view">
+                    <div class="breathing-container">
+                        <div class="b-circle-wrapper">
+                            <div class="b-circle glass" id="b-circle"></div>
+                            <div class="b-text" id="b-instruction">准备</div>
+                        </div>
+                    </div>
+                    <div class="b-progress-container">
+                        <div class="b-progress-bar" id="b-progress"></div>
+                    </div>
+                    <div class="action-bar b-actions">
+                        <select id="breathing-pattern">
+                            <option value="478">4-7-8 深度放松</option>
+                            <option value="4444">4-4-4-4 盒式呼吸(平稳)</option>
+                        </select>
+                        <button id="breathing-start" class="btn primary">开始呼吸</button>
+                    </div>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
