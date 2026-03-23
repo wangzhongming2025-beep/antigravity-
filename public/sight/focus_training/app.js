@@ -112,7 +112,11 @@ function handleCellClick(cell, num) {
     if (!schulteState.isPlaying) return;
     if (num === schulteState.expectedNumber) {
         cell.classList.add('active-hit');
-        if (++schulteState.expectedNumber > schulteState.size ** 2) endSchulteGame(true);
+        if (++schulteState.expectedNumber > schulteState.size ** 2) {
+            endSchulteGame(true);
+        } else {
+            document.getElementById('schulte-next').textContent = schulteState.expectedNumber;
+        }
         setTimeout(() => cell.classList.remove('active-hit'), 200);
     } else {
         cell.classList.add('error-hit');
@@ -123,6 +127,7 @@ function handleCellClick(cell, num) {
 
 function startSchulteGame() {
     schulteState.isPlaying = true; schulteState.expectedNumber = 1;
+    document.getElementById('schulte-next').textContent = '1';
     sStartBtn.textContent = '放弃挑战'; sStartBtn.classList.replace('primary', 'danger');
     generateSchulteGrid();
     schulteState.startTime = Date.now();
@@ -134,6 +139,7 @@ function startSchulteGame() {
 function endSchulteGame(completed) {
     schulteState.isPlaying = false; clearInterval(schulteState.timerInterval);
     sStartBtn.textContent = '开始挑战'; sStartBtn.classList.replace('danger', 'primary');
+    document.getElementById('schulte-next').textContent = '--';
     if (completed) {
         const final = parseFloat(sTimerDisplay.textContent);
         const key = `focus_schulte_best_${schulteState.size}`;
@@ -182,7 +188,7 @@ function initTrackerGame() {
     trackerState.numTargets = 1 + Math.ceil(trackerState.level/3);
     trackerState.balls = []; trackerState.targetIndices = []; trackerState.selectedTargets = [];
     for(let i=0; i<trackerState.numBalls; i++) {
-        let r=20, x=r+Math.random()*(w-r*2), y=r+Math.random()*(h-r*2), a=Math.random()*Math.PI*2, s=1+trackerState.level*0.2;
+        let r=20, x=r+Math.random()*(w-r*2), y=r+Math.random()*(h-r*2), a=Math.random()*Math.PI*2, s=2.5+trackerState.level*0.5;
         trackerState.balls.push(new Ball(x, y, Math.cos(a)*s, Math.sin(a)*s, r));
     }
     while(trackerState.targetIndices.length < trackerState.numTargets) {
