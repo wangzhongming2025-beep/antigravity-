@@ -50,11 +50,31 @@ const SENTENCES = [
 // Speech Utility
 const Speech = {
     speak: (text, onEnd = null) => {
-        if(!state.speechEnabled) return;
+        if(!state.speechEnabled) { console.warn("Speech not supported"); return; }
         window.speechSynthesis.cancel();
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'zh-CN'; utter.rate = 0.85;
-        if(onEnd) utter.onend = onEnd;
+        utter.lang = 'zh-CN'; 
+        utter.rate = 0.9;
+        utter.pitch = 1.0;
+        
+        // Add visual feedback
+        document.body.classList.add('speaking');
+        
+        utter.onend = () => {
+            document.body.classList.remove('speaking');
+            if(onEnd) onEnd();
+        };
+        utter.onerror = (e) => {
+            console.error("Speech error", e);
+            document.body.classList.remove('speaking');
+        };
+        
+        window.speechSynthesis.speak(utter);
+    },
+    // Warm up the speech engine
+    warmUp: () => {
+        if(!state.speechEnabled) return;
+        const utter = new SpeechSynthesisUtterance('');
         window.speechSynthesis.speak(utter);
     }
 };
@@ -348,23 +368,91 @@ function startAudInter() {
 
 function initMemRepeat() { memRepeatState.isPlaying = false; }
 function startMemRepeat() {
-    memRepeatState.isPlaying = true; const s = SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
+    memRepeatState.isPlaying = true;
+    const s = SENTENCES[Math.floor(Math.random() * SENTENCES.length)];
+    memRepeatState.currentSentence = s;
+    
+    document.getElementById('mem-repeat-msg').textContent = "请仔细听...";
+    const startBtn = document.getElementById('mem-repeat-start');
+    startBtn.disabled = true;
+    startBtn.textContent = "正在播报...";
+    
     Speech.speak("请复述：" + s, () => {
-        const user = prompt("请输入刚才听到的句子：");
-        if(user === s) alert("精准复述！"); else alert("有些出入哦，原句是：" + s);
-        memRepeatState.isPlaying = false;
+        document.getElementById('mem-repeat-msg').textContent = "请在下方输入你听到的句子：";
+        const inputBox = document.getElementById('mem-repeat-input-box');
+        inputBox.classList.remove('hidden');
+        const inputField = document.getElementById('mem-repeat-input');
+        inputField.value = '';
+        inputField.focus();
+        startBtn.textContent = "播放完毕";
     });
 }
 
-function initMemReverse() { memReverseState.isPlaying = false; }
+function handleMemRepeatSubmit() {
+    const inputField = document.getElementById('mem-repeat-input');
+    const user = inputField.value.trim();
+    const original = memRepeatState.currentSentence;
+    
+    if (user === original) {
+        alert("🎉 精准复述！太棒了！");
+    } else {
+        alert("💡 有些出入哦，原句是：\n" + original);
+    }
+    
+    document.getElementById('mem-repeat-input-box').classList.add('hidden');
+    document.getElementById('mem-repeat-msg').textContent = "点击下方按钮开始新的一轮。";
+    const startBtn = document.getElementById('mem-repeat-start');
+    startBtn.disabled = false;
+    startBtn.textContent = "开始听音";
+    memRepeatState.isPlaying = false;
+}
+
+function initMemReverse() { 
+    memReverseState.isPlaying = false;
+    const input = document.getElementById('mem-rev-input');
+    if(input) { input.disabled = true; input.value = ''; }
+    const startBtn = document.getElementById('mem-rev-start');
+    if(startBtn) startBtn.textContent = "发音";
+}
+
 function startMemReverse() {
-    memReverseState.isPlaying = true; const words = ["苹果", "西瓜", "香蕉", "葡萄", "菠萝"];
-    const w = words[Math.floor(Math.random()*words.length)];
+    memReverseState.isPlaying = true;
+    const words = ["苹果", "英雄", "蓝天", "葡萄", "长城", "彩虹", "专注", "进步"];
+    const w = words[Math.floor(Math.random() * words.length)];
+    memReverseState.currentWord = w;
+    
+    const startBtn = document.getElementById('mem-rev-start');
+    startBtn.disabled = true;
+    startBtn.textContent = "正在播报...";
+    
     Speech.speak("请倒着说：" + w, () => {
-        const user = prompt("请输入倒过来的词：");
-        if(user === w.split('').reverse().join('')) alert("完全正确！"); else alert("不正确哦");
-        memReverseState.isPlaying = false;
+        const input = document.getElementById('mem-rev-input');
+        input.disabled = false;
+        input.value = '';
+        input.focus();
+        startBtn.textContent = "请听题";
+        
+        // Listen for enter key in the input
+        input.onkeydown = (e) => {
+            if(e.key === 'Enter') handleMemReverseSubmit();
+        };
     });
+}
+
+function handleMemReverseSubmit() {
+    const inputField = document.getElementById('mem-rev-input');
+    const user = inputField.value.trim();
+    const correct = memReverseState.currentWord.split('').reverse().join('');
+    
+    if (user === correct) {
+        alert("🌈 完全正确！你的反应很快！");
+    } else {
+        alert(`❌ 不正确哦，"${memReverseState.currentWord}" 倒过来是 "${correct}"`);
+    }
+    
+    initMemReverse();
+    const startBtn = document.getElementById('mem-rev-start');
+    startBtn.disabled = false;
 }
 
 // ====== 6. Other Modules ======
@@ -521,7 +609,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to safely bind event listeners
     const bindClick = (id, fn) => { const el = document.getElementById(id); if(el) el.onclick = fn; };
 
-    setupNavigation(); updateDashboard(); setTimeout(resizeCanvas, 100); window.addEventListener('resize', resizeCanvas);
+    setupNavigation(); 
+    updateDashboard(); 
+    setTimeout(resizeCanvas, 100); 
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Warm up speech on first user interaction
+    document.addEventListener('click', () => { Speech.warmUp(); }, { once: true });
     
     bindClick('schulte-start', () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame());
     const sTheme = document.getElementById('schulte-theme'); if(sTheme) sTheme.onchange = () => { stopAllActivities(); generateSchulteGrid(); };
@@ -567,6 +661,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-circle').forEach(b => b.onclick = () => handleAudReactClick(b.getAttribute('data-color')));
     
     bindClick('aud-span-start', () => audSpanState.isPlaying ? initAudSpan() : startAudSpan());
+    bindClick('aud-span-submit', () => {
+        const spanInp = document.getElementById('aud-span-input');
+        if(spanInp.value === audSpanState.sequence.join('')) {
+            audSpanState.currentLevel++; alert('🎉 过关！序列变长了！'); nextAudSpanRound();
+        } else { alert('❌ 错了！重新来过。'); initAudSpan(); }
+    });
     const spanInp = document.getElementById('aud-span-input');
     if(spanInp) spanInp.onkeydown = (e) => { if(e.key === 'Enter') { if(e.target.value === audSpanState.sequence.join('')) { audSpanState.currentLevel++; alert('过关！'); nextAudSpanRound(); } else { alert('错了！'); initAudSpan(); } } };
     

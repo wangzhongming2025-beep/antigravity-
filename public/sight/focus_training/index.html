@@ -319,13 +319,16 @@
                 <section id="mem-repeat" class="view">
                     <div class="auditory-center">
                         <div class="glass-input-card">
-                            <h3>词语/句子复述</h3>
-                            <p id="mem-repeat-msg">准备好听一段话了吗？</p>
-                            <div id="mem-repeat-input-box" class="hidden" style="margin-top: 2rem;">
-                                <textarea id="mem-repeat-input" rows="3" class="modern-input" style="width: 100%; font-size: 1.1rem; padding: 1rem;" placeholder="请输入你听到的完整句子..."></textarea>
-                                <button id="mem-repeat-submit" class="btn primary" style="margin-top: 1rem;">提交复述</button>
+                            <div class="audio-visualizer glass" style="margin: 0 auto 2rem;">
+                                <div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div>
                             </div>
-                            <button id="mem-repeat-start" class="btn primary">开始听音</button>
+                            <h3>词语/句子复述</h3>
+                            <p id="mem-repeat-msg" class="instruction-text">准备好听一段话了吗？</p>
+                            <div id="mem-repeat-input-box" class="hidden" style="margin-top: 2rem; width: 100%;">
+                                <textarea id="mem-repeat-input" rows="3" class="glass" style="width: 100%; font-size: 1.2rem; padding: 1.5rem; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--primary); border-radius: 15px; margin-bottom: 1rem;" placeholder="请输入你听到的完整句子..."></textarea>
+                                <button id="mem-repeat-submit" class="btn primary" onclick="handleMemRepeatSubmit()" style="width: 100%; padding: 1rem;">提交复述</button>
+                            </div>
+                            <button id="mem-repeat-start" class="btn primary" style="margin-top: 1rem; width: 200px;">开始听音</button>
                         </div>
                     </div>
                 </section>
@@ -356,29 +359,38 @@
                 <!-- Auditory Reaction (aud-react) -->
                 <section id="aud-react" class="view">
                     <div class="auditory-center">
-                        <div class="audio-visualizer glass">
-                            <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                        <div class="glass-input-card">
+                            <div class="audio-visualizer glass" style="margin: 0 auto 2rem;">
+                                <div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                            </div>
+                            <h3>听觉反应训练</h3>
+                            <p class="instruction-text" style="margin-bottom: 2rem;">听到颜色指令后，立即点击下方对应颜色的按钮。</p>
+                            <div class="aud-react-btns hidden" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 2rem;">
+                                <button class="btn-circle red" data-color="red"></button>
+                                <button class="btn-circle blue" data-color="blue"></button>
+                                <button class="btn-circle green" data-color="green"></button>
+                                <button class="btn-circle yellow" data-color="yellow" style="background:#ffeb3b; box-shadow: 0 0 20px rgba(255,235,59,0.4);"></button>
+                            </div>
+                            <button id="aud-react-start" class="btn primary" style="width: 200px;">开始听令</button>
                         </div>
-                        <p class="instruction-text">听到指令后立即点击对应颜色的按钮</p>
-                        <div class="aud-react-btns">
-                            <button class="btn-circle red" data-color="red"></button>
-                            <button class="btn-circle blue" data-color="blue"></button>
-                            <button class="btn-circle green" data-color="green"></button>
-                        </div>
-                        <button id="aud-react-start" class="btn primary">开始听令</button>
                     </div>
                 </section>
 
                 <!-- Auditory Span (aud-span) -->
                 <section id="aud-span" class="view">
                     <div class="auditory-center">
-                        <div class="status-icon" id="aud-span-status">👂</div>
-                        <p id="aud-span-msg" class="instruction-text">准备好听数字序列了吗？</p>
-                        <div id="aud-span-input-box" class="hidden">
-                            <input type="text" id="aud-span-input" placeholder="输入你听到的数字" autofocus>
-                            <button id="aud-span-submit" class="btn primary">提交</button>
+                        <div class="glass-input-card">
+                            <div class="audio-visualizer glass" style="margin: 0 auto 2rem;">
+                                <div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                            </div>
+                            <h3>听觉广度挑战</h3>
+                            <p id="aud-span-msg" class="instruction-text" style="margin-bottom: 2rem;">准备好听数字序列了吗？</p>
+                            <div id="aud-span-input-box" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                                <input type="text" id="aud-span-input" class="glass" placeholder="输入听到的数字..." style="width: 100%; max-width: 400px; padding: 1.2rem; background: rgba(255,255,255,0.05); color: var(--primary); font-size: 2.5rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center; font-weight: 900;" autofocus>
+                                <button id="aud-span-submit" class="btn primary" style="width: 200px;">提交答案</button>
+                            </div>
+                            <button id="aud-span-start" class="btn primary" style="width: 200px;">开始听音</button>
                         </div>
-                        <button id="aud-span-start" class="btn primary">开始听音</button>
                     </div>
                 </section>
 
@@ -386,10 +398,15 @@
                 <section id="mem-reverse" class="view">
                     <div class="auditory-center">
                         <div class="glass-input-card">
-                            <h3>正话反说挑战</h3>
-                            <p id="mem-rev-text">系统会读出一个词，请逆序输入它。</p>
-                            <input type="text" id="mem-rev-input" class="modern-input" placeholder="倒着写回来..." disabled>
-                            <button id="mem-rev-start" class="btn primary">发音</button>
+                            <div class="audio-visualizer glass" style="margin: 0 auto 2rem;">
+                                <div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                            </div>
+                            <h3 style="font-size: 2rem; margin-bottom: 1rem;">正话反说挑战</h3>
+                            <p id="mem-rev-msg" class="instruction-text" style="margin-bottom: 2rem;">系统会读出一个词，请逆序输入它。</p>
+                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                                <input type="text" id="mem-rev-input" class="glass" placeholder="倒着写回来..." style="width: 100%; max-width: 400px; padding: 1.2rem; background: rgba(255,255,255,0.05); color: #fff; font-size: 1.8rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center;" disabled>
+                                <button id="mem-rev-start" class="btn primary" style="width: 200px; padding: 1rem; font-size: 1.1rem;">发音</button>
+                            </div>
                         </div>
                     </div>
                 </section>
