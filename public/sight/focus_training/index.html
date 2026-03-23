@@ -33,6 +33,7 @@
                     <li data-view="vis-speed"><span>⚡</span><span>加工速度</span></li>
                     <li data-view="vis-cancel"><span>🚫</span><span>防漏看训练</span></li>
                     <li data-view="decoding"><span>🔡</span><span>译码运算</span></li>
+                    <li data-view="decoding-conn"><span>🔗</span><span>译码连线</span></li>
                     <li data-view="vis-discrim"><span>🎯</span><span>视觉分辨</span></li>
                     <li data-view="vis-video"><span>🎞️</span><span>视频分辨</span></li>
                     <li data-view="stroop"><span>🌈</span><span>干扰抑制</span></li>
@@ -188,6 +189,30 @@
                     <div id="vis-cancel-grid" class="cancel-grid glass"></div>
                     <div class="action-bar">
                         <button id="vis-cancel-start" class="btn primary">开始搜索</button>
+                    </div>
+                </section>
+
+                <!-- Decoding Connection (decoding-conn) -->
+                <section id="decoding-conn" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">请根据对照表，按顺序点击下方对应的数字。</div>
+                        <div class="timer" id="decoding-conn-timer">60</div>
+                    </div>
+                    <div class="decoding-conn-container glass" style="margin-bottom: 2rem; padding: 2rem; text-align: center;">
+                        <div id="decoding-conn-legend" class="glass" style="display: flex; justify-content: space-around; padding: 1rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1); font-size: 1.5rem;">
+                            <!-- Legend entries e.g. A=1, B=2 -->
+                        </div>
+                        <div style="font-size: 1.2rem; margin-bottom: 10px; opacity: 0.7;">目标序列</div>
+                        <div id="decoding-conn-sequence" style="font-size: 3rem; font-weight: 900; letter-spacing: 15px; margin-bottom: 2rem; min-height: 4.5rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
+                            <!-- D F B C H G -->
+                            请点击开始
+                        </div>
+                        <div id="decoding-conn-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; max-width: 500px; margin: 0 auto;">
+                            <!-- Numeric buttons 1-9 -->
+                        </div>
+                    </div>
+                    <div class="action-bar">
+                        <button id="decoding-conn-start" class="btn primary">开始挑战</button>
                     </div>
                 </section>
 

@@ -76,7 +76,14 @@
         <p style="text-align: right; margin-top: 40px;">找到总数：__________ / 目标总数：<span id="discrim-total-count">?</span></p>
 
         <div class="section" style="margin-top: 50px;">
-            <h2>四、舒尔特方格 (5x5 级)</h2>
+            <h2>四、译码连线训练 (视动整合)</h2>
+            <p>说明：参照对照表，将左侧的字母序列与右侧对应的数字组进行校验/连线。</p>
+            <div id="decoding-conn-legend" class="decoding-legend" style="margin-bottom: 20px;"></div>
+            <div id="decoding-conn-rows" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
+        </div>
+
+        <div class="section" style="margin-top: 50px;">
+            <h2>五、舒尔特方格 (5x5 级)</h2>
             <div id="schulte-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
             <p style="text-align: right;">用时：__________ 秒</p>
         </div>
@@ -148,6 +155,21 @@
             }
         }
 
+        function generateDecodingConn() {
+            const leg = document.getElementById('decoding-conn-legend'); leg.innerHTML = '';
+            const rows = document.getElementById('decoding-conn-rows'); rows.innerHTML = '';
+            const letters = ['A','B','C','D','E','F','G','H','K'];
+            const map = {}; letters.forEach((L, i) => { map[L] = i+1; leg.innerHTML += `<span>${L}=${i+1}</span>`; });
+            for(let i=0; i<12; i++) {
+                const seq = Array.from({length:6}, () => letters[Math.floor(Math.random()*9)]);
+                const nums = seq.map(L => map[L]).join(' ');
+                rows.innerHTML += `<div style="padding:10px; border:1px solid #eee; display:flex; justify-content:space-between; font-size:1.2rem;">
+                    <span style="letter-spacing:5px; font-weight:700;">${seq.join(' ')}</span>
+                    <span style="letter-spacing:5px;">${nums}</span>
+                </div>`;
+            }
+        }
+
         function generateSchulte(id, size) {
             const el = document.getElementById(id); el.innerHTML = '';
             const nums = Array.from({length: size*size}, (_, i) => i+1).sort(() => Math.random()-0.5);
@@ -171,7 +193,7 @@
 
         function regenerateAll() {
             generateDecoding(); generateMaze('maze-canvas', 20); generateDiscrim();
-            generateSchulte('schulte-5', 5); generateStroop(); generateCancel();
+            generateDecodingConn(); generateSchulte('schulte-5', 5); generateStroop(); generateCancel();
         }
         window.onload = regenerateAll;
     </script>
