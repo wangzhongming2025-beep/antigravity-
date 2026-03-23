@@ -302,16 +302,18 @@
                 <!-- Auditory Interference (aud-inter) -->
                 <section id="aud-inter" class="view">
                     <div class="auditory-center">
-                        <div class="audio-visualizer glass" id="aud-inter-viz">
-                            <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                        <div class="glass-input-card">
+                            <div class="audio-visualizer glass" style="margin: 0 auto 2rem;">
+                                <div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                            </div>
+                            <h3>听觉干扰挑战</h3>
+                            <p id="aud-inter-msg" class="instruction-text" style="margin-bottom: 2rem;">在嘈杂背景中识别朗读的数字</p>
+                            <div id="aud-inter-input-box" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                                <input type="text" id="aud-inter-input" class="glass" placeholder="输入听到的4位数字" maxlength="4" style="width: 100%; max-width: 300px; padding: 1.2rem; background: rgba(255,255,255,0.05); color: var(--primary); font-size: 2.5rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center; font-weight: 900;">
+                                <button id="aud-inter-submit" class="btn primary" style="width: 200px;">提交答案</button>
+                            </div>
+                            <button id="aud-inter-start" class="btn primary" style="width: 200px; margin-top: 1rem;">开始挑战</button>
                         </div>
-                        <h3>听觉干扰挑战</h3>
-                        <p id="aud-inter-msg" class="instruction-text">在嘈杂背景中识别朗读的数字</p>
-                        <div id="aud-inter-input-box" class="hidden">
-                            <input type="text" id="aud-inter-input" placeholder="输入听到的4位数字" maxlength="4">
-                            <button id="aud-inter-submit" class="btn primary">提交</button>
-                        </div>
-                        <button id="aud-inter-start" class="btn primary">开始挑战</button>
                     </div>
                 </section>
 

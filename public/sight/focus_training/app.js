@@ -360,10 +360,43 @@ function nextAudSpanRound() {
     });
 }
 
-function initAudInter() { audInterState.isPlaying = false; }
+function initAudInter() { 
+    audInterState.isPlaying = false;
+    const inputBox = document.getElementById('aud-inter-input-box');
+    if(inputBox) inputBox.classList.add('hidden');
+    const startBtn = document.getElementById('aud-inter-start');
+    if(startBtn) { startBtn.disabled = false; startBtn.textContent = "开始挑战"; }
+}
+
 function startAudInter() {
-    audInterState.isPlaying = true; Speech.speak("请听嘈杂背景中的数字。三、七、九、一。");
-    setTimeout(() => { const ans = prompt("刚才听到的数字是？"); if(ans === '3791') alert("正确！"); else alert("错误！"); audInterState.isPlaying = false; }, 6000);
+    audInterState.isPlaying = true;
+    // Generate 4 random separate digits for clearer read-out
+    const digits = Array.from({length: 4}, () => Math.floor(Math.random() * 10));
+    audInterState.answer = digits.join('');
+    
+    const startBtn = document.getElementById('aud-inter-start');
+    startBtn.disabled = true;
+    startBtn.textContent = "正在播报...";
+    
+    // Simulate background noise with some lead-in text
+    Speech.speak("请从杂音中分辨数字：" + digits.join('，'), () => {
+        const inputBox = document.getElementById('aud-inter-input-box');
+        if(inputBox) inputBox.classList.remove('hidden');
+        const inputField = document.getElementById('aud-inter-input');
+        if(inputField) { inputField.value = ''; inputField.focus(); }
+        startBtn.textContent = "请听题";
+    });
+}
+
+function handleAudInterSubmit() {
+    const inputField = document.getElementById('aud-inter-input');
+    const user = inputField.value.trim();
+    if(user === audInterState.answer) {
+        alert("🎉 听力卓越！完全正确。");
+    } else {
+        alert(`❌ 不太对哦，正确数字是 ${audInterState.answer}`);
+    }
+    initAudInter();
 }
 
 function initMemRepeat() { memRepeatState.isPlaying = false; }
@@ -671,6 +704,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if(spanInp) spanInp.onkeydown = (e) => { if(e.key === 'Enter') { if(e.target.value === audSpanState.sequence.join('')) { audSpanState.currentLevel++; alert('过关！'); nextAudSpanRound(); } else { alert('错了！'); initAudSpan(); } } };
     
     bindClick('aud-inter-start', startAudInter);
+    bindClick('aud-inter-submit', handleAudInterSubmit);
+    const interInp = document.getElementById('aud-inter-input');
+    if(interInp) interInp.onkeydown = (e) => { if(e.key === 'Enter') handleAudInterSubmit(); };
     bindClick('mem-repeat-start', startMemRepeat);
     bindClick('mem-rev-start', startMemReverse);
     
