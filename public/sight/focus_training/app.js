@@ -24,7 +24,7 @@ let memReverseState = { isPlaying: false, currentWord: '' };
 
 const THEMES = {
     animal: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗'],
-    fruit: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🌽', '🥕', '🥔', '🍠', '🍄'],
+    fruit: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '茄', '🥑', '🥦', '🌽', '🥕', '🥔', '🍠', '🍄'],
     space: ['🚀', '🛸', '🪐', '🌟', '🌙', '☀️', '🌍', '☄️', '🛰️', '🧑‍🚀', '👽', '🔭', '🔭', '🌌', '🛸', '🛰️', '🌠', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘']
 };
 
@@ -176,32 +176,17 @@ class Ball {
         }
     }
     draw(ctx, p) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-
+        ctx.save(); ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         let baseColor = this.color;
         if(p === 'memorize' && this.isTarget) {
-            baseColor = '#00d2ff'; // 亮蓝色
-            ctx.shadowBlur = 30; ctx.shadowColor = '#00d2ff';
+            baseColor = '#00d2ff'; ctx.shadowBlur = 30; ctx.shadowColor = '#00d2ff';
         } else if(p === 'select' && this.isSelected) {
-            baseColor = this.isCorrect ? '#00ff88' : '#ff4d4d'; // 绿/红
-            ctx.shadowBlur = 25; ctx.shadowColor = baseColor;
+            baseColor = this.isCorrect ? '#00ff88' : '#ff4d4d'; ctx.shadowBlur = 25; ctx.shadowColor = baseColor;
         } else {
-            // 普通球体，更高亮度
-            baseColor = '#777';
-            ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,255,255,0.2)';
+            baseColor = '#777'; ctx.shadowBlur = 5; ctx.shadowColor = 'rgba(255,255,255,0.2)';
         }
-
-        ctx.fillStyle = baseColor;
-        ctx.fill();
-        
-        // 增加白色边缘光，提升清晰度
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        ctx.restore();
+        ctx.fillStyle = baseColor; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
     }
     isClicked(mx, my) { return (this.x-mx)**2 + (this.y-my)**2 <= (this.radius*1.5)**2; }
 }
@@ -321,9 +306,9 @@ function showVideoQuestion() {
 }
 
 // ====== 5. Auditory Modules ======
-function initAudReact() { audReactState.isPlaying = false; document.getElementById('aud-react-btn-area').classList.add('hidden'); }
+function initAudReact() { audReactState.isPlaying = false; document.querySelector('.aud-react-btns').classList.add('hidden'); }
 function startAudReact() {
-    audReactState.isPlaying = true; audReactState.score = 0; document.getElementById('aud-react-btn-area').classList.remove('hidden');
+    audReactState.isPlaying = true; audReactState.score = 0; document.querySelector('.aud-react-btns').classList.remove('hidden');
     document.getElementById('aud-react-start').textContent = '放弃训练'; nextAudReact();
 }
 function nextAudReact() {
@@ -340,17 +325,17 @@ function handleAudReactClick(c) {
     } else { alert('点错啦！'); audReactState.startTime = 0; nextAudReact(); }
 }
 
-function initAudSpan() { audSpanState.isPlaying = false; document.getElementById('aud-span-input-area').classList.add('hidden'); }
+function initAudSpan() { audSpanState.isPlaying = false; document.getElementById('aud-span-input-box').classList.add('hidden'); }
 function startAudSpan() {
     audSpanState.isPlaying = true; audSpanState.currentLevel = 3; document.getElementById('aud-span-start').textContent = '放弃挑战';
     nextAudSpanRound();
 }
 function nextAudSpanRound() {
     audSpanState.sequence = Array.from({length: audSpanState.currentLevel}, () => Math.floor(Math.random()*10));
-    audSpanState.userIdx = 0; document.getElementById('aud-span-input-area').classList.add('hidden');
+    audSpanState.userIdx = 0; document.getElementById('aud-span-input-box').classList.add('hidden');
     document.getElementById('aud-span-input').value = '';
     Speech.speak(audSpanState.sequence.join(', '), () => {
-        document.getElementById('aud-span-input-area').classList.remove('hidden');
+        document.getElementById('aud-span-input-box').classList.remove('hidden');
         document.getElementById('aud-span-input').focus();
     });
 }
@@ -384,24 +369,17 @@ function startMemReverse() {
 
 // ====== 6. Other Modules ======
 function initDecoding() { 
-    decodingState.isPlaying = false;
-    document.getElementById('decoding-timer').textContent = '60';
-    document.getElementById('decoding-input').disabled = true;
-    document.getElementById('decoding-input').value = '';
+    decodingState.isPlaying = false; document.getElementById('decoding-timer').textContent = '60';
+    document.getElementById('decoding-input').disabled = true; document.getElementById('decoding-input').value = '';
     document.getElementById('decoding-expr').textContent = '准备好了吗？';
-    
     const legEl = document.getElementById('decoding-legend');
     const symbols = ['△', '☆', '○', '□', '◇'];
-    
-    // Create a proper table for visual clarity
     let html = '<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:1.8rem;">';
     html += '<tr style="background:rgba(255,255,255,0.1);">';
     symbols.forEach(s => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:10px;">${s}</td>`);
     html += '</tr><tr>';
     symbols.forEach((_, i) => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:10px; color:var(--primary); font-weight:bold;">${i+1}</td>`);
-    html += '</tr></table>';
-    
-    legEl.innerHTML = html;
+    html += '</tr></table>'; legEl.innerHTML = html;
 }
 function startDecoding() {
     decodingState.isPlaying = true; decodingState.score = 0; decodingState.timeLeft = 60;
@@ -417,24 +395,63 @@ function nextDecodingRound() {
 }
 
 function initDecodingConn() {
-    decodingConnState.isPlaying = false; document.getElementById('decoding-conn-timer').textContent = '60';
+    decodingConnState.isPlaying = false;
+    const timerEl = document.getElementById('decoding-conn-timer');
+    if(timerEl) timerEl.textContent = '60';
+    
     const legEl = document.getElementById('decoding-conn-legend');
-    legEl.innerHTML = decodingConnState.letters.map((L, i) => `<span>${L}=${i+1}</span>`).join('');
+    if(legEl) {
+        let html = '<table style="width:100%; border-collapse:collapse; font-size:1.2rem;">';
+        html += '<tr style="background:rgba(255,255,255,0.1);">';
+        decodingConnState.letters.forEach(L => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:5px;">${L}</td>`);
+        html += '</tr><tr>';
+        decodingConnState.letters.forEach((_, i) => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:5px; color:var(--primary); font-weight:bold;">${i+1}</td>`);
+        html += '</tr></table>';
+        legEl.innerHTML = html;
+        legEl.style.display = 'block'; // Ensure block display for the table
+    }
+
     const grid = document.getElementById('decoding-conn-grid');
-    grid.innerHTML = Array.from({length:9}, (_, i) => `<button class="btn glass num-btn" data-num="${i+1}">${i+1}</button>`).join('');
-    document.querySelectorAll('.num-btn').forEach(btn => btn.onclick = () => {
-        if(!decodingConnState.isPlaying) return;
-        const num = parseInt(btn.getAttribute('data-num')), targetChar = decodingConnState.targetSeq[decodingConnState.currentIndex];
-        if(num === (decodingConnState.letters.indexOf(targetChar) + 1)) {
-            decodingConnState.currentIndex++; updateDecodingConnSeqDisplay();
-            if(decodingConnState.currentIndex === decodingConnState.targetSeq.length) { decodingConnState.score++; nextDecodingConnRound(); }
-        } else { decodingConnState.timeLeft -= 2; btn.style.background = 'rgba(218,54,51,0.5)'; setTimeout(()=>btn.style.background='',300); }
-    });
+    if(grid) {
+        grid.innerHTML = Array.from({length:9}, (_, i) => `<button class="btn glass num-btn" data-num="${i+1}">${i+1}</button>`).join('');
+        grid.querySelectorAll('.num-btn').forEach(btn => {
+            btn.onclick = () => {
+                if(!decodingConnState.isPlaying) return;
+                const num = parseInt(btn.getAttribute('data-num'));
+                const targetChar = decodingConnState.targetSeq[decodingConnState.currentIndex];
+                if(num === (decodingConnState.letters.indexOf(targetChar) + 1)) {
+                    decodingConnState.currentIndex++;
+                    updateDecodingConnSeqDisplay();
+                    if(decodingConnState.currentIndex === decodingConnState.targetSeq.length) {
+                        decodingConnState.score++;
+                        nextDecodingConnRound();
+                    }
+                } else {
+                    decodingConnState.timeLeft = Math.max(0, decodingConnState.timeLeft - 2);
+                    btn.style.background = 'rgba(218,54,51,0.5)';
+                    setTimeout(() => btn.style.background = '', 300);
+                }
+            };
+        });
+    }
 }
 function startDecodingConn() {
-    decodingConnState.isPlaying = true; decodingConnState.score = 0; decodingConnState.timeLeft = 60;
+    const grid = document.getElementById('decoding-conn-grid');
+    if(!grid || grid.innerHTML === '') initDecodingConn(); // Ensure initialized
+    
+    decodingConnState.isPlaying = true;
+    decodingConnState.score = 0;
+    decodingConnState.timeLeft = 60;
     nextDecodingConnRound();
-    decodingConnState.timer = setInterval(() => { if(--decodingConnState.timeLeft <= 0) { clearInterval(decodingConnState.timer); decodingConnState.isPlaying=false; alert(`结束！成功 ${decodingConnState.score} 组`); } document.getElementById('decoding-conn-timer').textContent = decodingConnState.timeLeft; }, 1000);
+    decodingConnState.timer = setInterval(() => {
+        if(--decodingConnState.timeLeft <= 0) {
+            clearInterval(decodingConnState.timer);
+            decodingConnState.isPlaying = false;
+            alert(`结束！成功 ${decodingConnState.score} 组`);
+        }
+        const timerEl = document.getElementById('decoding-conn-timer');
+        if(timerEl) timerEl.textContent = decodingConnState.timeLeft;
+    }, 1000);
 }
 function nextDecodingConnRound() {
     decodingConnState.targetSeq = Array.from({length: 6}, () => decodingConnState.letters[Math.floor(Math.random()*9)]);
@@ -501,57 +518,64 @@ function nextStroopRound() {
 function initAssessmentWechsler() { alert("韦氏评估模块：请完成以下随机测试..."); startDecoding(); }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Helper to safely bind event listeners
+    const bindClick = (id, fn) => { const el = document.getElementById(id); if(el) el.onclick = fn; };
+
     setupNavigation(); updateDashboard(); setTimeout(resizeCanvas, 100); window.addEventListener('resize', resizeCanvas);
-    document.getElementById('schulte-start').onclick = () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame();
-    document.getElementById('schulte-theme').onchange = () => { stopAllActivities(); generateSchulteGrid(); };
-    document.getElementById('schulte-size').onchange = (e) => { stopAllActivities(); schulteState.size = parseInt(e.target.value); generateSchulteGrid(); };
-    document.getElementById('tracker-start').onclick = () => initTrackerGame(true);
-    document.getElementById('tracker-canvas').onmousedown = (e) => {
+    
+    bindClick('schulte-start', () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame());
+    const sTheme = document.getElementById('schulte-theme'); if(sTheme) sTheme.onchange = () => { stopAllActivities(); generateSchulteGrid(); };
+    const sSize = document.getElementById('schulte-size'); if(sSize) sSize.onchange = (e) => { stopAllActivities(); schulteState.size = parseInt(e.target.value); generateSchulteGrid(); };
+    
+    bindClick('tracker-start', () => initTrackerGame(true));
+    const tCanvas = document.getElementById('tracker-canvas');
+    if(tCanvas) tCanvas.onmousedown = (e) => {
         if(trackerState.phase !== 'select') return;
-        const rect = e.target.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
+        const rect = e.target.getBoundingClientRect(); const mx = e.clientX - rect.left, my = e.clientY - rect.top;
         trackerState.balls.forEach(b => {
             if(!b.isSelected && b.isClicked(mx, my)) {
-                b.isSelected = true;
-                b.isCorrect = b.isTarget;
+                b.isSelected = true; b.isCorrect = b.isTarget;
                 if(b.isCorrect) {
                   trackerState.selectedFound++;
                   if(trackerState.selectedFound === trackerState.numTargets) {
-                      trackerState.level++;
-                      setTimeout(() => { alert("全部找对！"); initTrackerGame(true); }, 500);
+                      trackerState.level++; setTimeout(() => { alert("全部找对！"); initTrackerGame(true); }, 500);
                   }
                 } else {
                     trackerState.isPlaying = false;
-                    setTimeout(() => {
-                        alert("选错了。");
-                        trackerState.level = 1;
-                        document.getElementById('tracker-start').style.display = 'block';
-                        initTrackerGame(false);
-                    }, 500);
+                    setTimeout(() => { alert("选错了。"); trackerState.level = 1; document.getElementById('tracker-start').style.display = 'block'; initTrackerGame(false); }, 500);
                 }
             }
         });
     };
-    document.getElementById('video-start').onclick = startVisVideo;
-    document.getElementById('space-start').onclick = () => spaceDecodingState.isPlaying ? endSpaceDecoding(false) : startSpaceDecoding();
-    document.getElementById('space-input').oninput = (e) => { if(!spaceDecodingState.isPlaying) return; if(e.target.value.toLowerCase() === spaceDecodingState.targetSeq.map(i=>i.char).join('').toLowerCase()) { spaceDecodingState.score++; nextSpaceDecodingRound(); } };
-    document.getElementById('decoding-conn-start').onclick = () => decodingConnState.isPlaying ? endDecodingConn(false) : startDecodingConn();
-    document.getElementById('decoding-start').onclick = () => decodingState.isPlaying ? endDecoding(false) : startDecoding();
-    document.getElementById('decoding-input').oninput = (e) => { if(parseInt(e.target.value) === decodingState.currentAns) { decodingState.score++; nextDecodingRound(); } };
-    document.getElementById('vis-discrim-start').onclick = startVisDiscrim;
-    document.getElementById('vis-speed-yes').onclick = () => nextVisSpeedRound();
-    document.getElementById('vis-speed-no').onclick = () => nextVisSpeedRound();
+    
+    bindClick('video-start', startVisVideo);
+    bindClick('space-start', () => spaceDecodingState.isPlaying ? endSpaceDecoding(false) : startSpaceDecoding());
+    const spInp = document.getElementById('space-input');
+    if(spInp) spInp.oninput = (e) => { if(!spaceDecodingState.isPlaying) return; if(e.target.value.toLowerCase() === spaceDecodingState.targetSeq.map(i=>i.char).join('').toLowerCase()) { spaceDecodingState.score++; nextSpaceDecodingRound(); } };
+    
+    bindClick('decoding-conn-start', () => decodingConnState.isPlaying ? endDecodingConn(false) : startDecodingConn());
+    bindClick('decoding-start', () => decodingState.isPlaying ? endDecoding(false) : startDecoding());
+    const decInp = document.getElementById('decoding-input');
+    if(decInp) decInp.oninput = (e) => { if(parseInt(e.target.value) === decodingState.currentAns) { decodingState.score++; nextDecodingRound(); } };
+    
+    bindClick('vis-discrim-start', startVisDiscrim);
+    bindClick('vis-speed-yes', () => nextVisSpeedRound());
+    bindClick('vis-speed-no', () => nextVisSpeedRound());
     document.querySelectorAll('.stroop-option').forEach(b => b.onclick = () => { if(b.getAttribute('data-color') === stroopState.currentCorrect) alert('对！'); nextStroopRound(); });
-    document.getElementById('aud-react-start').onclick = () => audReactState.isPlaying ? initAudReact() : startAudReact();
-    document.querySelectorAll('.aud-react-btn').forEach(b => b.onclick = () => handleAudReactClick(b.getAttribute('data-color')));
-    document.getElementById('aud-span-start').onclick = () => audSpanState.isPlaying ? initAudSpan() : startAudSpan();
-    document.getElementById('aud-span-input').onkeydown = (e) => { if(e.key === 'Enter') { if(e.target.value === audSpanState.sequence.join('')) { audSpanState.currentLevel++; alert('过关！'); nextAudSpanRound(); } else { alert('错了！'); initAudSpan(); } } };
-    document.getElementById('aud-inter-start').onclick = startAudInter;
-    document.getElementById('mem-repeat-start').onclick = startMemRepeat;
-    document.getElementById('mem-reverse-start').onclick = startMemReverse;
-    document.getElementById('vis-cancel-start').onclick = () => {
-        const g = document.getElementById('vis-cancel-grid'); g.innerHTML = '';
+    
+    bindClick('aud-react-start', () => audReactState.isPlaying ? initAudReact() : startAudReact());
+    document.querySelectorAll('.btn-circle').forEach(b => b.onclick = () => handleAudReactClick(b.getAttribute('data-color')));
+    
+    bindClick('aud-span-start', () => audSpanState.isPlaying ? initAudSpan() : startAudSpan());
+    const spanInp = document.getElementById('aud-span-input');
+    if(spanInp) spanInp.onkeydown = (e) => { if(e.key === 'Enter') { if(e.target.value === audSpanState.sequence.join('')) { audSpanState.currentLevel++; alert('过关！'); nextAudSpanRound(); } else { alert('错了！'); initAudSpan(); } } };
+    
+    bindClick('aud-inter-start', startAudInter);
+    bindClick('mem-repeat-start', startMemRepeat);
+    bindClick('mem-rev-start', startMemReverse);
+    
+    bindClick('vis-cancel-start', () => {
+        const g = document.getElementById('vis-cancel-grid'); if(!g) return; g.innerHTML = '';
         const th = document.getElementById('vis-cancel-theme').value;
         const pool = th === 'letter' ? ['p','b','d','q'] : THEMES[th].slice(0, 4);
         document.getElementById('vis-cancel-target-char').textContent = pool[0];
@@ -560,7 +584,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.className = 'cancel-cell'; cell.textContent = c;
             cell.onclick = () => { if(c === pool[0]) cell.classList.add('selected'); }; g.appendChild(cell);
         }
-    };
+    });
+
+    bindClick('breathing-start', () => alert('开始呼吸练习'));
 });
 
 function resizeCanvas() {
