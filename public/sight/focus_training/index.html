@@ -177,6 +177,59 @@
                         <p id="video-question">刚才视频中出现了几个红色的正方形？</p>
                         <div class="options-grid" id="video-options"></div>
                     </div>
+
+                <!-- Auditory Interference (aud-inter) -->
+                <section id="aud-inter" class="view">
+                    <div class="auditory-center">
+                        <div class="audio-visualizer glass" id="aud-inter-viz">
+                            <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+                        </div>
+                        <h3>听觉干扰挑战</h3>
+                        <p id="aud-inter-msg" class="instruction-text">在嘈杂背景中识别朗读的数字</p>
+                        <div id="aud-inter-input-box" class="hidden">
+                            <input type="text" id="aud-inter-input" placeholder="输入听到的4位数字" maxlength="4">
+                            <button id="aud-inter-submit" class="btn primary">提交</button>
+                        </div>
+                        <button id="aud-inter-start" class="btn primary">开始挑战</button>
+                    </div>
+                </section>
+
+                <!-- Word Repetition (mem-repeat) -->
+                <section id="mem-repeat" class="view">
+                    <div class="auditory-center">
+                        <div class="glass-input-card">
+                            <h3>词语/句子复述</h3>
+                            <p id="mem-repeat-msg">准备好听一段话了吗？</p>
+                            <div id="mem-repeat-input-box" class="hidden" style="margin-top: 2rem;">
+                                <textarea id="mem-repeat-input" rows="3" class="modern-input" style="width: 100%; font-size: 1.1rem; padding: 1rem;" placeholder="请输入你听到的完整句子..."></textarea>
+                                <button id="mem-repeat-submit" class="btn primary" style="margin-top: 1rem;">提交复述</button>
+                            </div>
+                            <button id="mem-repeat-start" class="btn primary">开始听音</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Wechsler Assessment (assessment-wechsler) -->
+                <section id="assessment-wechsler" class="view">
+                    <div class="assessment-container glass">
+                        <h2>韦氏全维认知评估报告</h2>
+                        <div class="assessment-scores">
+                            <div class="a-card">
+                                <span>视觉加工速度</span>
+                                <strong id="wec-vis-score">--</strong>
+                            </div>
+                            <div class="a-card">
+                                <span>听觉工作记忆</span>
+                                <strong id="wec-aud-score">--</strong>
+                            </div>
+                        </div>
+                        <div class="a-composite">
+                            <h3>全维专注力指数 (FSIQ-E)</h3>
+                            <div class="iq-display" id="wec-iq-score">--</div>
+                        </div>
+                        <p id="wec-advice" class="instruction-text" style="margin-top: 1rem;"></p>
+                        <button id="wec-run" class="btn primary">生成/更新报告</button>
+                    </div>
                 </section>
 
                 <!-- Auditory Reaction (aud-react) -->

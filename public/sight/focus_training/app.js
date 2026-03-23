@@ -555,6 +555,12 @@ memRevStart.onclick = () => {
 };
 
 // ====== 9. Word Repetition (mem-repeat) ======
+const memRepeatStart = document.getElementById('mem-repeat-start');
+const memRepeatMsg = document.getElementById('mem-repeat-msg');
+const memRepeatInputBox = document.getElementById('mem-repeat-input-box');
+const memRepeatInput = document.getElementById('mem-repeat-input');
+const memRepeatSubmit = document.getElementById('mem-repeat-submit');
+
 const SENTENCES = [
     "森林公园里的松鼠正在采集松果",
     "蔚蓝的大海上漂浮着几只洁白的帆船",
@@ -562,52 +568,105 @@ const SENTENCES = [
     "清晨的阳光透过窗户洒满了安静的图书馆"
 ];
 
+let memRepeatTarget = "";
+
 function initMemRepeat() {
-    const s = SENTENCES[Math.floor(Math.random() * SENTENCES.length)];
-    alert("请听一段话并完整复述（打字）：");
-    Speech.speak(s, () => {
-        const val = prompt("请输入刚才听到的完整句子：");
-        if(val === s) alert("全对！记忆广度惊人");
-        else alert(`有偏差。原句：${s}`);
-        updateDashboard();
-    });
+    memRepeatInputBox.classList.add('hidden');
+    memRepeatStart.classList.remove('hidden');
+    memRepeatMsg.textContent = "准备好听一段话了吗？";
 }
 
+memRepeatStart.onclick = () => {
+    memRepeatTarget = SENTENCES[Math.floor(Math.random() * SENTENCES.length)];
+    memRepeatMsg.textContent = "正在朗读，请仔细听...";
+    memRepeatStart.classList.add('hidden');
+    Speech.speak(memRepeatTarget, () => {
+        memRepeatMsg.textContent = "请在下方完整复述：";
+        memRepeatInputBox.classList.remove('hidden');
+        memRepeatInput.value = ""; memRepeatInput.focus();
+    });
+};
+
+memRepeatSubmit.onclick = () => {
+    const val = memRepeatInput.value.trim();
+    if(val === memRepeatTarget) alert("全对！记忆广度惊人");
+    else alert(`有偏差。原句：${memRepeatTarget}`);
+    initMemRepeat();
+};
+
 // ====== 10. Auditory Interference (aud-inter) ======
+const audInterStart = document.getElementById('aud-inter-start');
+const audInterInputBox = document.getElementById('aud-inter-input-box');
+const audInterInput = document.getElementById('aud-inter-input');
+const audInterSubmit = document.getElementById('aud-inter-submit');
+const audInterMsg = document.getElementById('aud-inter-msg');
+
+let audInterTarget = "";
+
 function initAudInter() {
+    audInterInputBox.classList.add('hidden');
+    audInterStart.classList.remove('hidden');
+    audInterMsg.textContent = "在嘈杂背景中识别朗读的数字";
+}
+
+audInterStart.onclick = () => {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
     
+    audInterTarget = Array.from({length: 4}, () => Math.floor(Math.random()*10)).join('');
+    audInterMsg.textContent = "背景干扰开启，请听数字...";
+    audInterStart.classList.add('hidden');
     osc.start();
-    const digits = Array.from({length: 4}, () => Math.floor(Math.random()*10)).join('');
-    alert("背景噪音中请辨别数字序列：");
-    Speech.speak(digits, () => {
+    
+    Speech.speak(audInterTarget, () => {
         osc.stop();
-        const val = prompt("请输入听到的4位数字：");
-        if(val === digits) alert("抗干扰能力强！成功识别");
-        else alert(`识别失败。原数字：${digits}`);
+        audInterMsg.textContent = "请输入听到的4位数字：";
+        audInterInputBox.classList.remove('hidden');
+        audInterInput.value = ""; audInterInput.focus();
     });
-}
+};
+
+audInterSubmit.onclick = () => {
+    if(audInterInput.value.trim() === audInterTarget) alert("抗干扰能力强！成功识别");
+    else alert(`识别失败。原数字：${audInterTarget}`);
+    initAudInter();
+};
 
 // ====== 11. Wechsler Assessment (assessment-wechsler) ======
+const wecRun = document.getElementById('wec-run');
+const wecVisScore = document.getElementById('wec-vis-score');
+const wecAudScore = document.getElementById('wec-aud-score');
+const wecIqScore = document.getElementById('wec-iq-score');
+const wecAdvice = document.getElementById('wec-advice');
+
 function initAssessmentWechsler() {
-    const hasData = localStorage.getItem('focus_aud_span_best') && localStorage.getItem('focus_schulte_best_5');
-    if(!hasData) {
-        alert("请先完成一次【听觉广度】和【舒尔特方格】基础训练，才能生成韦氏综合评测报告。");
-        return;
-    }
+    const sScoreStr = localStorage.getItem('focus_schulte_best_5');
+    const aSpanStr = localStorage.getItem('focus_aud_span_best');
     
+    if(sScoreStr) wecVisScore.textContent = sScoreStr + "s";
+    if(aSpanStr) wecAudScore.textContent = aSpanStr + "级";
+    renderWechslerReport();
+}
+
+function renderWechslerReport() {
     const sScore = parseFloat(localStorage.getItem('focus_schulte_best_5'));
     const aSpan = parseInt(localStorage.getItem('focus_aud_span_best'));
     
-    const iqEst = Math.round(90 + (aSpan * 5) + (100 / sScore * 10));
+    if(!sScore || !aSpan) return;
     
-    alert(`【韦氏认知评估简报】\n\n视觉加工速度：${sScore}s\n听觉工作记忆：${aSpan}级\n当前全维专注力预估：${iqEst} 分\n\n评估：${iqEst > 115 ? '优秀' : iqEst > 95 ? '良好' : '持续进步中'}`);
+    const iqEst = Math.round(90 + (aSpan * 5) + (100 / sScore * 10));
+    wecIqScore.textContent = iqEst;
+    wecAdvice.textContent = `系统评估您的当前状态为：${iqEst > 115 ? '优秀' : iqEst > 95 ? '良好' : '均衡进步中'}。`;
 }
+
+wecRun.onclick = () => {
+    initAssessmentWechsler();
+    alert("报告已更新！");
+};
 
 // ====== 4. Breathing Module (existing) ======
 const bCircle = document.getElementById('b-circle');
