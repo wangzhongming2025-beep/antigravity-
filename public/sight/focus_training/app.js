@@ -714,11 +714,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const g = document.getElementById('vis-cancel-grid'); if(!g) return; g.innerHTML = '';
         const th = document.getElementById('vis-cancel-theme').value;
         const pool = th === 'letter' ? ['p','b','d','q'] : THEMES[th].slice(0, 4);
-        document.getElementById('vis-cancel-target-char').textContent = pool[0];
-        for(let i=0; i<200; i++) {
+        const target = pool[0];
+        document.getElementById('vis-cancel-target-char').textContent = target;
+        for(let i=0; i<300; i++) {
             const c = pool[Math.floor(Math.random()*pool.length)], cell = document.createElement('div');
             cell.className = 'cancel-cell'; cell.textContent = c;
-            cell.onclick = () => { if(c === pool[0]) cell.classList.add('selected'); }; g.appendChild(cell);
+            cell.onclick = () => {
+                if(cell.textContent === target) {
+                    cell.classList.add('found');
+                } else {
+                    cell.classList.add('error');
+                    setTimeout(() => cell.classList.remove('error'), 400);
+                }
+            };
+            g.appendChild(cell);
         }
     });
 
