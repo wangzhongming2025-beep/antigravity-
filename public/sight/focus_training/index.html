@@ -33,6 +33,7 @@
                     <li data-view="vis-speed"><span class="icon">⚡</span><span>加工速度</span></li>
                     <li data-view="vis-cancel"><span class="icon">🚫</span><span>防漏看训练</span></li>
                     <li data-view="vis-video"><span class="icon">🎬</span><span>视频分辨</span></li>
+                    <li data-view="stroop"><span class="icon">🎨</span><span>干扰抑制</span></li>
                 </ul>
             </div>
 
@@ -114,6 +115,13 @@
                                 <option value="4">4x4 进阶挑战</option>
                                 <option value="5" selected>5x5 标准模式</option>
                             </select>
+                            <label>主题: </label>
+                            <select id="schulte-theme">
+                                <option value="number">数字</option>
+                                <option value="animal">动物 🐕</option>
+                                <option value="fruit">水果 🍎</option>
+                                <option value="space">太空 🚀</option>
+                            </select>
                         </div>
                         <div class="target-hint glass" style="padding: 0.5rem 1rem; border-color: var(--primary);">
                             下一个: <span id="schulte-next" class="highlight" style="font-size: 1.5rem;">1</span>
@@ -165,6 +173,14 @@
                 <section id="vis-cancel" class="view">
                     <div class="game-header">
                         <div class="instruction-text">找出所有的目标字符：<span id="vis-cancel-target-char" class="highlight">p</span></div>
+                        <div class="controls">
+                            <label>主题: </label>
+                            <select id="vis-cancel-theme">
+                                <option value="letter">字母 (bdpq)</option>
+                                <option value="animal">动物 🐕</option>
+                                <option value="fruit">水果 🍎</option>
+                            </select>
+                        </div>
                         <div class="timer" id="vis-cancel-timer">45</div>
                     </div>
                     <div id="vis-cancel-grid" class="cancel-grid glass"></div>
@@ -300,6 +316,26 @@
                             <option value="4444">4-4-4-4 盒式呼吸</option>
                         </select>
                         <button id="breathing-start" class="btn primary">开始呼吸</button>
+                    </div>
+                </section>
+
+                <!-- Stroop Test (stroop) -->
+                <section id="stroop" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">请快速判断文字的【颜色】，忽略文字本身内容。</div>
+                        <div class="timer" id="stroop-timer">30</div>
+                    </div>
+                    <div class="stroop-container auditory-center">
+                        <div id="stroop-word" class="glass" style="font-size: 5rem; font-weight: 900; padding: 2rem 4rem; margin-bottom: 2rem; border-radius: 20px; text-shadow: 0 0 10px rgba(0,0,0,0.5);">红色</div>
+                        <div class="stroop-btns" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                            <button class="btn glass stroop-option" data-color="red" style="color: #ff4d4d; border-color: #ff4d4d; min-width: 80px;">红</button>
+                            <button class="btn glass stroop-option" data-color="blue" style="color: #40c4ff; border-color: #40c4ff; min-width: 80px;">蓝</button>
+                            <button class="btn glass stroop-option" data-color="green" style="color: #2ea043; border-color: #2ea043; min-width: 80px;">绿</button>
+                            <button class="btn glass stroop-option" data-color="yellow" style="color: #ffeb3b; border-color: #ffeb3b; min-width: 80px;">黄</button>
+                        </div>
+                    </div>
+                    <div class="action-bar">
+                        <button id="stroop-start" class="btn primary">开始挑战</button>
                     </div>
                 </section>
                 

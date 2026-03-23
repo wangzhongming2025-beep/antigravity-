@@ -99,7 +99,7 @@
     <div class="no-print">
         <button class="btn btn-primary" onclick="window.print()">🖨️ 打印/保存为 PDF</button>
         <button class="btn btn-secondary" onclick="regenerateAll()">🔄 重新生成试题</button>
-        <span style="color: #666; font-size: 0.9rem;">提示：点击“打印”后，在打印设置中选择“另存为 PDF”即可保存。</span>
+        <span style="color: #666; font-size: 0.9rem;">提示：点击“刷新试题”可获得全新的随机组合。</span>
     </div>
 
     <div class="page">
@@ -119,9 +119,7 @@
         <div class="schulte-section">
             <h2>一、舒尔特方格 (5x5 级)</h2>
             <p>说明：请按照从 1 到 25 的顺序依次指出所有数字，并记录完成时间。</p>
-            <div id="schulte-container-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);">
-                <!-- Generated JS -->
-            </div>
+            <div id="schulte-container-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
             <p style="text-align: right;">训练用时：__________ 秒</p>
         </div>
 
@@ -129,9 +127,7 @@
         <div class="cancel-section">
             <h2>二、视觉划消训练 (bdpq 混淆)</h2>
             <p>说明：请在 45 秒内找并圈出所有的字母 <strong style="font-size: 1.4rem;">p</strong>。</p>
-            <div id="cancel-grid" class="cancel-grid">
-                <!-- Generated JS -->
-            </div>
+            <div id="cancel-grid" class="cancel-grid"></div>
             <p style="text-align: right;">正确数：__________ / 漏选：__________ / 错选：__________</p>
         </div>
     </div>
@@ -146,16 +142,23 @@
         
         <div class="auditory-section">
             <h3>三、听觉广度测验表 (背数训练)</h3>
-            <p>说明：由家长以每秒 1 个数字的速度朗读下列序列。读完后要求孩子立即复述。如果孩子复述完全正确，则进入下一个长度。</p>
-            
-            <ul class="digit-span-list" id="digit-list">
-                <!-- Generated JS -->
-            </ul>
+            <p>说明：家长以每秒1个数字的速度朗读序列，读完后孩子复述。</p>
+            <ul class="digit-span-list" id="digit-list"></ul>
         </div>
 
         <div class="schulte-section-extra" style="margin-top: 50px;">
             <h3>附录：舒尔特方格 (加强 6x6 级)</h3>
             <div id="schulte-container-6" class="schulte-grid" style="grid-template-columns: repeat(6, 1fr);"></div>
+            <p style="text-align: right;">训练用时：__________ 秒</p>
+        </div>
+
+        <!-- Section 4: Maze -->
+        <div class="maze-section" style="margin-top: 50px;">
+            <h3>四、走迷宫训练 (空间规划)</h3>
+            <p>说明：从左上角入口进入，到达右下角出口。</p>
+            <div style="text-align: center;">
+                <canvas id="maze-canvas" width="500" height="500" style="border: 2px solid #000; margin: 10px auto;"></canvas>
+            </div>
             <p style="text-align: right;">训练用时：__________ 秒</p>
         </div>
     </div>
@@ -169,7 +172,6 @@
                 const cell = document.createElement('div');
                 cell.className = 'schulte-cell';
                 cell.textContent = n;
-                if(size > 6) cell.style.fontSize = '1.3rem';
                 container.appendChild(cell);
             });
         }
@@ -177,7 +179,7 @@
         function generateCancellation(containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-            const chars = ['b', 'd', 'p', 'q', 'p', 'p', 'q']; // slightly biased towards p
+            const chars = ['b', 'd', 'p', 'q', 'p', 'p', 'q']; 
             for(let i=0; i<300; i++) {
                 const char = chars[Math.floor(Math.random() * chars.length)];
                 const div = document.createElement('div');
@@ -199,11 +201,59 @@
             }
         }
 
+        function generateMaze(id, size) {
+            const canvas = document.getElementById(id);
+            const ctx = canvas.getContext('2d');
+            const cellSize = canvas.width / size;
+            const grid = Array.from({length: size}, () => Array(size).fill(false));
+            const walls = {
+                v: Array.from({length: size}, () => Array(size + 1).fill(true)),
+                h: Array.from({length: size + 1}, () => Array(size).fill(true))
+            };
+
+            function walk(x, y) {
+                grid[y][x] = true;
+                const dirs = [[0,1],[0,-1],[1,0],[-1,0]].sort(() => Math.random() - 0.5);
+                for (let [dx, dy] of dirs) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < size && ny >= 0 && ny < size && !grid[ny][nx]) {
+                        if (dx === 1) walls.v[y][x+1] = false;
+                        if (dx === -1) walls.v[y][x] = false;
+                        if (dy === 1) walls.h[y+1][x] = false;
+                        if (dy === -1) walls.h[y][x] = false;
+                        walk(nx, ny);
+                    }
+                }
+            }
+            walk(0, 0);
+
+            walls.v[0][0] = false; // entry
+            walls.v[size - 1][size] = false; // exit
+
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.lineWidth = 2; ctx.strokeStyle = '#000';
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x <= size; x++) {
+                    if (walls.v[y][x]) {
+                        ctx.beginPath(); ctx.moveTo(x*cellSize, y*cellSize); ctx.lineTo(x*cellSize, (y+1)*cellSize); ctx.stroke();
+                    }
+                }
+            }
+            for (let y = 0; y <= size; y++) {
+                for (let x = 0; x < size; x++) {
+                    if (walls.h[y][x]) {
+                        ctx.beginPath(); ctx.moveTo(x*cellSize, y*cellSize); ctx.lineTo((x+1)*cellSize, y*cellSize); ctx.stroke();
+                    }
+                }
+            }
+        }
+
         function regenerateAll() {
             generateSchulte('schulte-container-5', 5);
             generateSchulte('schulte-container-6', 6);
             generateCancellation('cancel-grid');
             generateDigitSpan('digit-list');
+            generateMaze('maze-canvas', 20);
         }
 
         window.onload = regenerateAll;

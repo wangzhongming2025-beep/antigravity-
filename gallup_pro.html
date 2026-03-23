@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GALLUP-PRO | 盖洛普专业优势深度测评</title>
+    <!-- Chart.js for Professional Metrics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for poster generation -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --brand-dark: #1A1A1A;
+            --brand-gold: #C5A059;
+            --brand-red: #FF2442;
+            --bg-main: #F4F4F7;
+            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-main);
+            color: var(--brand-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 500px;
+            background: #FFF;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (min-width: 501px) {
+            #app {
+                min-height: 800px;
+                border-radius: 32px;
+                margin: 20px;
+            }
+        }
+
+        /* Loading Overlay */
+        #loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s;
+        }
+
+        /* Headers */
+        header {
+            padding: 30px 24px 10px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 14px;
+            letter-spacing: 4px;
+            color: var(--brand-gold);
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        /* Progress Bar */
+        .progress-box {
+            padding: 0 24px;
+            margin-top: 20px;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 4px;
+            background: #EEE;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--brand-dark);
+            width: 0%;
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+
+        /* Screens */
+        .screen {
+            flex: 1;
+            display: none;
+            padding: 24px;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Welcome Page */
+        .hero-img {
+            width: 100%;
+            height: 260px;
+            background: #000;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+
+        .welcome-text {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* Question UI */
+        .q-num {
+            font-size: 13px;
+            color: var(--brand-gold);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .q-text {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        .option {
+            background: #F8F8FA;
+            border: 1px solid #EEE;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .option:hover {
+            border-color: var(--brand-dark);
+            background: #FFF;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .option.selected {
+            background: var(--brand-dark);
+            border-color: var(--brand-dark);
+            color: white;
+        }
+
+        .opt-char {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid #DDD;
+            margin-right: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .option.selected .opt-char {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Result UI */
+        .res-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #FDECEC;
+            color: var(--brand-red);
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .res-role {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+        }
+
+        .radar-box {
+            width: 100%;
+            aspect-ratio: 1;
+            margin: 20px 0;
+        }
+
+        .res-card {
+            background: #F9F9FB;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .res-card h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .res-card p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* Buttons */
+        .btn-main {
+            background: var(--brand-dark);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            margin-top: auto;
+        }
+
+        .btn-main:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #BBB;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <div id="loader">
+            <div style="font-weight: 800; font-size: 18px; letter-spacing: 2px;">GALLUP-PRO</div>
+            <div style="margin-top: 15px; color: #999; font-size: 12px;">正在初始化专业题库...</div>
+        </div>
+
+        <header>
+            <div class="logo">Strength Analytics</div>
+            <h1 id="main-title">专业优势深度测评</h1>
+            <div class="progress-box" id="p-box" style="display: none;">
+                <div class="bar-bg">
+                    <div class="bar-fill" id="bar-fill"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome -->
+        <div id="screen-start" class="screen active">
+            <div class="hero-img">
+                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
+                    alt="Consultant">
+            </div>
+            <div class="welcome-text">
+                本测评基于盖洛普 34 个才干维度，结合了执行力、影响力、关系建立及战略思维四大核心领域。通过 20 道强制选择压测题目，我们将锁定您在 AI 商业时代的底层操作系统，帮助您定位年入千万的职业锚点。
+            </div>
+            <button class="btn-main" onclick="initQuiz()">深度开启测评</button>
+            <p style="text-align: center; font-size: 11px; color: #AAA; margin-top: 15px;">预计耗时 5-8 分钟 | 已累计为 12,000+
+                创业者提供分析</p>
+        </div>
+
+        <!-- Quiz -->
+        <div id="screen-quiz" class="screen">
+            <div class="q-num" id="q-num">STEP 01/20</div>
+            <div class="q-text" id="q-text">如果您面临一个复杂的商业决策，您的第一直觉更倾向于：</div>
+            <div id="options" class="options">
+                <!-- Options Injected -->
+            </div>
+            <button class="btn-main" id="btn-next" disabled onclick="nextQuestion()">由潜意识决定下一步</button>
+        </div>
+
+        <!-- Result -->
+        <div id="screen-result" class="screen">
+            <div class="res-badge">PROFILE RESULT</div>
+            <div class="res-role" id="res-role">战术狙击手</div>
+
+            <div class="radar-box">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <div class="res-card">
+                <h3>🛡️ 才干内核 (Top Strengths)</h3>
+                <p id="res-core">加载内容中...</p>
+            </div>
+
+            <div class="res-card" style="border-left: 4px solid var(--brand-gold);">
+                <h3>📈 商业变现路径 (10M Path)</h3>
+                <p id="res-biz">加载内容中...</p>
+            </div>
+
+            <div class="res-card" style="border-left: 4px solid var(--brand-red);">
+                <h3>⚠️ 认知黑洞 (Danger Zones)</h3>
+                <p id="res-risk">加载内容中...</p>
+            </div>
+
+            <div
+                style="background: #1A1A1A; color: #FFF; padding: 28px; border-radius: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                <div style="font-size: 13px; opacity: 0.7; margin-bottom: 8px; letter-spacing: 1px;">想要更深度的 34 才干解读报告？
+                </div>
+                <div style="font-size: 20px; font-weight: 800; margin-bottom: 24px; color: var(--brand-gold);">[
+                    脑科学商业实验室 ]</div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-main" style="background: #FFF; color: #000; flex: 1; padding: 15px;"
+                        id="btn-share" onclick="generatePoster()">生成天赋海报</button>
+                    <button class="btn-main"
+                        style="background: var(--brand-gold); color: #FFF; flex: 1.2; padding: 15px;"
+                        onclick="alert('即将跳转，请长按保存结果并联系队长！')">领取完整报告</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by NeuroFlow Algorithm © 2026
+        </div>
+    </div>
+
+    <script>
+        // Professional Question Bank (25-Question Matrix)
+        const proBank = [
+            {
+                text: "面对突发的目标调整，您的第一生理反应是：", opts: [
+                    { text: "感到极度焦虑，必须立刻清除障碍重回主线", weights: { Executing: 4, Strategic: 1 } },
+                    { text: "迅速接受变化，并思考如何利用新变量优化路径", weights: { Strategic: 4, Relationship: 1 } }
+                ]
+            },
+            {
+                text: "在多人会议中，您最不能忍受的状态是：", opts: [
+                    { text: "大家沟通很欢快，但最后没有产生具体的交付清单", weights: { Executing: 5, Influencing: -1 } },
+                    { text: "大家工作很卖力，但我觉得人际关系紧绷且冷冰冰", weights: { Relationship: 5, Executing: -1 } }
+                ]
+            },
+            {
+                text: "如果给您 1 小时独处，您倾向于：", opts: [
+                    { text: "钻研最新的 AI 提示词包或底层脑科学理论", weights: { Strategic: 4, Executing: 1 } },
+                    { text: "给关键客户或老友打几个高维度的私密深度沟通电话", weights: { Relationship: 4, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "面对一个未知的万级流量机会，您的直觉是：", opts: [
+                    { text: "瞬间推演 3 种风险结局和 1 条安全突破路径", weights: { Strategic: 5 } },
+                    { text: "通过洞察人群情绪，判断这是否符合当下的趋势风口", weights: { Influencing: 4, Relationship: 2 } }
+                ]
+            },
+            {
+                text: "您如何看待自己的使命感？", opts: [
+                    { text: "我擅长建立一套科学严密的系统，让他人从心底折服", weights: { Strategic: 3, Executing: 3 } },
+                    { text: "我愿意通过讲故事、共情或直接感召，带领大家前进", weights: { Influencing: 5, Relationship: 2 } }
+                ]
+            },
+            {
+                text: "关于“规则”，您的底层态度是：", opts: [
+                    { text: "规则是效率的基石，严格执行清单是我的荣誉感", weights: { Executing: 4 } },
+                    { text: "规则是用来打破或优化的，灵活性比死板守旧重要", weights: { Strategic: 3, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "您最享受的学习时刻是：", opts: [
+                    { text: "终于打通了知识建模的底层逻辑，看懂了世界的运行", weights: { Strategic: 5 } },
+                    { text: "学会了新技能并立刻变现，拿到结果回馈那一刻", weights: { Executing: 3, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "在设计一款脑科学产品时，您会优先极致化：", opts: [
+                    { text: "功能细节的完美解决率，确保不浪费用户的1秒钟", weights: { Executing: 4, Strategic: 2 } },
+                    { text: "产品的‘爱’与情感寄托，让用户产生灵魂共鸣", weights: { Relationship: 5, Influencing: 1 } }
+                ]
+            },
+            // 题库持续增加至25道... (此处注入高权重压测题)
+            {
+                text: "遇到一个棘手的对手，您的第一反应是：", opts: [
+                    { text: "分析他的套路，设下埋伏，实施精准反击", weights: { Strategic: 4, Executing: 1 } },
+                    { text: "找到他的软肋，用感召力或者利益置换将其化敌为友", weights: { Relationship: 3, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "当事情进展到 90% 时，您的状态通常是：", opts: [
+                    { text: "极其专注地盯着最后 10% 的完美交付，细节定胜负", weights: { Executing: 5 } },
+                    { text: "我已经开始构思下一个 0 到 1 的项目和更大的规模", weights: { Strategic: 3, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "如果您被关在一个孤岛，带走一本书，您选：", opts: [
+                    { text: "《极简主义执行手册：如何高效活下来》", weights: { Executing: 4 } },
+                    { text: "《心流秘密：如何与自我深处建立永恒连接》", weights: { Relationship: 4 } }
+                ]
+            },
+            {
+                text: "您在小红书刷到爆款内容，您的第一思维是：", opts: [
+                    { text: "分析它的标题、SEO和钩子，拆解出通用模版", weights: { Strategic: 4 } },
+                    { text: "看评论区的情绪，寻找用户的隐性痛点和需求", weights: { Relationship: 3, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "您更愿意做哪种领袖？", opts: [
+                    { text: "作为“首席渐构师”，在幕后构建整个商业帝国", weights: { Strategic: 5, Relationship: -1 } },
+                    { text: "作为“战神”，在公域流量池冲锋陷阵，享受目光", weights: { Influencing: 5, Executing: 1 } }
+                ]
+            },
+            {
+                text: "关于“财富”，您的商人视角是：", opts: [
+                    { text: "财富是系统复利的副产品，我追求机器的完美转动", weights: { Strategic: 3, Executing: 3 } },
+                    { text: "财富是影响力的货币化，我追求被更多人信任和感召", weights: { Influencing: 4, Relationship: 2 } }
+                ]
+            },
+            {
+                text: "当团队成员犯错时，您的第一直觉：", opts: [
+                    { text: "对事不对人，立刻评估损失并修正流程防止再犯", weights: { Executing: 4, Strategic: 1 } },
+                    { text: "关心他的状态，评估他是否在错误的位置，进行调整", weights: { Relationship: 5, Influencing: -1 } }
+                ]
+            },
+            {
+                text: "您更偏好哪种变现方式？", opts: [
+                    { text: "高离线感的 SaaS 订阅，让钱自动化滚进来", weights: { Strategic: 4, Executing: 1 } },
+                    { text: "极致交付的 1:1 指导，深度改变一个人的灵魂", weights: { Relationship: 4, Influencing: 2 } }
+                ]
+            },
+            {
+                text: "您在社交场合，更享受：", opts: [
+                    { text: "作为话题的一份子，深度观察每个人的性格底色", weights: { Relationship: 5 } },
+                    { text: "作为能量中心，用幽默或洞察让全场节奏跟我走", weights: { Influencing: 4 } }
+                ]
+            },
+            {
+                text: "对于“失败”，您的解释是：", opts: [
+                    { text: "单纯的战术失误，只要调整清单，下次必赢", weights: { Executing: 5, Strategic: -1 } },
+                    { text: "认知未到位的警示，需要重新学习建模新的现实", weights: { Strategic: 5, Executing: -1 } }
+                ]
+            },
+            {
+                text: "您通常如何定义您的“专注”？", opts: [
+                    { text: "屏除一切杂音，死磕一个目标直到完成", weights: { Executing: 5 } },
+                    { text: "屏蔽垃圾信息，只吸收能启发新灵感的关键点", weights: { Strategic: 4 } }
+                ]
+            },
+            {
+                text: "如果您要招募合伙人，您首选：", opts: [
+                    { text: "手脚麻利、执行不出错、能把琐事全接走的助理", weights: { Executing: 4, Influencing: -1 } },
+                    { text: "脑子空灵、能一眼指出我的盲区、跟我精神共鸣的军师", weights: { Strategic: 5, Relationship: 1 } }
+                ]
+            },
+            {
+                text: "面对负面评论或黑粉：", opts: [
+                    { text: "只要不影响核心数据，我完全无视，继续推进主线", weights: { Executing: 3, Strategic: 2 } },
+                    { text: "我会思考他们为什么这么说，甚至利用黑粉制造流量噱头", weights: { Influencing: 4, Strategic: 1 } }
+                ]
+            },
+            {
+                text: "您更向往的退休生活：", opts: [
+                    { text: "在一座安静图书馆，把人类文明的所有规律写成书", weights: { Strategic: 5, Relationship: -1 } },
+                    { text: "在繁忙的私人岛屿，接待世界各地的精英，交换信任", weights: { Relationship: 4, Influencing: 3 } }
+                ]
+            },
+            {
+                text: "对于“时间”，您的吝啬点在：", opts: [
+                    { text: "不能容忍无意义的低效会议和白忙活", weights: { Executing: 5 } },
+                    { text: "不能容忍在低维度的认知里循环打转", weights: { Strategic: 5 } }
+                ]
+            },
+            {
+                text: "关于“个人品牌”，您的理解是：", opts: [
+                    { text: "品牌是通过极致的标准化交付积累出来的信用", weights: { Executing: 4, Strategic: 1 } },
+                    { text: "品牌是通过真实的人格魅力和情绪锚点产生的光环", weights: { Influencing: 5, Relationship: 2 } }
+                ]
+            },
+            {
+                text: "最后，您现在的状态更接近：", opts: [
+                    { text: "我已经想清楚了所有逻辑，现在由于肌肉记忆在疯狂奔跑", weights: { Executing: 5, Strategic: 1 } },
+                    { text: "我正处于逻辑重构的关键期，每一秒都在产生新的渐构", weights: { Strategic: 5, Relationship: 1 } }
+                ]
+            }
+        ];
+
+        let currentQ = 0;
+        let selectedWeights = { Executing: 0, Influencing: 0, Relationship: 0, Strategic: 0 };
+        let tempAnswer = null;
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 1000);
+        };
+
+        function initQuiz() {
+            document.getElementById('screen-start').classList.remove('active');
+            document.getElementById('screen-quiz').classList.add('active');
+            document.getElementById('p-box').style.display = 'block';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = proBank[currentQ];
+            document.getElementById('q-num').innerText = `STEP ${String(currentQ + 1).padStart(2, '0')}/${proBank.length}`;
+            document.getElementById('q-text').innerText = q.text;
+
+            const optDiv = document.getElementById('options');
+            optDiv.innerHTML = "";
+            q.opts.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<div class="opt-char">${String.fromCharCode(65 + idx)}</div><div>${opt.text}</div>`;
+                div.onclick = () => selectOption(idx, div);
+                optDiv.appendChild(div);
+            });
+
+            const progress = ((currentQ) / proBank.length) * 100;
+            document.getElementById('bar-fill').style.width = progress + "%";
+            document.getElementById('btn-next').disabled = true;
+        }
+
+        function selectOption(idx, el) {
+            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            tempAnswer = proBank[currentQ].opts[idx].weights;
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        function nextQuestion() {
+            for (let key in tempAnswer) {
+                selectedWeights[key] += tempAnswer[key];
+            }
+
+            currentQ++;
+            if (currentQ < proBank.length) {
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('bar-fill').style.width = "100%";
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('main-title').innerText = "测评报告已生成";
+
+            // Expanded 12 Archetypes Matrix
+            const archetypes = [
+                { id: "雷霆铁腕", name: "雷霆铁腕", core: "执行力 (Executing) 绝对核心", biz: "适合作为 CEO 或项目的首席运营官，主攻大项目的标准化落地。", risk: "容易忽略情感价值，需要配备[社交支点]型合伙人。" },
+                { id: "智库导师", name: "智库导师", core: "战略思维 (Strategic) + 伯乐 (Relationship)", biz: "适合做知识付费后端或高端私人陪跑。您的‘认知模型’是变现王炸。", risk: "行动力可能滞后于思想，警惕‘想得多动得少’。" },
+                { id: "社交支点", name: "社交支点", core: "取悦 (Influencing) + 和谐 (Relationship)", biz: "适合担任团队的首席增长官或社群领袖。您是天然的信任纽带。", risk: "人际敏感度过高，容易在冲突中消耗能量。" },
+                { id: "战略狙击手", name: "战略狙击手", core: "专注 (Executing) + 战略 (Strategic)", biz: "适合做极致单品、高客单价专家咨询。您能一眼看透路径并死磕到底。", risk: "容易陷入局部最优解，忽略外部大规模趋势。" },
+                { id: "流量宗师", name: "流量宗师", core: "感召 (Influencing) + 战略 (Strategic)", biz: "适合做顶级个人 IP 或全网流量操盘手。您擅长降维打击，掌控节奏。", risk: "可能缺乏深度交付的耐心，需要[执行核心]稳定后排。" },
+                { id: "信任架构师", name: "信任架构师", core: "关系建立 (Relationship) 巅峰", biz: "适合深耕 LTV (终身价值)，做高端母校、私人董事会等高粘性项目。", risk: "获客规模受限于个人精力，需通过 AI 杠杆释放时间。" },
+                { id: "商业布道者", name: "商业布道者", core: "意义 (Influencing) + 信仰 (Executing)", biz: "适合通过使命感驱动的‘改变世界’类创业项目。您能让万人热血沸腾。", risk: "管理细节可能疏漏，需要配备强悍的流程合伙人。" },
+                { id: "幕后推手", name: "幕后推手", core: "搜集 (Strategic) + 伯乐 (Relationship)", biz: "适合做投资人、孵化中心总监或金牌经纪人。您看人、看局极其精准。", risk: "个人品牌感知较弱，容易被喧宾夺主。" },
+                { id: "产品渐构师", name: "产品渐构师", core: "理念 (Strategic) + 学习 (Strategic)", biz: "适合做 SaaS 产品主理人或底层协议设计者。您正在构建未来的标准。", risk: "技术思维过重，转化话术需要专业营销人员优化。" },
+                { id: "极致交付者", name: "极致交付者", core: "排难 (Executing) + 和谐 (Relationship)", biz: "适合做高净值客户的服务中心负责人。您的细密与温和是绝对壁垒。", risk: "容易陷入琐事，无法抽身进行战略思考。" },
+                { id: "指挥官", name: "全能操盘官", core: "指挥 (Influencing) + 统筹 (Executing)", biz: "适合带领大规模兵团作战，将复杂的资源整合为高效产出。", risk: "个性过于强势，可能导致团队核心成员流失。" },
+                { id: "平衡艺术家", name: "平衡艺术家", core: "公平 (Relationship) + 分析 (Strategic)", biz: "适合做合伙人纠纷调解、法律财税架构设计或组织咨询专家。", risk: "决策节奏可能偏慢，在极速风口期容易错过机会。" }
+            ];
+
+            // Complex Selection logic based on relative weight distributions
+            const w = selectedWeights;
+            const sorted = Object.entries(w).sort((a, b) => b[1] - a[1]);
+            const top1 = sorted[0][0]; // Domain name
+            const top2 = sorted[1][0];
+
+            let finalRole = archetypes[0]; // Default
+
+            if (top1 === 'Executing') {
+                if (top2 === 'Strategic') finalRole = archetypes.find(a => a.id === "战略狙击手");
+                else if (top2 === 'Relationship') finalRole = archetypes.find(a => a.id === "极致交付者");
+                else finalRole = archetypes.find(a => a.id === "雷霆铁腕");
+            } else if (top1 === 'Strategic') {
+                if (top2 === 'Relationship') finalRole = archetypes.find(a => a.id === "智库导师");
+                else if (top2 === 'Executing') finalRole = archetypes.find(a => a.id === "产品渐构师");
+                else finalRole = archetypes.find(a => a.id === "流量宗师");
+            } else if (top1 === 'Influencing') {
+                if (top2 === 'Relationship') finalRole = archetypes.find(a => a.id === "社交支点");
+                else if (top2 === 'Executing') finalRole = archetypes.find(a => a.id === "指挥官");
+                else finalRole = archetypes.find(a => a.id === "商业布道者");
+            } else {
+                if (top2 === 'Strategic') finalRole = archetypes.find(a => a.id === "幕后推手");
+                else finalRole = archetypes.find(a => a.id === "信任架构师");
+            }
+
+            document.getElementById('res-role').innerText = finalRole.name;
+            document.getElementById('res-core').innerText = finalRole.core;
+            document.getElementById('res-biz').innerText = finalRole.biz;
+            document.getElementById('res-risk').innerText = finalRole.risk;
+
+            // Render Radar Chart
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['执行力', '影响力', '关系建立', '战略思维'],
+                    datasets: [{
+                        label: '个人天赋潜能',
+                        data: [w.Executing, w.Influencing, w.Relationship, w.Strategic],
+                        backgroundColor: 'rgba(197, 160, 89, 0.2)',
+                        borderColor: '#C5A059',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#1A1A1A'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: { beginAtZero: true, grid: { color: '#EEE' }, ticks: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function generatePoster() {
+            const btn = document.getElementById('btn-share');
+            btn.innerText = "正在生成...";
+            html2canvas(document.getElementById('app'), {
+                useCORS: true,
+                scale: 2
+            }).then(canvas => {
+                const img = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = `GallupPro_Result_${new Date().getTime()}.png`;
+                link.href = img;
+                link.click();
+                btn.innerText = "生成成功";
+                setTimeout(() => btn.innerText = "生成天赋海报", 2000);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
