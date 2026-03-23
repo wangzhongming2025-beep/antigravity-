@@ -493,6 +493,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('schulte-theme').onchange = () => { stopAllActivities(); generateSchulteGrid(); };
     document.getElementById('schulte-size').onchange = (e) => { stopAllActivities(); schulteState.size = parseInt(e.target.value); generateSchulteGrid(); };
     document.getElementById('tracker-start').onclick = () => initTrackerGame(true);
+    document.getElementById('tracker-canvas').onmousedown = (e) => {
+        if(trackerState.phase !== 'select') return;
+        const rect = e.target.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        trackerState.balls.forEach(b => {
+            if(!b.isSelected && b.isClicked(mx, my)) {
+                b.isSelected = true;
+                b.isCorrect = b.isTarget;
+                if(b.isCorrect) {
+                  trackerState.selectedFound++;
+                  if(trackerState.selectedFound === trackerState.numTargets) {
+                      trackerState.level++;
+                      setTimeout(() => { alert("全部找对！"); initTrackerGame(true); }, 500);
+                  }
+                } else {
+                    trackerState.isPlaying = false;
+                    setTimeout(() => {
+                        alert("选错了。");
+                        trackerState.level = 1;
+                        document.getElementById('tracker-start').style.display = 'block';
+                        initTrackerGame(false);
+                    }, 500);
+                }
+            }
+        });
+    };
     document.getElementById('video-start').onclick = startVisVideo;
     document.getElementById('space-start').onclick = () => spaceDecodingState.isPlaying ? endSpaceDecoding(false) : startSpaceDecoding();
     document.getElementById('space-input').oninput = (e) => { if(!spaceDecodingState.isPlaying) return; if(e.target.value.toLowerCase() === spaceDecodingState.targetSeq.map(i=>i.char).join('').toLowerCase()) { spaceDecodingState.score++; nextSpaceDecodingRound(); } };

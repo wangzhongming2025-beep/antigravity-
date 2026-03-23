@@ -339,16 +339,21 @@ body {
 .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(13, 17, 23, 0.85);
-    backdrop-filter: blur(8px);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
     z-index: 10;
-    transition: all 0.5s ease;
+    transition: all 0.3s;
+    pointer-events: none; /* Allow clicks to pass through to canvas */
     text-align: center;
     padding: 2rem;
+}
+
+.overlay > * {
+    pointer-events: auto; /* Re-enable clicks for buttons and text-content if needed */
 }
 
 .overlay h3 {
