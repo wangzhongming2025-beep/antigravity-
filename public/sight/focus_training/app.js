@@ -1,45 +1,50 @@
 // ====== 0. Global State & Infrastructure ======
-const navLinks = document.querySelectorAll('.nav-links li');
-const views = document.querySelectorAll('.view');
-const viewTitle = document.getElementById('view-title');
-
 const state = {
     currentView: 'dashboard',
     speechEnabled: 'speechSynthesis' in window
 };
 
-// Navigation Core
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        const targetView = link.getAttribute('data-view');
-        if(state.currentView === targetView) return;
-        
-        navLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-        
-        views.forEach(v => v.classList.remove('active-view'));
-        const targetEl = document.getElementById(targetView);
-        if(targetEl) targetEl.classList.add('active-view');
-        
-        viewTitle.textContent = link.querySelector('span:last-child').textContent;
-        state.currentView = targetView;
-        
-        stopAllActivities(); // Stop any pending timers/audio
-        initView(targetView);
+// Navigation Setup
+function setupNavigation() {
+    const navLinks = document.querySelectorAll('.nav-links li');
+    const views = document.querySelectorAll('.view');
+    const viewTitle = document.getElementById('view-title');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            const targetView = link.getAttribute('data-view');
+            if(state.currentView === targetView) return;
+            
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            views.forEach(v => v.classList.remove('active-view'));
+            const targetEl = document.getElementById(targetView);
+            if(targetEl) targetEl.classList.add('active-view');
+            
+            viewTitle.textContent = link.querySelector('span:last-child').textContent;
+            state.currentView = targetView;
+            
+            stopAllActivities();
+            initView(targetView);
+        });
     });
-});
+}
 
 function initView(viewId) {
     switch(viewId) {
         case 'dashboard': updateDashboard(); break;
         case 'schulte': if(!schulteState.isPlaying) generateSchulteGrid(); break;
-        case 'tracker': if(!trackerState.isPlaying) renderTracker(0); break;
+        case 'tracker': if(!trackerState.isPlaying) renderTracker(); break;
         case 'vis-speed': initVisSpeed(); break;
         case 'vis-cancel': initVisCancel(); break;
         case 'aud-react': initAudReact(); break;
         case 'aud-span': initAudSpan(); break;
         case 'mem-reverse': initMemReverse(); break;
         case 'vis-video': initVisVideo(); break;
+        case 'aud-inter': initAudInter(); break;
+        case 'mem-repeat': initMemRepeat(); break;
+        case 'assessment-wechsler': initAssessmentWechsler(); break;
     }
 }
 
@@ -47,7 +52,6 @@ function stopAllActivities() {
     if(schulteState.isPlaying) endSchulteGame(false);
     if(trackerState.isPlaying) { trackerState.isPlaying = false; cancelAnimationFrame(trackerState.animationId); }
     if(breathState.isPlaying) stopBreathing();
-    // Stop speech
     if(state.speechEnabled) window.speechSynthesis.cancel();
 }
 
@@ -67,37 +71,32 @@ const Speech = {
 // Dashboard
 function updateDashboard() {
     const schulteBest = localStorage.getItem('focus_schulte_best_5') || '--:--';
-    document.getElementById('ds-schulte-best').textContent = schulteBest;
+    const dsSchulte = document.getElementById('ds-schulte-best');
+    if(dsSchulte) dsSchulte.textContent = schulteBest;
+
     const trackerV = localStorage.getItem('focus_tracker_lvl') || '1';
-    document.getElementById('ds-tracker-best').textContent = `Lv ${trackerV}`;
+    const dsTracker = document.getElementById('ds-tracker-best');
+    if(dsTracker) dsTracker.textContent = `Lv ${trackerV}`;
+
     const audSpan = localStorage.getItem('focus_aud_span_best') || '--';
-    document.getElementById('ds-aud-span-best').textContent = audSpan;
+    const dsAudSpan = document.getElementById('ds-aud-span-best');
+    if(dsAudSpan) dsAudSpan.textContent = audSpan;
+
     const breathMins = localStorage.getItem('focus_breath_mins') || '0';
-    document.getElementById('ds-breath-time').textContent = `${breathMins} 分钟`;
+    const dsBreath = document.getElementById('ds-breath-time');
+    if(dsBreath) dsBreath.textContent = `${breathMins} 分钟`;
 }
 
-// ====== 1. Schulte Grid (Existing) ======
-const sGrid = document.getElementById('schulte-grid');
-const sSizeSelect = document.getElementById('schulte-size');
-const sTimerDisplay = document.getElementById('schulte-timer');
-const sStartBtn = document.getElementById('schulte-start');
-
+// ====== 1. Schulte Grid ======
 let schulteState = { isPlaying: false, expectedNumber: 1, size: 5, timerInterval: null, startTime: 0 };
-
-sStartBtn.addEventListener('click', () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame());
-if(sSizeSelect) sSizeSelect.addEventListener('change', (e) => { 
-    if(schulteState.isPlaying) endSchulteGame(false);
-    schulteState.size = parseInt(e.target.value);
-    generateSchulteGrid();
-});
-
 function generateSchulteGrid() {
+    const sGrid = document.getElementById('schulte-grid');
+    if(!sGrid) return;
     sGrid.innerHTML = '';
     const size = schulteState.size;
-    const totalCells = size * size;
     sGrid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     let cellSize = size === 3 ? '100px' : size === 4 ? '80px' : '65px';
-    let numbers = Array.from({length: totalCells}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+    let numbers = Array.from({length: size*size}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
     numbers.forEach(num => {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
@@ -107,7 +106,6 @@ function generateSchulteGrid() {
         sGrid.appendChild(cell);
     });
 }
-
 function handleCellClick(cell, num) {
     if (!schulteState.isPlaying) return;
     if (num === schulteState.expectedNumber) {
@@ -124,24 +122,24 @@ function handleCellClick(cell, num) {
         setTimeout(() => cell.classList.remove('error-hit'), 300);
     }
 }
-
 function startSchulteGame() {
     schulteState.isPlaying = true; schulteState.expectedNumber = 1;
     document.getElementById('schulte-next').textContent = '1';
-    sStartBtn.textContent = '放弃挑战'; sStartBtn.classList.replace('primary', 'danger');
+    const btn = document.getElementById('schulte-start');
+    btn.textContent = '放弃挑战'; btn.classList.replace('primary', 'danger');
     generateSchulteGrid();
     schulteState.startTime = Date.now();
     schulteState.timerInterval = setInterval(() => {
-        sTimerDisplay.textContent = ((Date.now() - schulteState.startTime) / 1000).toFixed(2);
+        document.getElementById('schulte-timer').textContent = ((Date.now() - schulteState.startTime) / 1000).toFixed(2);
     }, 40);
 }
-
 function endSchulteGame(completed) {
     schulteState.isPlaying = false; clearInterval(schulteState.timerInterval);
-    sStartBtn.textContent = '开始挑战'; sStartBtn.classList.replace('danger', 'primary');
+    const btn = document.getElementById('schulte-start');
+    btn.textContent = '开始挑战'; btn.classList.replace('danger', 'primary');
     document.getElementById('schulte-next').textContent = '--';
     if (completed) {
-        const final = parseFloat(sTimerDisplay.textContent);
+        const final = parseFloat(document.getElementById('schulte-timer').textContent);
         const key = `focus_schulte_best_${schulteState.size}`;
         if(final < (parseFloat(localStorage.getItem(key)) || Infinity)) localStorage.setItem(key, final);
         alert(`完成！用时：${final} 秒`);
@@ -149,19 +147,8 @@ function endSchulteGame(completed) {
     }
 }
 
-// ====== 2. Tracker (Existing Logic Simplified) ======
-const tCanvas = document.getElementById('tracker-canvas');
-const tCtx = tCanvas.getContext('2d');
-const tStartBtn = document.getElementById('tracker-start');
-const tOverlay = document.getElementById('tracker-overlay');
-const tScoreDisp = document.getElementById('tracker-score');
-const tLevelDisp = document.getElementById('tracker-level');
-
+// ====== 2. Tracker ======
 let trackerState = { isPlaying: false, score: 0, level: 1, balls: [], targetIndices: [], numBalls: 5, numTargets: 2, phase: 'idle', animationId: null, selectedTargets: [] };
-
-function resizeCanvas() { if(tCanvas) { tCanvas.width = tCanvas.parentElement.clientWidth; tCanvas.height = tCanvas.parentElement.clientHeight; } }
-window.addEventListener('resize', resizeCanvas);
-
 class Ball {
     constructor(x, y, vx, vy, radius) { Object.assign(this, {x,y,vx,vy,radius,isTarget:false,isSelected:false,isCorrect:false,color:'#30363d'}); }
     update(w, h) {
@@ -181,8 +168,13 @@ class Ball {
     isClicked(mx, my) { return (this.x-mx)**2 + (this.y-my)**2 <= this.radius**2; }
 }
 
+function resizeCanvas() { 
+    const tCanvas = document.getElementById('tracker-canvas');
+    if(tCanvas) { tCanvas.width = tCanvas.parentElement.clientWidth; tCanvas.height = tCanvas.parentElement.clientHeight; } 
+}
 function initTrackerGame() {
     resizeCanvas();
+    const tCanvas = document.getElementById('tracker-canvas');
     const w = tCanvas.width, h = tCanvas.height;
     trackerState.numBalls = 4 + Math.floor(trackerState.level/2);
     trackerState.numTargets = 1 + Math.ceil(trackerState.level/3);
@@ -195,507 +187,271 @@ function initTrackerGame() {
         let r = Math.floor(Math.random()*trackerState.numBalls);
         if(!trackerState.targetIndices.includes(r)) { trackerState.targetIndices.push(r); trackerState.balls[r].isTarget=true; }
     }
-    trackerState.phase = 'memorize'; trackerState.isPlaying = true; tOverlay.classList.add('hidden');
+    trackerState.phase = 'memorize'; trackerState.isPlaying = true; document.getElementById('tracker-overlay').classList.add('hidden');
     renderTracker();
     setTimeout(() => {
         if(!trackerState.isPlaying) return; trackerState.phase = 'move';
         setTimeout(() => {
             if(!trackerState.isPlaying) return; trackerState.phase='select';
-            tOverlay.classList.remove('hidden'); tStartBtn.style.display='none';
+            document.getElementById('tracker-overlay').classList.remove('hidden'); 
+            document.getElementById('tracker-start').style.display='none';
         }, 4000);
     }, 2000);
 }
-
 function renderTracker() {
+    const tCanvas = document.getElementById('tracker-canvas');
+    const tCtx = tCanvas.getContext('2d');
     if(!tCanvas.offsetParent) return;
     tCtx.clearRect(0,0,tCanvas.width,tCanvas.height);
     trackerState.balls.forEach(b => { b.update(tCanvas.width,tCanvas.height); b.draw(tCtx, trackerState.phase); });
     if(trackerState.isPlaying) trackerState.animationId = requestAnimationFrame(renderTracker);
 }
 
-tCanvas.addEventListener('mousedown', (e) => {
-    if(trackerState.phase !== 'select') return;
-    const rect=tCanvas.getBoundingClientRect(), mx=e.clientX-rect.left, my=e.clientY-rect.top;
-    for(let b of trackerState.balls) {
-        if(b.isClicked(mx, my) && !b.isSelected) {
-            b.isSelected = true; b.isCorrect = b.isTarget;
-            trackerState.selectedTargets.push(b);
-            if(!b.isCorrect) { trackerState.isPlaying=false; trackerState.level=1; alert("选错了，重新开始！"); tOverlay.classList.remove('hidden'); tStartBtn.style.display='block'; return;}
-            if(trackerState.selectedTargets.length === trackerState.numTargets) {
-                trackerState.isPlaying=false; trackerState.level++; tLevelDisp.textContent=trackerState.level;
-                alert("恭喜过关！"); tOverlay.classList.remove('hidden'); tStartBtn.style.display='block';
-            }
-            break;
-        }
-    }
-});
-tStartBtn.onclick = initTrackerGame;
-
-// ====== 3. Placeholder Initializers for New Modules ======
-
-// ====== 3. Visual Processing Speed (vis-speed) ======
-const vSpeedTarget = document.getElementById('vis-speed-target');
-const vSpeedGroup = document.getElementById('vis-speed-group');
-const vSpeedTimer = document.getElementById('vis-speed-timer');
-const vSpeedYes = document.getElementById('vis-speed-yes');
-const vSpeedNo = document.getElementById('vis-speed-no');
-
+// ====== 3. Visual Modules ======
 let visSpeedState = { isPlaying: false, score: 0, timeLeft: 60, timer: null, currentTarget: '', currentGroup: [] };
-
 const SYMBOLS = ['☀', '⚡', '❄', '☁', '★', '☕', '⚔', '⚖', '☯', '⚛'];
-
 function initVisSpeed() {
     visSpeedState.score = 0; visSpeedState.timeLeft = 60;
-    visSpeedState.isPlaying = true; vSpeedTimer.textContent = '60';
+    visSpeedState.isPlaying = true; document.getElementById('vis-speed-timer').textContent = '60';
     nextVisSpeedRound();
     if(visSpeedState.timer) clearInterval(visSpeedState.timer);
     visSpeedState.timer = setInterval(() => {
-        if(--visSpeedState.timeLeft <= 0) endVisSpeed();
-        vSpeedTimer.textContent = visSpeedState.timeLeft;
+        if(--visSpeedState.timeLeft <= 0) {
+            visSpeedState.isPlaying = false; clearInterval(visSpeedState.timer);
+            alert(`测验结束！得分：${visSpeedState.score}`);
+            updateDashboard();
+        }
+        document.getElementById('vis-speed-timer').textContent = visSpeedState.timeLeft;
     }, 1000);
 }
-
 function nextVisSpeedRound() {
     const shuffled = [...SYMBOLS].sort(() => Math.random() - 0.5);
     visSpeedState.currentTarget = shuffled[0];
-    const present = Math.random() > 0.5;
-    const group = shuffled.slice(1, 6); // 5 elements
-    if(present) group[Math.floor(Math.random() * 5)] = visSpeedState.currentTarget;
+    const group = shuffled.slice(1, 6);
+    if(Math.random() > 0.5) group[Math.floor(Math.random() * 5)] = visSpeedState.currentTarget;
     visSpeedState.currentGroup = group;
-    
-    vSpeedTarget.textContent = visSpeedState.currentTarget;
-    vSpeedGroup.innerHTML = group.map(s => `<span class="search-symbol">${s}</span>`).join('');
+    document.getElementById('vis-speed-target').textContent = visSpeedState.currentTarget;
+    document.getElementById('vis-speed-group').innerHTML = group.map(s => `<span class="search-symbol">${s}</span>`).join('');
 }
 
-function checkVisSpeed(val) {
-    if(!visSpeedState.isPlaying) return;
-    const exists = visSpeedState.currentGroup.includes(visSpeedState.currentTarget);
-    if(val === exists) { visSpeedState.score++; nextVisSpeedRound(); }
-    else { visSpeedState.timeLeft -= 2; nextVisSpeedRound(); } // Penalty
-}
-
-vSpeedYes.onclick = () => checkVisSpeed(true);
-vSpeedNo.onclick = () => checkVisSpeed(false);
-
-function endVisSpeed() {
-    visSpeedState.isPlaying = false; clearInterval(visSpeedState.timer);
-    alert(`测验结束！得分：${visSpeedState.score}`);
-    updateDashboard();
-}
-
-// ====== 4. Visual Cancellation (vis-cancel) ======
-const vCancelGrid = document.getElementById('vis-cancel-grid');
-const vCancelTimer = document.getElementById('vis-cancel-timer');
-const vCancelStart = document.getElementById('vis-cancel-start');
-
-let visCancelState = { isPlaying: false, score: 0, timeLeft: 45, timer: null, targetChars: [] };
-
+let visCancelState = { isPlaying: false, score: 0, timeLeft: 45, timer: null };
 function initVisCancel() {
-    vCancelGrid.innerHTML = ''; visCancelState.isPlaying = false;
-    vCancelTimer.textContent = '45';
+    document.getElementById('vis-cancel-grid').innerHTML = ''; visCancelState.isPlaying = false;
+    document.getElementById('vis-cancel-timer').textContent = '45';
 }
 
-vCancelStart.onclick = () => {
-    if(visCancelState.isPlaying) return;
-    visCancelState.isPlaying = true; visCancelState.score = 0; visCancelState.timeLeft = 45;
-    const chars = ['p', 'b', 'd', 'q'];
-    vCancelGrid.innerHTML = '';
-    for(let i=0; i<225; i++) {
-        const char = chars[Math.floor(Math.random() * 4)];
-        const cell = document.createElement('div');
-        cell.className = 'cancel-cell';
-        cell.textContent = char;
-        cell.onclick = () => {
-            if(!visCancelState.isPlaying) return;
-            if(char === 'p') {
-                if(!cell.classList.contains('selected')) { cell.classList.add('selected'); visCancelState.score++; }
-            } else {
-                visCancelState.timeLeft -= 1; // Penalty
-            }
-        };
-        vCancelGrid.appendChild(cell);
-    }
-    visCancelState.timer = setInterval(() => {
-        if(--visCancelState.timeLeft <= 0) endVisCancel();
-        vCancelTimer.textContent = visCancelState.timeLeft;
-    }, 1000);
-};
-
-function endVisCancel() {
-    visCancelState.isPlaying = false; clearInterval(visCancelState.timer);
-    alert(`测验结束！找到了 ${visCancelState.score} 个目标字符`);
-    updateDashboard();
-}
-
-// ====== 5. Video Discrimination (vis-video) ======
-const videoCanvas = document.getElementById('video-canvas');
-const vCtx = videoCanvas.getContext('2d');
-const videoStart = document.getElementById('video-start');
-const videoOverlay = document.getElementById('video-overlay');
-const videoQBox = document.getElementById('video-question-box');
-const videoQText = document.getElementById('video-question');
-const videoOptions = document.getElementById('video-options');
-
+// ====== 4. Video Discrimination ======
 let videoState = { isPlaying: false, shapes: [], answer: 0 };
-
 function initVisVideo() {
-    videoOverlay.classList.remove('hidden');
-    videoQBox.classList.add('hidden');
-    videoCanvas.width = videoCanvas.parentElement.clientWidth;
-    videoCanvas.height = videoCanvas.parentElement.clientHeight;
+    document.getElementById('video-overlay').classList.remove('hidden');
+    document.getElementById('video-question-box').classList.add('hidden');
 }
 
-videoStart.onclick = () => {
-    videoOverlay.classList.add('hidden');
-    videoState.isPlaying = true;
-    const colors = ['#da3633', '#40c4ff', '#2ea043']; // Red, Blue, Green
-    const types = ['rect', 'circle'];
-    const targetColor = colors[Math.floor(Math.random() * 3)];
-    const targetType = types[Math.floor(Math.random() * 2)];
-    
-    videoState.shapes = [];
-    let count = 0;
-    for(let i=0; i<8; i++) {
-        const c = colors[Math.floor(Math.random()*3)];
-        const t = types[Math.floor(Math.random()*2)];
-        if(c === targetColor && t === targetType) count++;
-        videoState.shapes.push({
-            x: Math.random() * videoCanvas.width,
-            y: Math.random() * videoCanvas.height,
-            vx: (Math.random()-0.5)*10,
-            vy: (Math.random()-0.5)*10,
-            c, t, size: 30 + Math.random()*20
-        });
-    }
-    videoState.answer = count;
-
-    let startTime = Date.now();
-    function animateVideo() {
-        if(!videoState.isPlaying) return;
-        vCtx.clearRect(0,0,videoCanvas.width,videoCanvas.height);
-        videoState.shapes.forEach(s => {
-            s.x += s.vx; s.y += s.vy;
-            if(s.x < 0 || s.x > videoCanvas.width) s.vx *= -1;
-            if(s.y < 0 || s.y > videoCanvas.height) s.vy *= -1;
-            vCtx.fillStyle = s.c;
-            vCtx.beginPath();
-            if(s.t === 'rect') vCtx.fillRect(s.x, s.y, s.size, s.size);
-            else { vCtx.arc(s.x, s.y, s.size/2, 0, Math.PI*2); vCtx.fill(); }
-        });
-        if(Date.now() - startTime < 4000) requestAnimationFrame(animateVideo);
-        else showVideoQuestion(targetColor, targetType);
-    }
-    animateVideo();
-};
-
-function showVideoQuestion(color, type) {
-    videoState.isPlaying = false;
-    vCtx.clearRect(0,0,videoCanvas.width,videoCanvas.height);
-    videoQBox.classList.remove('hidden');
-    const colorName = color === '#da3633' ? '红色' : color === '#40c4ff' ? '蓝色' : '绿色';
-    const typeName = type === 'rect' ? '正方形' : '圆形';
-    videoQText.textContent = `刚才画面中出现了几个 ${colorName} 的 ${typeName}？`;
-    
-    videoOptions.innerHTML = '';
-    [videoState.answer, videoState.answer + 1, Math.max(0, videoState.answer - 1)]
-        .sort(() => Math.random() - 0.5)
-        .forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'btn glass';
-            btn.textContent = opt;
-            btn.onclick = () => {
-                if(opt === videoState.answer) alert("正确！观察力很棒");
-                else alert(`错误，正确答案是 ${videoState.answer}`);
-                initVisVideo();
-            };
-            videoOptions.appendChild(btn);
-        });
-}
-
-// ====== 6. Auditory Reaction (aud-react) ======
-const audReactStart = document.getElementById('aud-react-start');
-const audReactBtns = document.querySelectorAll('.btn-circle');
-const audVisualizer = document.querySelector('.audio-visualizer');
-
+// ====== 5. Auditory Modules ======
 let audReactState = { isPlaying: false, targetColor: '', startTime: 0 };
-
-function initAudReact() { audReactState.isPlaying = false; audVisualizer.classList.remove('playing'); }
-
-audReactStart.onclick = () => {
-    if(audReactState.isPlaying) return;
-    audReactState.isPlaying = true;
-    audReactStart.disabled = true;
-    
-    // Random delay between 1-3s
-    setTimeout(() => {
-        const colors = ['red', 'blue', 'green'];
-        const colorNames = { red: '红色', blue: '蓝色', green: '绿色' };
-        audReactState.targetColor = colors[Math.floor(Math.random() * 3)];
-        
-        audVisualizer.classList.add('playing');
-        Speech.speak(colorNames[audReactState.targetColor], () => {
-            audVisualizer.classList.remove('playing');
-            audReactState.startTime = Date.now();
-        });
-    }, 1000 + Math.random() * 2000);
-};
-
-audReactBtns.forEach(btn => {
-    btn.onclick = () => {
-        if(!audReactState.isPlaying || !audReactState.startTime) return;
-        const clicked = btn.getAttribute('data-color');
-        const reactionTime = Date.now() - audReactState.startTime;
-        
-        if(clicked === audReactState.targetColor) {
-            alert(`反应正确！用时：${reactionTime}ms`);
-        } else {
-            alert("点错了！再接再厉");
-        }
-        audReactState.isPlaying = false; audReactState.startTime = 0;
-        audReactStart.disabled = false;
-    };
-});
-
-// ====== 7. Auditory Span (aud-span) ======
-const audSpanStart = document.getElementById('aud-span-start');
-const audSpanInputBox = document.getElementById('aud-span-input-box');
-const audSpanInput = document.getElementById('aud-span-input');
-const audSpanSubmit = document.getElementById('aud-span-submit');
-const audSpanMsg = document.getElementById('aud-span-msg');
-const audSpanStatus = document.getElementById('aud-span-status');
+function initAudReact() { audReactState.isPlaying = false; }
 
 let audSpanState = { isPlaying: false, currentLevel: 3, sequence: [], userIdx: 0 };
+function initAudSpan() { audSpanState.isPlaying = false; document.getElementById('aud-span-input-box').classList.add('hidden'); }
 
-function initAudSpan() {
-    audSpanState.isPlaying = false; audSpanInputBox.classList.add('hidden');
-    audSpanMsg.textContent = '准备好听数字序列了吗？';
+let memRevState = { isPlaying: false };
+function initMemReverse() { document.getElementById('mem-rev-input').disabled = true; document.getElementById('mem-rev-input').value = ''; }
+
+// ====== 6. New Interface Modules (Aud Inter, Word Repeat, Wechsler) ======
+let audInterTarget = "";
+function initAudInter() {
+    document.getElementById('aud-inter-input-box').classList.add('hidden');
+    document.getElementById('aud-inter-start').classList.remove('hidden');
 }
-
-audSpanStart.onclick = () => {
-    if(audSpanState.isPlaying) return;
-    audSpanState.isPlaying = true; audSpanStart.classList.add('hidden');
-    startAudSpanRound();
-};
-
-function startAudSpanRound() {
-    audSpanState.sequence = Array.from({length: audSpanState.currentLevel}, () => Math.floor(Math.random() * 10));
-    audSpanMsg.textContent = `请听第 ${audSpanState.currentLevel} 级数字...`;
-    audSpanStatus.textContent = '📢';
-    
-    let i = 0;
-    const interval = setInterval(() => {
-        if(i < audSpanState.sequence.length) {
-            Speech.speak(audSpanState.sequence[i].toString());
-            i++;
-        } else {
-            clearInterval(interval);
-            setTimeout(() => {
-                audSpanStatus.textContent = '⌨️';
-                audSpanMsg.textContent = '请按顺序输入你听到的数字';
-                audSpanInputBox.classList.remove('hidden');
-                audSpanInput.value = ''; audSpanInput.focus();
-            }, 1000);
-        }
-    }, 1200);
-}
-
-audSpanSubmit.onclick = handleAudSpanSubmit;
-audSpanInput.onkeypress = (e) => { if(e.key === 'Enter') handleAudSpanSubmit(); };
-
-function handleAudSpanSubmit() {
-    const val = audSpanInput.value.trim();
-    const correct = audSpanState.sequence.join('');
-    if(val === correct) {
-        audSpanState.currentLevel++;
-        alert("正确！进入下一级");
-        audSpanInputBox.classList.add('hidden');
-        startAudSpanRound();
-    } else {
-        alert(`错误。正确答案是 ${correct}。你的得分是 ${audSpanState.currentLevel - 1} 级`);
-        const best = parseInt(localStorage.getItem('focus_aud_span_best') || 0);
-        if(audSpanState.currentLevel - 1 > best) localStorage.setItem('focus_aud_span_best', audSpanState.currentLevel - 1);
-        
-        audSpanState.isPlaying = false; audSpanState.currentLevel = 3;
-        audSpanStart.classList.remove('hidden'); audSpanInputBox.classList.add('hidden');
-        updateDashboard();
-    }
-}
-
-// ====== 8. Reverse Speech (mem-reverse) ======
-const memRevStart = document.getElementById('mem-rev-start');
-const memRevInput = document.getElementById('mem-rev-input');
-const memRevText = document.getElementById('mem-rev-text');
-
-const WORDS = ['苹果', '大海', '蓝天', '森林', '书本', '阳光', '咖啡', '屏幕', '火箭', '相机'];
-
-function initMemReverse() {
-    memRevInput.disabled = true; memRevInput.value = '';
-    memRevText.textContent = '系统会读出一个词，请逆序输入它。';
-}
-
-memRevStart.onclick = () => {
-    const word = WORDS[Math.floor(Math.random() * WORDS.length)];
-    memRevText.textContent = '正在朗读...';
-    Speech.speak(word, () => {
-        memRevText.textContent = '请逆序写出刚才的词：';
-        memRevInput.disabled = false; memRevInput.focus();
-        memRevInput.onkeypress = (e) => {
-            if(e.key === 'Enter') {
-                const reversed = word.split('').reverse().join('');
-                if(memRevInput.value.trim() === reversed) {
-                    alert("正确！反应敏捷");
-                    initMemReverse();
-                } else {
-                    alert(`可惜！正确答案是 "${reversed}"`);
-                    initMemReverse();
-                }
-            }
-        };
-    });
-};
-
-// ====== 9. Word Repetition (mem-repeat) ======
-const memRepeatStart = document.getElementById('mem-repeat-start');
-const memRepeatMsg = document.getElementById('mem-repeat-msg');
-const memRepeatInputBox = document.getElementById('mem-repeat-input-box');
-const memRepeatInput = document.getElementById('mem-repeat-input');
-const memRepeatSubmit = document.getElementById('mem-repeat-submit');
-
-const SENTENCES = [
-    "森林公园里的松鼠正在采集松果",
-    "蔚蓝的大海上漂浮着几只洁白的帆船",
-    "操场上的运动员们正在进行百米冲刺练习",
-    "清晨的阳光透过窗户洒满了安静的图书馆"
-];
 
 let memRepeatTarget = "";
-
 function initMemRepeat() {
-    memRepeatInputBox.classList.add('hidden');
-    memRepeatStart.classList.remove('hidden');
-    memRepeatMsg.textContent = "准备好听一段话了吗？";
+    document.getElementById('mem-repeat-input-box').classList.add('hidden');
+    document.getElementById('mem-repeat-start').classList.remove('hidden');
 }
-
-memRepeatStart.onclick = () => {
-    memRepeatTarget = SENTENCES[Math.floor(Math.random() * SENTENCES.length)];
-    memRepeatMsg.textContent = "正在朗读，请仔细听...";
-    memRepeatStart.classList.add('hidden');
-    Speech.speak(memRepeatTarget, () => {
-        memRepeatMsg.textContent = "请在下方完整复述：";
-        memRepeatInputBox.classList.remove('hidden');
-        memRepeatInput.value = ""; memRepeatInput.focus();
-    });
-};
-
-memRepeatSubmit.onclick = () => {
-    const val = memRepeatInput.value.trim();
-    if(val === memRepeatTarget) alert("全对！记忆广度惊人");
-    else alert(`有偏差。原句：${memRepeatTarget}`);
-    initMemRepeat();
-};
-
-// ====== 10. Auditory Interference (aud-inter) ======
-const audInterStart = document.getElementById('aud-inter-start');
-const audInterInputBox = document.getElementById('aud-inter-input-box');
-const audInterInput = document.getElementById('aud-inter-input');
-const audInterSubmit = document.getElementById('aud-inter-submit');
-const audInterMsg = document.getElementById('aud-inter-msg');
-
-let audInterTarget = "";
-
-function initAudInter() {
-    audInterInputBox.classList.add('hidden');
-    audInterStart.classList.remove('hidden');
-    audInterMsg.textContent = "在嘈杂背景中识别朗读的数字";
-}
-
-audInterStart.onclick = () => {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-    
-    audInterTarget = Array.from({length: 4}, () => Math.floor(Math.random()*10)).join('');
-    audInterMsg.textContent = "背景干扰开启，请听数字...";
-    audInterStart.classList.add('hidden');
-    osc.start();
-    
-    Speech.speak(audInterTarget, () => {
-        osc.stop();
-        audInterMsg.textContent = "请输入听到的4位数字：";
-        audInterInputBox.classList.remove('hidden');
-        audInterInput.value = ""; audInterInput.focus();
-    });
-};
-
-audInterSubmit.onclick = () => {
-    if(audInterInput.value.trim() === audInterTarget) alert("抗干扰能力强！成功识别");
-    else alert(`识别失败。原数字：${audInterTarget}`);
-    initAudInter();
-};
-
-// ====== 11. Wechsler Assessment (assessment-wechsler) ======
-const wecRun = document.getElementById('wec-run');
-const wecVisScore = document.getElementById('wec-vis-score');
-const wecAudScore = document.getElementById('wec-aud-score');
-const wecIqScore = document.getElementById('wec-iq-score');
-const wecAdvice = document.getElementById('wec-advice');
 
 function initAssessmentWechsler() {
     const sScoreStr = localStorage.getItem('focus_schulte_best_5');
     const aSpanStr = localStorage.getItem('focus_aud_span_best');
-    
-    if(sScoreStr) wecVisScore.textContent = sScoreStr + "s";
-    if(aSpanStr) wecAudScore.textContent = aSpanStr + "级";
-    renderWechslerReport();
+    if(sScoreStr) document.getElementById('wec-vis-score').textContent = sScoreStr + "s";
+    if(aSpanStr) document.getElementById('wec-aud-score').textContent = aSpanStr + "级";
+    const sScore = parseFloat(sScoreStr), aSpan = parseInt(aSpanStr);
+    if(sScore && aSpan) {
+        const iqEst = Math.round(90 + (aSpan * 5) + (100 / sScore * 10));
+        document.getElementById('wec-iq-score').textContent = iqEst;
+        document.getElementById('wec-advice').textContent = `评估状态：${iqEst > 115 ? '优秀' : iqEst > 95 ? '良好' : '均衡进步中'}。`;
+    }
 }
 
-function renderWechslerReport() {
-    const sScore = parseFloat(localStorage.getItem('focus_schulte_best_5'));
-    const aSpan = parseInt(localStorage.getItem('focus_aud_span_best'));
-    
-    if(!sScore || !aSpan) return;
-    
-    const iqEst = Math.round(90 + (aSpan * 5) + (100 / sScore * 10));
-    wecIqScore.textContent = iqEst;
-    wecAdvice.textContent = `系统评估您的当前状态为：${iqEst > 115 ? '优秀' : iqEst > 95 ? '良好' : '均衡进步中'}。`;
-}
-
-wecRun.onclick = () => {
-    initAssessmentWechsler();
-    alert("报告已更新！");
-};
-
-// ====== 4. Breathing Module (existing) ======
-const bCircle = document.getElementById('b-circle');
-const bText = document.getElementById('b-instruction');
-const bStartBtn = document.getElementById('breathing-start');
+// ====== 7. Breathing ======
 let breathState = { isPlaying: false, interval: null, totalSeconds: 0 };
-
-bStartBtn.onclick = () => breathState.isPlaying ? stopBreathing() : startBreathing();
-
-function startBreathing() {
-    breathState.isPlaying = true; bStartBtn.textContent = '停止';
-    runCycle();
-}
 function stopBreathing() {
-    breathState.isPlaying = false; clearTimeout(breathState.interval); bStartBtn.textContent = '开始呼吸';
+    breathState.isPlaying = false; clearTimeout(breathState.interval); 
+    document.getElementById('breathing-start').textContent = '开始呼吸';
     let mins = Math.floor(breathState.totalSeconds / 60);
     if(mins > 0) localStorage.setItem('focus_breath_mins', (parseInt(localStorage.getItem('focus_breath_mins')||0)) + mins);
     updateDashboard();
 }
-function runCycle() {
-    if(!breathState.isPlaying) return;
-    bText.textContent = '吸气...'; bCircle.className = 'b-circle glass inhale';
-    breathState.interval = setTimeout(() => {
-        bText.textContent = '呼气...'; bCircle.className = 'b-circle glass exhale';
-        breathState.interval = setTimeout(() => { breathState.totalSeconds += 8; runCycle(); }, 4000);
-    }, 4000);
-}
 
-// Global Init
-updateDashboard();
-generateSchulteGrid();
-resizeCanvas();
+// ====== 8. Global Initialization ======
+document.addEventListener('DOMContentLoaded', () => {
+    setupNavigation();
+    updateDashboard();
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Event Bindings
+    document.getElementById('schulte-start').onclick = () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame();
+    document.getElementById('schulte-size').onchange = (e) => { schulteState.size = parseInt(e.target.value); generateSchulteGrid(); };
+    document.getElementById('tracker-start').onclick = initTrackerGame;
+    document.getElementById('vis-speed-yes').onclick = () => { if(visSpeedState.isPlaying) { const win = visSpeedState.currentGroup.includes(visSpeedState.currentTarget); if(win) visSpeedState.score++; else visSpeedState.timeLeft -= 2; nextVisSpeedRound(); } };
+    document.getElementById('vis-speed-no').onclick = () => { if(visSpeedState.isPlaying) { const win = visSpeedState.currentGroup.includes(visSpeedState.currentTarget); if(!win) visSpeedState.score++; else visSpeedState.timeLeft -= 2; nextVisSpeedRound(); } };
+    
+    document.getElementById('vis-cancel-start').onclick = () => {
+        const grid = document.getElementById('vis-cancel-grid');
+        grid.innerHTML = ''; visCancelState.isPlaying = true; visCancelState.score = 0; visCancelState.timeLeft = 45;
+        for(let i=0; i<225; i++) {
+            const char = ['p','b','d','q'][Math.floor(Math.random()*4)];
+            const cell = document.createElement('div'); cell.className = 'cancel-cell'; cell.textContent = char;
+            cell.onclick = () => { if(visCancelState.isPlaying && char === 'p' && !cell.classList.contains('selected')) { cell.classList.add('selected'); visCancelState.score++; } };
+            grid.appendChild(cell);
+        }
+        visCancelState.timer = setInterval(() => {
+            if(--visCancelState.timeLeft <= 0) { clearInterval(visCancelState.timer); visCancelState.isPlaying = false; alert(`结束！找到 ${visCancelState.score} 个目标`); updateDashboard(); }
+            document.getElementById('vis-cancel-timer').textContent = visCancelState.timeLeft;
+        }, 1000);
+    };
+
+    document.getElementById('video-start').onclick = () => {
+        document.getElementById('video-overlay').classList.add('hidden');
+        videoState.isPlaying = true;
+        const colors = ['#da3633', '#40c4ff', '#2ea043'], types = ['rect', 'circle'];
+        const targetColor = colors[Math.floor(Math.random()*3)], targetType = types[Math.floor(Math.random()*2)];
+        videoState.shapes = []; let count = 0;
+        const vCanvas = document.getElementById('video-canvas'), vCtx = vCanvas.getContext('2d');
+        for(let i=0; i<8; i++) {
+            const c = colors[Math.floor(Math.random()*3)], t = types[Math.floor(Math.random()*2)];
+            if(c === targetColor && t === targetType) count++;
+            videoState.shapes.push({x: Math.random()*vCanvas.width, y: Math.random()*vCanvas.height, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, c, t, size: 30+Math.random()*20});
+        }
+        videoState.answer = count;
+        let start = Date.now();
+        const anim = () => {
+            if(!videoState.isPlaying) return;
+            vCtx.clearRect(0,0,vCanvas.width,vCanvas.height);
+            videoState.shapes.forEach(s => {
+                s.x += s.vx; s.y += s.vy; if(s.x<0 || s.x>vCanvas.width) s.vx*=-1; if(s.y<0 || s.y>vCanvas.height) s.vy*=-1;
+                vCtx.fillStyle = s.c; vCtx.beginPath(); if(s.t==='rect') vCtx.fillRect(s.x, s.y, s.size, s.size); else { vCtx.arc(s.x, s.y, s.size/2, 0, Math.PI*2); vCtx.fill(); }
+            });
+            if(Date.now()-start < 4000) requestAnimationFrame(anim);
+            else {
+                videoState.isPlaying = false; vCtx.clearRect(0,0,vCanvas.width,vCanvas.height);
+                document.getElementById('video-question-box').classList.remove('hidden');
+                document.getElementById('video-question').textContent = `出现了几个 ${targetColor==='#da3633'?'红色':targetColor==='#40c4ff'?'蓝色':'绿色'} 的 ${targetType==='rect'?'正方形':'圆形'}？`;
+                const opts = document.getElementById('video-options'); opts.innerHTML = '';
+                [videoState.answer, videoState.answer+1, Math.max(0, videoState.answer-1)].sort(()=>Math.random()-0.5).forEach(opt => {
+                    const b = document.createElement('button'); b.className = 'btn glass'; b.textContent = opt;
+                    b.onclick = () => { alert(opt===videoState.answer?"正确！":"错误！"); initVisVideo(); };
+                    opts.appendChild(b);
+                });
+            }
+        }; anim();
+    };
+
+    document.getElementById('aud-react-start').onclick = () => {
+        audReactState.isPlaying = true; document.getElementById('aud-react-start').disabled = true;
+        setTimeout(() => {
+            const c = ['red', 'blue', 'green'][Math.floor(Math.random()*3)];
+            audReactState.targetColor = c;
+            Speech.speak(c==='red'?'红色':c==='blue'?'蓝色':'绿色', () => { audReactState.startTime = Date.now(); });
+        }, 1000 + Math.random()*2000);
+    };
+    document.querySelectorAll('.btn-circle').forEach(b => {
+        b.onclick = () => {
+            if(!audReactState.isPlaying || !audReactState.startTime) return;
+            if(b.getAttribute('data-color') === audReactState.targetColor) alert(`正确！用时 ${Date.now()-audReactState.startTime}ms`);
+            else alert("选错了！");
+            audReactState.isPlaying = false; audReactState.startTime = 0; document.getElementById('aud-react-start').disabled = false;
+        };
+    });
+
+    document.getElementById('aud-span-start').onclick = () => {
+        audSpanState.isPlaying = true; document.getElementById('aud-span-start').classList.add('hidden');
+        audSpanState.sequence = Array.from({length: audSpanState.currentLevel}, () => Math.floor(Math.random()*10));
+        let i = 0;
+        const iv = setInterval(() => {
+            if(i < audSpanState.sequence.length) Speech.speak(audSpanState.sequence[i++].toString());
+            else {
+                clearInterval(iv); setTimeout(() => {
+                    document.getElementById('aud-span-input-box').classList.remove('hidden');
+                    document.getElementById('aud-span-input').value = ''; document.getElementById('aud-span-input').focus();
+                }, 1000);
+            }
+        }, 1200);
+    };
+    document.getElementById('aud-span-submit').onclick = () => {
+        if(document.getElementById('aud-span-input').value === audSpanState.sequence.join('')) {
+            audSpanState.currentLevel++; alert("正确！"); document.getElementById('aud-span-input-box').classList.add('hidden'); document.getElementById('aud-span-start').classList.remove('hidden');
+        } else {
+            alert(`失败！得分 ${audSpanState.currentLevel-1}`); localStorage.setItem('focus_aud_span_best', Math.max(audSpanState.currentLevel-1, parseInt(localStorage.getItem('focus_aud_span_best')||0)));
+            audSpanState.currentLevel = 3; initAudSpan(); document.getElementById('aud-span-start').classList.remove('hidden'); updateDashboard();
+        }
+    };
+
+    document.getElementById('mem-rev-start').onclick = () => {
+        const w = ['苹果','大海','蓝天','森林','书本'][Math.floor(Math.random()*5)];
+        Speech.speak(w, () => {
+            const inp = document.getElementById('mem-rev-input'); inp.disabled = false; inp.value = ''; inp.focus();
+            inp.onkeypress = (e) => { if(e.key==='Enter') { if(inp.value === w.split('').reverse().join('')) alert("全对！"); else alert("不正确！"); initMemReverse(); } };
+        });
+    };
+
+    document.getElementById('aud-inter-start').onclick = () => {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        audInterTarget = Array.from({length: 4}, () => Math.floor(Math.random()*10)).join('');
+        document.getElementById('aud-inter-start').classList.add('hidden');
+        osc.start(); Speech.speak(audInterTarget, () => {
+            osc.stop(); document.getElementById('aud-inter-input-box').classList.remove('hidden');
+            document.getElementById('aud-inter-input').value = ''; document.getElementById('aud-inter-input').focus();
+        });
+    };
+    document.getElementById('aud-inter-submit').onclick = () => {
+        if(document.getElementById('aud-inter-input').value === audInterTarget) alert("正确！");
+        else alert("失败！"); initAudInter();
+    };
+
+    document.getElementById('mem-repeat-start').onclick = () => {
+        memRepeatTarget = SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
+        document.getElementById('mem-repeat-start').classList.add('hidden');
+        Speech.speak(memRepeatTarget, () => {
+            document.getElementById('mem-repeat-input-box').classList.remove('hidden');
+            document.getElementById('mem-repeat-input').value = ''; document.getElementById('mem-repeat-input').focus();
+        });
+    };
+    document.getElementById('mem-repeat-submit').onclick = () => {
+        if(document.getElementById('mem-repeat-input').value.trim() === memRepeatTarget) alert("全对！");
+        else alert("有偏误！"); initMemRepeat();
+    };
+
+    document.getElementById('wec-run').onclick = () => { initAssessmentWechsler(); alert("评估报告已刷新！"); };
+
+    document.getElementById('breathing-start').onclick = () => {
+        if(breathState.isPlaying) stopBreathing();
+        else {
+            breathState.isPlaying = true; document.getElementById('breathing-start').textContent = '停止';
+            const cycle = () => {
+                if(!breathState.isPlaying) return;
+                const c = document.getElementById('b-circle'); const t = document.getElementById('b-instruction');
+                t.textContent = '吸气...'; c.className = 'b-circle glass inhale';
+                breathState.interval = setTimeout(() => {
+                    t.textContent = '呼气...'; c.className = 'b-circle glass exhale';
+                    breathState.interval = setTimeout(() => { breathState.totalSeconds += 8; cycle(); }, 4000);
+                }, 4000);
+            }; cycle();
+        }
+    };
+});
