@@ -3,259 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>专注力训练纸质工作单生成器 | Printable Worksheets</title>
+    <title>专注力训练纸质工作单生成器 | Phase 8</title>
     <style>
-        :root {
-            --primary: #000;
-            --border: #333;
-        }
-        body {
-            font-family: "Inter", -apple-system, "Microsoft YaHei", sans-serif;
-            background: #fff;
-            color: #000;
-            margin: 0;
-            padding: 20px;
-        }
-        .no-print {
-            background: #f4f4f9;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-radius: 8px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        .btn {
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
+        :root { --primary: #000; --border: #333; }
+        body { font-family: "Inter", -apple-system, "Microsoft YaHei", sans-serif; background: #fff; color: #000; margin: 0; padding: 20px; }
+        .no-print { background: #f4f4f9; padding: 20px; margin-bottom: 30px; border-radius: 8px; display: flex; gap: 15px; align-items: center; }
+        .btn { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-primary { background: #007bff; color: #fff; }
         .btn-secondary { background: #6c757d; color: #fff; }
-        
-        .page {
-            max-width: 800px;
-            margin: 0 auto;
-            border: 1px solid #eee;
-            padding: 40px;
-            background: #fff;
-            min-height: 1000px;
-        }
-
+        .page { max-width: 850px; margin: 0 auto; border: 1px solid #eee; padding: 40px; background: #fff; min-height: 1100px; position: relative; }
         h1, h2, h3 { color: #000; margin-top: 0; }
         .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
         .info-row { display: flex; gap: 40px; margin-bottom: 20px; font-weight: 500; }
         .underline { border-bottom: 1px solid #000; padding: 0 40px; }
-
-        /* Schulte */
-        .schulte-section { margin-bottom: 50px; }
-        .schulte-grid {
-            display: grid;
-            border: 2px solid #000;
-            width: 100%;
-            max-width: 500px;
-            margin: 20px auto;
-        }
-        .schulte-cell {
-            border: 1px solid #000;
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        /* Cancellation */
-        .cancel-grid {
-            display: grid;
-            grid-template-columns: repeat(20, 1fr);
-            gap: 5px;
-            font-family: "Courier New", monospace;
-            font-size: 1.2rem;
-            line-height: 1.5;
-            letter-spacing: 5px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        /* Digit Span Answer Key */
-        .digit-span-list { columns: 2; margin-top: 20px; list-style: none; padding: 0; }
-        .digit-span-list li { margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
-
-        @media print {
-            .no-print { display: none; }
-            body { padding: 0; }
-            .page { border: none; padding: 0; width: 100%; max-width: none; margin: 0; }
-            .page-break { page-break-before: always; }
-        }
+        .schulte-grid { display: grid; border: 2px solid #000; width: 100%; max-width: 450px; margin: 20px auto; }
+        .schulte-cell { border: 1px solid #000; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; }
+        .cancel-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 5px; font-family: "Courier New", monospace; font-size: 1.2rem; text-align: center; margin: 20px 0; }
+        .digit-span-list { columns: 2; margin-top: 20px; list-style: none; padding: 0; font-size: 0.9rem; }
+        .digit-span-list li { margin-bottom: 8px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        /* Decoding */
+        .decoding-legend { display: flex; justify-content: space-around; border: 2px solid #000; padding: 10px; margin: 20px 0; font-size: 1.5rem; }
+        .decoding-questions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+        .decoding-q { font-size: 1.8rem; border-bottom: 1px solid #eee; padding: 10px; }
+        /* Stroop */
+        .stroop-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .stroop-table td { border: 1px solid #eee; padding: 10px; text-align: center; font-size: 1.4rem; font-weight: 900; }
+        /* Discrim */
+        .discrim-container { display: flex; gap: 30px; align-items: flex-start; margin-top: 20px; }
+        .discrim-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; flex: 3; }
+        @media print { .no-print { display: none; } body { padding: 0; } .page { border: none; padding: 0; width: 100%; max-width: none; margin: 0; } .page-break { page-break-before: always; } }
     </style>
 </head>
 <body>
-
     <div class="no-print">
-        <button class="btn btn-primary" onclick="window.print()">🖨️ 打印/保存为 PDF</button>
-        <button class="btn btn-secondary" onclick="regenerateAll()">🔄 重新生成试题</button>
-        <span style="color: #666; font-size: 0.9rem;">提示：点击“刷新试题”可获得全新的随机组合。</span>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ 打印工作单 (PDF)</button>
+        <button class="btn btn-secondary" onclick="regenerateAll()">🔄 刷新题目内容</button>
+        <span style="color: #666; font-size: 0.9rem;">提示：建议使用彩色打印以获得最佳 Stroop 效果。</span>
     </div>
 
+    <!-- PAGE 1 -->
     <div class="page">
         <div class="header">
-            <div>
-                <h1>专注力训练工作单</h1>
-                <p>Cognitive Pro Offline Training</p>
-            </div>
-            <div class="info-row">
-                <span>班级: <span class="underline"></span></span>
-                <span>姓名: <span class="underline"></span></span>
-                <span>日期: <span class="underline"></span></span>
-            </div>
+            <div><h1>专注力综合训练单</h1><p>Phase 8: Advanced Cognitive Training</p></div>
+            <div class="info-row"><span>姓名: <span class="underline"></span></span><span>日期: <span class="underline"></span></span></div>
         </div>
 
-        <!-- Section 1: Schulte -->
-        <div class="schulte-section">
-            <h2>一、舒尔特方格 (5x5 级)</h2>
-            <p>说明：请按照从 1 到 25 的顺序依次指出所有数字，并记录完成时间。</p>
-            <div id="schulte-container-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
-            <p style="text-align: right;">训练用时：__________ 秒</p>
+        <div class="section">
+            <h2>一、译码运算训练 (提升视觉加工速度)</h2>
+            <p>说明：参照密码本，将符号转换为数字并计算结果。</p>
+            <div id="decoding-legend" class="decoding-legend"></div>
+            <div id="decoding-questions" class="decoding-questions"></div>
         </div>
 
-        <!-- Section 2: Cancellation -->
-        <div class="cancel-section">
-            <h2>二、视觉划消训练 (bdpq 混淆)</h2>
-            <p>说明：请在 45 秒内找并圈出所有的字母 <strong style="font-size: 1.4rem;">p</strong>。</p>
-            <div id="cancel-grid" class="cancel-grid"></div>
-            <p style="text-align: right;">正确数：__________ / 漏选：__________ / 错选：__________</p>
+        <div class="section" style="margin-top: 40px;">
+            <h2>二、走迷宫训练 (空间规划)</h2>
+            <div style="text-align: center;"><canvas id="maze-canvas" width="450" height="450" style="border: 2px solid #000;"></canvas></div>
+        </div>
+        <p style="text-align: right; margin-top: 20px;">训练用时：__________ 秒</p>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="page page-break">
+        <div class="header"><h2>三、视觉分辨训练 (共轴圆划消)</h2></div>
+        <p>说明：找出右侧矩阵中所有与“目标图例”完全相同的图形并圈出来。</p>
+        <div class="discrim-container">
+            <div style="flex: 1; border: 2px solid #000; padding: 20px; text-align: center;">
+                <h3>目标图例</h3>
+                <canvas id="discrim-target" width="100" height="100"></canvas>
+            </div>
+            <div id="discrim-grid" class="discrim-grid"></div>
+        </div>
+        <p style="text-align: right; margin-top: 40px;">找到总数：__________ / 目标总数：<span id="discrim-total-count">?</span></p>
+
+        <div class="section" style="margin-top: 50px;">
+            <h2>四、舒尔特方格 (5x5 级)</h2>
+            <div id="schulte-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
+            <p style="text-align: right;">用时：__________ 秒</p>
         </div>
     </div>
 
+    <!-- PAGE 3 -->
     <div class="page page-break">
-        <div class="header">
-            <div>
-                <h2>家长指导页 (听觉记忆对照表)</h2>
-                <p>Parent's Guide & Answer Key</p>
-            </div>
-        </div>
-        
-        <div class="auditory-section">
-            <h3>三、听觉广度测验表 (背数训练)</h3>
-            <p>说明：家长以每秒1个数字的速度朗读序列，读完后孩子复述。</p>
-            <ul class="digit-span-list" id="digit-list"></ul>
-        </div>
+        <div class="header"><h2>五、斯特鲁普抗干扰训练 (错色朗读)</h2></div>
+        <p>说明：**请大声读出文字的【颜色】**，忽略文字本身的含义。要求快速且准确。</p>
+        <table id="stroop-table" class="stroop-table"></table>
+        <p style="text-align: right; margin-top: 20px;">错误次数：__________ / 用时：__________ 秒</p>
 
-        <div class="schulte-section-extra" style="margin-top: 50px;">
-            <h3>附录：舒尔特方格 (加强 6x6 级)</h3>
-            <div id="schulte-container-6" class="schulte-grid" style="grid-template-columns: repeat(6, 1fr);"></div>
-            <p style="text-align: right;">训练用时：__________ 秒</p>
-        </div>
-
-        <!-- Section 4: Maze -->
-        <div class="maze-section" style="margin-top: 50px;">
-            <h3>四、走迷宫训练 (空间规划)</h3>
-            <p>说明：从左上角入口进入，到达右下角出口。</p>
-            <div style="text-align: center;">
-                <canvas id="maze-canvas" width="500" height="500" style="border: 2px solid #000; margin: 10px auto;"></canvas>
-            </div>
-            <p style="text-align: right;">训练用时：__________ 秒</p>
+        <div class="section" style="margin-top: 50px;">
+            <h2>六、视觉划消 (bdpq 混淆)</h2>
+            <p>说明：在 45 秒内圈出所有的 <strong style="font-size: 1.5rem;">q</strong>。</p>
+            <div id="cancel-grid" class="cancel-grid"></div>
         </div>
     </div>
 
     <script>
-        function generateSchulte(containerId, size) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            const nums = Array.from({length: size * size}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
-            nums.forEach(n => {
-                const cell = document.createElement('div');
-                cell.className = 'schulte-cell';
-                cell.textContent = n;
-                container.appendChild(cell);
-            });
-        }
+        const THEMES = { symbols: ['△', '☆', '○', '□', '◇', '▽', '⬔', '⬓'] };
+        const COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'black'];
+        const COLOR_NAMES = ['红', '蓝', '绿', '橙', '紫', '黑'];
+        const GAPS = ['T', 'B', 'L', 'R'];
 
-        function generateCancellation(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            const chars = ['b', 'd', 'p', 'q', 'p', 'p', 'q']; 
-            for(let i=0; i<300; i++) {
-                const char = chars[Math.floor(Math.random() * chars.length)];
-                const div = document.createElement('div');
-                div.textContent = char;
-                container.appendChild(div);
+        function drawConcentric(ctx, x, y, size, gaps) {
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+            for(let i=0; i<3; i++) {
+                const r = size * (0.3 + i*0.25); ctx.beginPath();
+                const start = gaps[i] === 'R' ? 0.3 : gaps[i] === 'B' ? 1.8 : gaps[i] === 'L' ? 3.3 : 4.8;
+                ctx.arc(x, y, r, start, start + 5.8); ctx.stroke();
             }
         }
 
-        function generateDigitSpan(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            for(let len=3; len<=9; len++) {
-                for(let set=1; set<=2; set++) {
-                    const seq = Array.from({length: len}, () => Math.floor(Math.random() * 10)).join(' - ');
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>长度 ${len} (${set}):</strong> ${seq}`;
-                    container.appendChild(li);
+        function generateDecoding() {
+            const leg = document.getElementById('decoding-legend'); leg.innerHTML = '';
+            const qs = document.getElementById('decoding-questions'); qs.innerHTML = '';
+            const map = {}; THEMES.symbols.slice(0, 5).forEach((s, i) => { map[s] = i+1; leg.innerHTML += `<span>${s}=${i+1}</span>`; });
+            for(let i=0; i<12; i++) {
+                const s1 = THEMES.symbols[Math.floor(Math.random()*5)], s2 = THEMES.symbols[Math.floor(Math.random()*5)];
+                const op = Math.random() > 0.5 ? '+' : '-';
+                qs.innerHTML += `<div class="decoding-q">${s1} ${op} ${s2} = ________</div>`;
+            }
+        }
+
+        function generateDiscrim() {
+            const targetGaps = Array.from({length:3}, () => GAPS[Math.floor(Math.random()*4)]);
+            const tCanvas = document.getElementById('discrim-target'); drawConcentric(tCanvas.getContext('2d'), 50, 50, 35, targetGaps);
+            const grid = document.getElementById('discrim-grid'); grid.innerHTML = '';
+            let count = 0;
+            for(let i=0; i<48; i++) {
+                const isMatch = Math.random() > 0.8; if(isMatch) count++;
+                const gaps = isMatch ? [...targetGaps] : Array.from({length:3}, () => GAPS[Math.floor(Math.random()*4)]);
+                const cvs = document.createElement('canvas'); cvs.width = cvs.height = 70;
+                drawConcentric(cvs.getContext('2d'), 35, 35, 25, gaps); grid.appendChild(cvs);
+            }
+            document.getElementById('discrim-total-count').textContent = count;
+        }
+
+        function generateStroop() {
+            const table = document.getElementById('stroop-table'); table.innerHTML = '';
+            for(let r=0; r<10; r++) {
+                const row = table.insertRow();
+                for(let c=0; c<6; c++) {
+                    const cell = row.insertCell();
+                    cell.textContent = COLOR_NAMES[Math.floor(Math.random()*COLOR_NAMES.length)];
+                    cell.style.color = COLORS[Math.floor(Math.random()*COLORS.length)];
                 }
             }
+        }
+
+        function generateSchulte(id, size) {
+            const el = document.getElementById(id); el.innerHTML = '';
+            const nums = Array.from({length: size*size}, (_, i) => i+1).sort(() => Math.random()-0.5);
+            nums.forEach(n => { const d = document.createElement('div'); d.className='schulte-cell'; d.textContent=n; el.appendChild(d); });
+        }
+
+        function generateCancel() {
+            const g = document.getElementById('cancel-grid'); g.innerHTML = '';
+            for(let i=0; i<200; i++) { const d = document.createElement('div'); d.textContent = ['b','d','p','q'][Math.floor(Math.random()*4)]; g.appendChild(d); }
         }
 
         function generateMaze(id, size) {
-            const canvas = document.getElementById(id);
-            const ctx = canvas.getContext('2d');
-            const cellSize = canvas.width / size;
-            const grid = Array.from({length: size}, () => Array(size).fill(false));
-            const walls = {
-                v: Array.from({length: size}, () => Array(size + 1).fill(true)),
-                h: Array.from({length: size + 1}, () => Array(size).fill(true))
-            };
-
-            function walk(x, y) {
-                grid[y][x] = true;
-                const dirs = [[0,1],[0,-1],[1,0],[-1,0]].sort(() => Math.random() - 0.5);
-                for (let [dx, dy] of dirs) {
-                    const nx = x + dx, ny = y + dy;
-                    if (nx >= 0 && nx < size && ny >= 0 && ny < size && !grid[ny][nx]) {
-                        if (dx === 1) walls.v[y][x+1] = false;
-                        if (dx === -1) walls.v[y][x] = false;
-                        if (dy === 1) walls.h[y+1][x] = false;
-                        if (dy === -1) walls.h[y][x] = false;
-                        walk(nx, ny);
-                    }
-                }
-            }
-            walk(0, 0);
-
-            walls.v[0][0] = false; // entry
-            walls.v[size - 1][size] = false; // exit
-
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.lineWidth = 2; ctx.strokeStyle = '#000';
-            for (let y = 0; y < size; y++) {
-                for (let x = 0; x <= size; x++) {
-                    if (walls.v[y][x]) {
-                        ctx.beginPath(); ctx.moveTo(x*cellSize, y*cellSize); ctx.lineTo(x*cellSize, (y+1)*cellSize); ctx.stroke();
-                    }
-                }
-            }
-            for (let y = 0; y <= size; y++) {
-                for (let x = 0; x < size; x++) {
-                    if (walls.h[y][x]) {
-                        ctx.beginPath(); ctx.moveTo(x*cellSize, y*cellSize); ctx.lineTo((x+1)*cellSize, y*cellSize); ctx.stroke();
-                    }
-                }
-            }
+            const cvs = document.getElementById(id); const ctx = cvs.getContext('2d'); const cs = cvs.width/size;
+            const grid = Array.from({length:size},()=>Array(size).fill(false)); 
+            const walls = { v: Array.from({length:size},()=>Array(size+1).fill(true)), h: Array.from({length:size+1},()=>Array(size).fill(true)) };
+            function walk(x,y) { grid[y][x]=true; [[0,1],[0,-1],[1,0],[-1,0]].sort(()=>Math.random()-0.5).forEach(([dx,dy])=>{const nx=x+dx,ny=y+dy; if(nx>=0&&nx<size&&ny>=0&&ny<size&&!grid[ny][nx]){if(dx===1)walls.v[y][x+1]=false; if(dx===-1)walls.v[y][x]=false; if(dy===1)walls.h[y+1][x]=false; if(dy===-1)walls.h[y][x]=false; walk(nx,ny);}}); }
+            walk(0,0); walls.v[0][0]=false; walls.v[size-1][size]=false; ctx.clearRect(0,0,cvs.width,cvs.height); ctx.lineWidth=1;
+            for(let y=0;y<size;y++) for(let x=0;x<=size;x++) if(walls.v[y][x]){ ctx.beginPath();ctx.moveTo(x*cs,y*cs);ctx.lineTo(x*cs,(y+1)*cs);ctx.stroke(); }
+            for(let y=0;y<=size;y++) for(let x=0;x<size;x++) if(walls.h[y][x]){ ctx.beginPath();ctx.moveTo(x*cs,y*cs);ctx.lineTo((x+1)*cs,y*cs);ctx.stroke(); }
         }
 
         function regenerateAll() {
-            generateSchulte('schulte-container-5', 5);
-            generateSchulte('schulte-container-6', 6);
-            generateCancellation('cancel-grid');
-            generateDigitSpan('digit-list');
-            generateMaze('maze-canvas', 20);
+            generateDecoding(); generateMaze('maze-canvas', 20); generateDiscrim();
+            generateSchulte('schulte-5', 5); generateStroop(); generateCancel();
         }
-
         window.onload = regenerateAll;
     </script>
 </body>

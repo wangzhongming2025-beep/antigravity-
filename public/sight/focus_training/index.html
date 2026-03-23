@@ -30,10 +30,12 @@
                 <ul class="nav-links">
                     <li data-view="schulte"><span class="icon">🔢</span><span>舒尔特方格</span></li>
                     <li data-view="tracker"><span class="icon">🎯</span><span>动态追踪</span></li>
-                    <li data-view="vis-speed"><span class="icon">⚡</span><span>加工速度</span></li>
-                    <li data-view="vis-cancel"><span class="icon">🚫</span><span>防漏看训练</span></li>
-                    <li data-view="vis-video"><span class="icon">🎬</span><span>视频分辨</span></li>
-                    <li data-view="stroop"><span class="icon">🎨</span><span>干扰抑制</span></li>
+                    <li data-view="vis-speed"><span>⚡</span><span>加工速度</span></li>
+                    <li data-view="vis-cancel"><span>🚫</span><span>防漏看训练</span></li>
+                    <li data-view="decoding"><span>🔡</span><span>译码运算</span></li>
+                    <li data-view="vis-discrim"><span>🎯</span><span>视觉分辨</span></li>
+                    <li data-view="vis-video"><span>🎞️</span><span>视频分辨</span></li>
+                    <li data-view="stroop"><span>🌈</span><span>干扰抑制</span></li>
                 </ul>
             </div>
 
@@ -186,6 +188,47 @@
                     <div id="vis-cancel-grid" class="cancel-grid glass"></div>
                     <div class="action-bar">
                         <button id="vis-cancel-start" class="btn primary">开始搜索</button>
+                    </div>
+                </section>
+
+                <!-- Decoding (decoding) -->
+                <section id="decoding" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">请根据表格中的“密码”计算下方的算式。</div>
+                        <div class="timer" id="decoding-timer">60</div>
+                    </div>
+                    <div class="decoding-container glass" style="margin-bottom: 2rem; padding: 2rem;">
+                        <div id="decoding-legend" class="glass" style="display: flex; justify-content: space-around; padding: 1rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1); font-size: 1.5rem;">
+                            <!-- Legend dynamic entries e.g. △=1, ☆=2 -->
+                        </div>
+                        <div id="decoding-question-area" style="text-align: center; font-size: 3rem; margin: 2rem 0; font-weight: 900;">
+                            <!-- △ + □ = ? -->
+                            <span id="decoding-expr">请点击开始</span>
+                            <input type="number" id="decoding-input" class="glass" style="width: 100px; background: rgba(255,255,255,0.05); color: #fff; font-size: 2.5rem; border: 1px solid #58a6ff; text-align: center; border-radius: 10px; margin-left: 20px;" disabled>
+                        </div>
+                    </div>
+                    <div class="action-bar">
+                        <button id="decoding-start" class="btn primary">开始挑战</button>
+                    </div>
+                </section>
+
+                <!-- Visual Discrimination (vis-discrim) -->
+                <section id="vis-discrim" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">找出右侧所有与“目标图例”完全一致的图形。</div>
+                        <div class="timer" id="vis-discrim-timer">45</div>
+                    </div>
+                    <div class="vis-discrim-layout" style="display: flex; gap: 20px; align-items: stretch; min-height: 450px;">
+                        <div class="target-box glass" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+                            <div style="font-size: 0.9rem; margin-bottom: 1rem; opacity: 0.7;">目标图例</div>
+                            <canvas id="discrim-target-canvas" width="120" height="120"></canvas>
+                        </div>
+                        <div id="discrim-grid" class="glass" style="flex: 3; display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; padding: 1.5rem; max-height: 500px; overflow-y: auto;">
+                            <!-- Grid of concentric circles -->
+                        </div>
+                    </div>
+                    <div class="action-bar" style="margin-top: 20px;">
+                        <button id="vis-discrim-start" class="btn primary">开始寻找</button>
                     </div>
                 </section>
 
