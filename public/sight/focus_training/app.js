@@ -384,11 +384,24 @@ function startMemReverse() {
 
 // ====== 6. Other Modules ======
 function initDecoding() { 
-    decodingState.isPlaying = false; document.getElementById('decoding-timer').textContent = '60';
-    document.getElementById('decoding-input').disabled = true; document.getElementById('decoding-input').value = '';
+    decodingState.isPlaying = false;
+    document.getElementById('decoding-timer').textContent = '60';
+    document.getElementById('decoding-input').disabled = true;
+    document.getElementById('decoding-input').value = '';
     document.getElementById('decoding-expr').textContent = '准备好了吗？';
+    
     const legEl = document.getElementById('decoding-legend');
-    legEl.innerHTML = ['△', '☆', '○', '□', '◇'].map((s, i) => `<span>${s} = ${i+1}</span>`).join('');
+    const symbols = ['△', '☆', '○', '□', '◇'];
+    
+    // Create a proper table for visual clarity
+    let html = '<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:1.8rem;">';
+    html += '<tr style="background:rgba(255,255,255,0.1);">';
+    symbols.forEach(s => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:10px;">${s}</td>`);
+    html += '</tr><tr>';
+    symbols.forEach((_, i) => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:10px; color:var(--primary); font-weight:bold;">${i+1}</td>`);
+    html += '</tr></table>';
+    
+    legEl.innerHTML = html;
 }
 function startDecoding() {
     decodingState.isPlaying = true; decodingState.score = 0; decodingState.timeLeft = 60;
