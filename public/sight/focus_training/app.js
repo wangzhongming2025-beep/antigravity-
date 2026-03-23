@@ -341,8 +341,21 @@ function stopBreathing() {
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation(); updateDashboard(); resizeCanvas(); window.addEventListener('resize', resizeCanvas);
     document.getElementById('schulte-start').onclick = () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame();
-    document.getElementById('schulte-theme').onchange = () => { if(!schulteState.isPlaying) generateSchulteGrid(); };
-    document.getElementById('schulte-size').onchange = (e) => { schulteState.size = parseInt(e.target.value); generateSchulteGrid(); };
+    
+    document.getElementById('schulte-theme').onchange = () => {
+        stopAllActivities(); // 切换主题时重置游戏状态
+        generateSchulteGrid();
+    };
+
+    document.getElementById('schulte-size').onchange = (e) => {
+        stopAllActivities();
+        schulteState.size = parseInt(e.target.value);
+        generateSchulteGrid();
+    };
+
+    document.getElementById('vis-cancel-theme').onchange = () => {
+        initVisCancel(); // 切换主题时清空已有的划消网格
+    };
     document.getElementById('tracker-start').onclick = initTrackerGame;
     document.getElementById('tracker-canvas').onmousedown = handleTrackerClick;
     document.getElementById('vis-speed-yes').onclick = () => { if(visSpeedState.isPlaying) { const w = visSpeedState.currentGroup.includes(visSpeedState.currentTarget); if(w) visSpeedState.score++; else visSpeedState.timeLeft -= 2; nextVisSpeedRound(); } };
