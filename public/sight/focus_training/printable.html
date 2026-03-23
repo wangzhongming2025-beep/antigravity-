@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专注力训练纸质工作单生成器 | Printable Worksheets</title>
+    <style>
+        :root {
+            --primary: #000;
+            --border: #333;
+        }
+        body {
+            font-family: "Inter", -apple-system, "Microsoft YaHei", sans-serif;
+            background: #fff;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+        }
+        .no-print {
+            background: #f4f4f9;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-primary { background: #007bff; color: #fff; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+        
+        .page {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #eee;
+            padding: 40px;
+            background: #fff;
+            min-height: 1000px;
+        }
+
+        h1, h2, h3 { color: #000; margin-top: 0; }
+        .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .info-row { display: flex; gap: 40px; margin-bottom: 20px; font-weight: 500; }
+        .underline { border-bottom: 1px solid #000; padding: 0 40px; }
+
+        /* Schulte */
+        .schulte-section { margin-bottom: 50px; }
+        .schulte-grid {
+            display: grid;
+            border: 2px solid #000;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        .schulte-cell {
+            border: 1px solid #000;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Cancellation */
+        .cancel-grid {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            letter-spacing: 5px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Digit Span Answer Key */
+        .digit-span-list { columns: 2; margin-top: 20px; list-style: none; padding: 0; }
+        .digit-span-list li { margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; }
+            .page { border: none; padding: 0; width: 100%; max-width: none; margin: 0; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ 打印/保存为 PDF</button>
+        <button class="btn btn-secondary" onclick="regenerateAll()">🔄 重新生成试题</button>
+        <span style="color: #666; font-size: 0.9rem;">提示：点击“打印”后，在打印设置中选择“另存为 PDF”即可保存。</span>
+    </div>
+
+    <div class="page">
+        <div class="header">
+            <div>
+                <h1>专注力训练工作单</h1>
+                <p>Cognitive Pro Offline Training</p>
+            </div>
+            <div class="info-row">
+                <span>班级: <span class="underline"></span></span>
+                <span>姓名: <span class="underline"></span></span>
+                <span>日期: <span class="underline"></span></span>
+            </div>
+        </div>
+
+        <!-- Section 1: Schulte -->
+        <div class="schulte-section">
+            <h2>一、舒尔特方格 (5x5 级)</h2>
+            <p>说明：请按照从 1 到 25 的顺序依次指出所有数字，并记录完成时间。</p>
+            <div id="schulte-container-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);">
+                <!-- Generated JS -->
+            </div>
+            <p style="text-align: right;">训练用时：__________ 秒</p>
+        </div>
+
+        <!-- Section 2: Cancellation -->
+        <div class="cancel-section">
+            <h2>二、视觉划消训练 (bdpq 混淆)</h2>
+            <p>说明：请在 45 秒内找并圈出所有的字母 <strong style="font-size: 1.4rem;">p</strong>。</p>
+            <div id="cancel-grid" class="cancel-grid">
+                <!-- Generated JS -->
+            </div>
+            <p style="text-align: right;">正确数：__________ / 漏选：__________ / 错选：__________</p>
+        </div>
+    </div>
+
+    <div class="page page-break">
+        <div class="header">
+            <div>
+                <h2>家长指导页 (听觉记忆对照表)</h2>
+                <p>Parent's Guide & Answer Key</p>
+            </div>
+        </div>
+        
+        <div class="auditory-section">
+            <h3>三、听觉广度测验表 (背数训练)</h3>
+            <p>说明：由家长以每秒 1 个数字的速度朗读下列序列。读完后要求孩子立即复述。如果孩子复述完全正确，则进入下一个长度。</p>
+            
+            <ul class="digit-span-list" id="digit-list">
+                <!-- Generated JS -->
+            </ul>
+        </div>
+
+        <div class="schulte-section-extra" style="margin-top: 50px;">
+            <h3>附录：舒尔特方格 (加强 6x6 级)</h3>
+            <div id="schulte-container-6" class="schulte-grid" style="grid-template-columns: repeat(6, 1fr);"></div>
+            <p style="text-align: right;">训练用时：__________ 秒</p>
+        </div>
+    </div>
+
+    <script>
+        function generateSchulte(containerId, size) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const nums = Array.from({length: size * size}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+            nums.forEach(n => {
+                const cell = document.createElement('div');
+                cell.className = 'schulte-cell';
+                cell.textContent = n;
+                if(size > 6) cell.style.fontSize = '1.3rem';
+                container.appendChild(cell);
+            });
+        }
+
+        function generateCancellation(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const chars = ['b', 'd', 'p', 'q', 'p', 'p', 'q']; // slightly biased towards p
+            for(let i=0; i<300; i++) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                const div = document.createElement('div');
+                div.textContent = char;
+                container.appendChild(div);
+            }
+        }
+
+        function generateDigitSpan(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            for(let len=3; len<=9; len++) {
+                for(let set=1; set<=2; set++) {
+                    const seq = Array.from({length: len}, () => Math.floor(Math.random() * 10)).join(' - ');
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>长度 ${len} (${set}):</strong> ${seq}`;
+                    container.appendChild(li);
+                }
+            }
+        }
+
+        function regenerateAll() {
+            generateSchulte('schulte-container-5', 5);
+            generateSchulte('schulte-container-6', 6);
+            generateCancellation('cancel-grid');
+            generateDigitSpan('digit-list');
+        }
+
+        window.onload = regenerateAll;
+    </script>
+</body>
+</html>
