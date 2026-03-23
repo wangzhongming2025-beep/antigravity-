@@ -295,14 +295,16 @@ body {
 }
 
 .cancel-cell {
-    aspect-ratio: 1;
+    width: 45px;
+    height: 45px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 1.2rem;
+    justify-content: center;
+    font-size: 2.2rem;
     cursor: pointer;
     border-radius: 6px;
-    transition: var(--transition);
+    transition: all 0.2s;
+    user-select: none;
 }
 
 .cancel-cell:hover { background: rgba(255,255,255,0.1); }
@@ -314,6 +316,20 @@ body {
     position: relative;
     overflow: hidden;
     cursor: crosshair;
+}
+
+.grid-cell {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
 }
 
 .overlay {

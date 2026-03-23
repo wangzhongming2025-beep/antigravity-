@@ -34,6 +34,7 @@
                     <li data-view="vis-cancel"><span>🚫</span><span>防漏看训练</span></li>
                     <li data-view="decoding"><span>🔡</span><span>译码运算</span></li>
                     <li data-view="decoding-conn"><span>🔗</span><span>译码连线</span></li>
+                    <li data-view="space-decoding"><span>🌌</span><span>空间译码</span></li>
                     <li data-view="vis-discrim"><span>🎯</span><span>视觉分辨</span></li>
                     <li data-view="vis-video"><span>🎞️</span><span>视频分辨</span></li>
                     <li data-view="stroop"><span>🌈</span><span>干扰抑制</span></li>
@@ -189,6 +190,32 @@
                     <div id="vis-cancel-grid" class="cancel-grid glass"></div>
                     <div class="action-bar">
                         <button id="vis-cancel-start" class="btn primary">开始搜索</button>
+                    </div>
+                </section>
+
+                <!-- Space Decoding (space-decoding) -->
+                <section id="space-decoding" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">根据上方的二维对照表，输入下方彩色形状对应的字符。</div>
+                        <div class="timer" id="space-decoding-timer">120</div>
+                    </div>
+                    <div class="space-decoding-container glass" style="margin-bottom: 2rem; padding: 2rem;">
+                        <!-- 2D Legend 4x8 -->
+                        <div id="space-legend" class="glass" style="margin-bottom: 2rem; overflow-x: auto;">
+                            <!-- Will be filled by JS -->
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                            <div id="space-target-seq" style="display: flex; gap: 15px; font-size: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 15px; min-height: 100px;">
+                                <!-- Target 6 colored shapes -->
+                                请点击开始
+                            </div>
+                            <div class="input-area" style="display: flex; align-items: center; gap: 15px;">
+                                <input type="text" id="space-input" class="glass" placeholder="在此输入序列字符..." style="width: 300px; padding: 1rem; background: rgba(255,255,255,0.1); color: #fff; font-size: 1.5rem; border: 1px solid var(--primary); border-radius: 10px; text-align: center;" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-bar">
+                        <button id="space-start" class="btn primary">开始挑战</button>
                     </div>
                 </section>
 
