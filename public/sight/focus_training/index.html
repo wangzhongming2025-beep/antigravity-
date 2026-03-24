@@ -167,9 +167,13 @@
                         <div class="separator"></div>
                         <div class="search-group" id="vis-speed-group"></div>
                     </div>
-                    <div class="action-bar-speed">
-                        <button class="btn danger" id="vis-speed-no">不存在 (N)</button>
-                        <button class="btn primary" id="vis-speed-yes">存在 (Y)</button>
+                    <div id="vis-speed-msg" style="text-align: center; margin-top: 1rem; min-height: 1.5rem; color: var(--primary);"></div>
+                    <div class="action-bar-speed" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                        <button id="vis-speed-start" class="btn primary">开始挑战</button>
+                        <div id="vis-speed-controls" class="hidden" style="display: flex; gap: 20px;">
+                            <button class="btn danger" id="vis-speed-no">不存在 (N)</button>
+                            <button class="btn primary" id="vis-speed-yes">存在 (Y)</button>
+                        </div>
                     </div>
                 </section>
 

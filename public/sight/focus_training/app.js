@@ -123,6 +123,7 @@ function initView(viewId) {
 function stopAllActivities() {
     if(schulteState.isPlaying) endSchulteGame(false);
     if(trackerState.isPlaying) { trackerState.isPlaying = false; cancelAnimationFrame(trackerState.animationId); }
+    if(visSpeedState.isPlaying) { clearInterval(visSpeedState.timer); visSpeedState.isPlaying = false; }
     if(stroopState.isPlaying) endStroop(false);
     if(decodingState.isPlaying) endDecoding(false);
     if(decodingConnState.isPlaying) endDecodingConn(false);
@@ -352,18 +353,28 @@ function handleAudReactClick(c) {
     } else { alert('点错啦！'); audReactState.startTime = 0; nextAudReact(); }
 }
 
-function initAudSpan() { audSpanState.isPlaying = false; document.getElementById('aud-span-input-box').classList.add('hidden'); }
+function initAudSpan() { 
+    audSpanState.isPlaying = false; 
+    const box = document.getElementById('aud-span-input-box');
+    if(box) box.classList.add('hidden'); 
+    const inp = document.getElementById('aud-span-input');
+    if(inp) inp.value = '';
+}
 function startAudSpan() {
-    audSpanState.isPlaying = true; audSpanState.currentLevel = 3; document.getElementById('aud-span-start').textContent = '放弃挑战';
+    audSpanState.isPlaying = true; audSpanState.currentLevel = 3; 
+    const startBtn = document.getElementById('aud-span-start');
+    if(startBtn) startBtn.textContent = '放弃挑战';
     nextAudSpanRound();
 }
 function nextAudSpanRound() {
     audSpanState.sequence = Array.from({length: audSpanState.currentLevel}, () => Math.floor(Math.random()*10));
-    audSpanState.userIdx = 0; document.getElementById('aud-span-input-box').classList.add('hidden');
-    document.getElementById('aud-span-input').value = '';
-    Speech.speak(audSpanState.sequence.join(', '), () => {
+    audSpanState.userIdx = 0; 
+    document.getElementById('aud-span-input-box').classList.add('hidden');
+    const inp = document.getElementById('aud-span-input');
+    if(inp) inp.value = '';
+    Speech.speak("请记住数字序列：" + audSpanState.sequence.join('，'), () => {
         document.getElementById('aud-span-input-box').classList.remove('hidden');
-        document.getElementById('aud-span-input').focus();
+        if(inp) inp.focus();
     });
 }
 
@@ -736,13 +747,53 @@ function updateDecodingConnSeqDisplay() {
     el.innerHTML = decodingConnState.targetSeq.map((c, i) => `<span style="${i < decodingConnState.currentIndex ? 'opacity:0.3; text-decoration:line-through;' : 'color:#58a6ff'}">${c}</span>`).join(' ');
 }
 
-function initVisSpeed() { nextVisSpeedRound(); }
+function initVisSpeed() { 
+    visSpeedState.isPlaying = false;
+    document.getElementById('vis-speed-controls').classList.add('hidden');
+    document.getElementById('vis-speed-start').classList.remove('hidden');
+    document.getElementById('vis-speed-target').textContent = '?';
+    document.getElementById('vis-speed-group').innerHTML = '';
+}
+function startVisSpeed() {
+    visSpeedState.isPlaying = true; visSpeedState.score = 0; visSpeedState.timeLeft = 60;
+    document.getElementById('vis-speed-start').classList.add('hidden');
+    document.getElementById('vis-speed-controls').classList.remove('hidden');
+    nextVisSpeedRound();
+    visSpeedState.timer = setInterval(() => {
+        if(--visSpeedState.timeLeft <= 0) {
+            clearInterval(visSpeedState.timer); visSpeedState.isPlaying = false;
+            alert(`结束！最终得分：${visSpeedState.score}`);
+            initVisSpeed();
+        }
+        document.getElementById('vis-speed-timer').textContent = visSpeedState.timeLeft;
+    }, 1000);
+}
 function nextVisSpeedRound() {
     const syms = ['☀', '⚡', '❄', '☁', '★', '☕', '⚔', '⚖', '☯', '⚛'];
     visSpeedState.currentTarget = syms[Math.floor(Math.random()*10)];
     document.getElementById('vis-speed-target').textContent = visSpeedState.currentTarget;
-    let group = syms.sort(() => 0.5-Math.random()).slice(0, 5);
+    const isMatch = Math.random() > 0.5;
+    let group = [];
+    if(isMatch) {
+        group = syms.filter(s => s !== visSpeedState.currentTarget).sort(() => 0.5-Math.random()).slice(0, 4);
+        group.push(visSpeedState.currentTarget);
+        group.sort(() => 0.5-Math.random());
+    } else {
+        group = syms.filter(s => s !== visSpeedState.currentTarget).sort(() => 0.5-Math.random()).slice(0, 5);
+    }
+    visSpeedState.currentGroup = group;
     document.getElementById('vis-speed-group').innerHTML = group.map(s => `<span class="search-symbol">${s}</span>`).join('');
+}
+function handleVisSpeed(choice) {
+    if(!visSpeedState.isPlaying) return;
+    const actual = visSpeedState.currentGroup.includes(visSpeedState.currentTarget);
+    if(choice === actual) {
+        visSpeedState.score++;
+        document.getElementById('vis-speed-msg').innerHTML = '<span style="color:#00ff88">✔ 正确</span>';
+    } else {
+        document.getElementById('vis-speed-msg').innerHTML = '<span style="color:#ff4d4d">✘ 错误</span>';
+    }
+    nextVisSpeedRound();
 }
 
 function initVisDiscrim() {
@@ -829,6 +880,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     bindClick('video-start', startVisVideo);
+    bindClick('vis-speed-start', startVisSpeed);
+    bindClick('vis-speed-yes', () => handleVisSpeed(true));
+    bindClick('vis-speed-no', () => handleVisSpeed(false));
     bindClick('space-start', () => spaceDecodingState.isPlaying ? endSpaceDecoding(false) : startSpaceDecoding());
     const spInp = document.getElementById('space-input');
     if(spInp) spInp.oninput = (e) => { if(!spaceDecodingState.isPlaying) return; if(e.target.value.toLowerCase() === spaceDecodingState.targetSeq.map(i=>i.char).join('').toLowerCase()) { spaceDecodingState.score++; nextSpaceDecodingRound(); } };
@@ -839,8 +893,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(decInp) decInp.oninput = (e) => { if(parseInt(e.target.value) === decodingState.currentAns) { decodingState.score++; nextDecodingRound(); } };
     
     bindClick('vis-discrim-start', startVisDiscrim);
-    bindClick('vis-speed-yes', () => nextVisSpeedRound());
-    bindClick('vis-speed-no', () => nextVisSpeedRound());
     document.querySelectorAll('.stroop-option').forEach(b => b.onclick = () => { if(b.getAttribute('data-color') === stroopState.currentCorrect) alert('对！'); nextStroopRound(); });
     
     bindClick('aud-react-start', () => audReactState.isPlaying ? initAudReact() : startAudReact());
@@ -866,8 +918,8 @@ document.addEventListener('DOMContentLoaded', () => {
     bindClick('vis-cancel-start', () => {
         const g = document.getElementById('vis-cancel-grid'); if(!g) return; g.innerHTML = '';
         const th = document.getElementById('vis-cancel-theme').value;
-        const pool = th === 'letter' ? ['p','b','d','q'] : THEMES[th].slice(0, 4);
-        const target = pool[0];
+        const pool = th === 'letter' ? ['p','b','d','q'] : [...THEMES[th]].sort(() => 0.5 - Math.random()).slice(0, 4);
+        const target = pool[Math.floor(Math.random() * pool.length)];
         document.getElementById('vis-cancel-target-char').textContent = target;
         for(let i=0; i<300; i++) {
             const c = pool[Math.floor(Math.random()*pool.length)], cell = document.createElement('div');
