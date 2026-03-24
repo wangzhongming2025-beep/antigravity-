@@ -15,6 +15,7 @@ let spaceDecodingState = { isPlaying: false, score: 0, timeLeft: 120, timer: nul
 let visDiscrimState = { isPlaying: false, score: 0, timeLeft: 45, timer: null, targetGaps: [] };
 let videoState = { isPlaying: false, shapes: [], answer: 0 };
 let stroopState = { isPlaying: false, score: 0, timeLeft: 30, timer: null, currentCorrect: '' };
+let visAntiInterState = { isPlaying: false, score: 0, timer: null, timeLeft: 60, targets: ['0', '9', '3'], totalTargets: 0, foundCount: 0 };
 
 let audReactState = { isPlaying: false, targetColor: '', startTime: 0, score: 0 };
 let audInterState = { isPlaying: false, score: 0 };
@@ -79,6 +80,60 @@ const Speech = {
     }
 };
 
+// ====== 1. STT (Speech To Text) Utility ======
+const STT = {
+    recognition: null,
+    isListening: false,
+    init: function() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) { console.warn("STT not supported"); return; }
+        this.recognition = new SpeechRecognition();
+        this.recognition.lang = 'zh-CN';
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+    },
+    start: function(targetId) {
+        if (!this.recognition) this.init();
+        if (!this.recognition || this.isListening) return;
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        const oldPlaceholder = target.placeholder;
+        target.placeholder = "正在录音，请说话...";
+        this.isListening = true;
+        this.recognition.start();
+        this.recognition.onresult = (e) => {
+            const transcript = e.results[0][0].transcript;
+            if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+                target.value = transcript;
+            }
+        };
+        this.recognition.onend = () => {
+            this.isListening = false;
+            target.placeholder = oldPlaceholder;
+        };
+        this.recognition.onerror = () => {
+            this.isListening = false;
+            target.placeholder = "录音失败，请重试";
+            setTimeout(() => target.placeholder = oldPlaceholder, 2000);
+        };
+    }
+};
+
+// ====== 2. Score & Assessment Manager ======
+const ScoreManager = {
+    saveResult: function(module, score) {
+        let history = JSON.parse(localStorage.getItem('training_history') || '{}');
+        if (!history[module] || score > history[module]) {
+            history[module] = score;
+            localStorage.setItem('training_history', JSON.stringify(history));
+        }
+    },
+    getBest: function(module) {
+        let history = JSON.parse(localStorage.getItem('training_history') || '{}');
+        return history[module] || 0;
+    }
+};
+
 // Navigation Setup
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-links li');
@@ -138,6 +193,8 @@ function initView(viewId) {
         case 'stroop': initStroop(); break;
         case 'breathing': initBreathing(); break;
         case 'house-search': initHouseSearch(); break;
+        case 'vis-anti-inter': initVisAntiInter(); break;
+        case 'assessment-wechsler': initAssessmentWechsler(); break;
     }
 }
 
@@ -272,47 +329,94 @@ function renderTracker() {
     if(trackerState.isPlaying || trackerState.phase === 'idle') trackerState.animationId = requestAnimationFrame(renderTracker);
 }
 
-// ====== 3. Space Decoding ======
+// ====== 3. Space Decoding [Optimized for Image 3] ======
 function initSpaceDecoding() {
-    spaceDecodingState.isPlaying = false; document.getElementById('space-decoding-timer').textContent = '120';
-    document.getElementById('space-input').disabled = true; document.getElementById('space-input').value = '';
+    spaceDecodingState.isPlaying = false; 
+    document.getElementById('space-decoding-timer').textContent = '120';
     const legEl = document.getElementById('space-legend');
-    let html = '<table style="width:100%; border-collapse:collapse; text-align:center; table-layout:fixed;"><tr><td style="border:1px solid #444;"></td>';
-    SPACE_CONFIG.colors.forEach(c => html += `<td style="border:1px solid #444; background:${c}; height:30px;"></td>`);
+    if(!legEl) return;
+    
+    // Header colors
+    let html = '<table style="width:100%; border-collapse:collapse; text-align:center; table-layout:fixed; color:#fff; border:2px solid #fff;"><tr><td style="border:1px solid #fff; background:rgba(0,0,0,0.3); width:12.5%;"></td>';
+    SPACE_CONFIG.colors.forEach(c => html += `<td style="border:1px solid #fff; background:${c}; height:35px;"></td>`);
     html += '</tr>';
-    SPACE_CONFIG.shapes.forEach((s, ri) => {
-        html += `<tr><td style="border:1px solid #444; font-size:1.5rem; padding:10px;">${s}</td>`;
-        SPACE_CONFIG.mapping[ri].forEach(v => html += `<td style="border:1px solid #444; padding:10px; font-weight:bold;">${v}</td>`);
+    
+    // 4 Rows based on Image 3
+    const rowHeaders = SPACE_CONFIG.shapes;
+    rowHeaders.forEach((s, ri) => {
+        html += `<tr><td style="border:1px solid #fff; font-size:1.8rem; padding:10px; background:rgba(255,255,255,0.05);">${s}</td>`;
+        SPACE_CONFIG.mapping[ri].forEach(v => html += `<td style="border:1px solid #fff; padding:10px; font-weight:bold; font-size:1.4rem;">${v}</td>`);
         html += '</tr>';
     });
-    html += '</table>'; legEl.innerHTML = html;
-    document.getElementById('space-target-seq').textContent = '准备好了吗？';
+    html += '</table>';
+    legEl.innerHTML = html;
+    
+    const workArea = document.getElementById('space-work-area');
+    if(workArea) workArea.innerHTML = '<div style="text-align: center; font-size: 1.5rem; padding: 2rem;">准备好了吗？点击开始</div>';
 }
+
 function startSpaceDecoding() {
     spaceDecodingState.isPlaying = true; spaceDecodingState.score = 0; spaceDecodingState.timeLeft = 120;
+    const workArea = document.getElementById('space-work-area');
+    if(!workArea) return;
+    workArea.innerHTML = '';
+    
+    // Generate 10 rows like Image 3
+    for(let r=0; r<10; r++) {
+        const row = document.createElement('div');
+        row.className = 'space-row';
+        const targetSeq = Array.from({length: 6}, () => {
+            const ri = Math.floor(Math.random()*4), ci = Math.floor(Math.random()*8);
+            return { ri, ci, char: SPACE_CONFIG.mapping[ri][ci] };
+        });
+        
+        let seqHtml = '<div class="space-row-seq">';
+        targetSeq.forEach(item => {
+            seqHtml += `<span style="color:${SPACE_CONFIG.colors[item.ci]};">${SPACE_CONFIG.shapes[item.ri]}</span>`;
+        });
+        seqHtml += '</div> <span style="font-size:1.5rem; margin:0 10px;">=</span>';
+        
+        row.innerHTML = seqHtml;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'space-row-input';
+        input.placeholder = '...';
+        input.dataset.answer = targetSeq.map(item => item.char).join('');
+        
+        input.oninput = () => {
+            if(!spaceDecodingState.isPlaying) return;
+            if(input.value.length >= 6) {
+                if(input.value === input.dataset.answer) {
+                    input.style.borderColor = 'var(--success)';
+                    input.disabled = true;
+                    spaceDecodingState.score++;
+                } else {
+                    input.style.borderColor = 'var(--danger)';
+                    setTimeout(() => { input.value = ''; input.style.borderColor = 'var(--primary)'; }, 500);
+                }
+            }
+        };
+        row.appendChild(input);
+        workArea.appendChild(row);
+    }
+    
     document.getElementById('space-start').textContent = '放弃挑战';
-    const inp = document.getElementById('space-input'); inp.disabled = false; inp.value = ''; inp.focus();
-    nextSpaceDecodingRound();
-    spaceDecodingState.timer = setInterval(() => { if(--spaceDecodingState.timeLeft <= 0) endSpaceDecoding(true); document.getElementById('space-decoding-timer').textContent = spaceDecodingState.timeLeft; }, 1000);
+    spaceDecodingState.timer = setInterval(() => {
+        if(--spaceDecodingState.timeLeft <= 0) {
+            endSpaceDecoding(true);
+        }
+        const timerEl = document.getElementById('space-decoding-timer');
+        if(timerEl) timerEl.textContent = spaceDecodingState.timeLeft;
+    }, 1000);
 }
-function nextSpaceDecodingRound() {
-    spaceDecodingState.targetSeq = Array.from({length: 6}, () => {
-        const ri = Math.floor(Math.random()*4), ci = Math.floor(Math.random()*8);
-        return { ri, ci, char: SPACE_CONFIG.mapping[ri][ci] };
-    });
-    spaceDecodingState.currentIndex = 0;
-    const seqEl = document.getElementById('space-target-seq'); seqEl.innerHTML = '';
-    spaceDecodingState.targetSeq.forEach(item => {
-        const span = document.createElement('span'); span.textContent = SPACE_CONFIG.shapes[item.ri];
-        span.style.color = SPACE_CONFIG.colors[item.ci]; span.style.textShadow = '0 0 10px rgba(0,0,0,0.5)';
-        seqEl.appendChild(span);
-    });
-    document.getElementById('space-input').value = '';
-}
+
 function endSpaceDecoding(completed) {
     spaceDecodingState.isPlaying = false; clearInterval(spaceDecodingState.timer);
-    document.getElementById('space-start').textContent = '开始挑战'; document.getElementById('space-input').disabled = true;
-    if(completed) alert(`结束！成功完成 ${spaceDecodingState.score} 组序列`);
+    document.getElementById('space-start').textContent = '开始挑战';
+    if(completed) {
+        alert(`结束！成功完成 ${spaceDecodingState.score} 行序列`);
+        ScoreManager.saveResult('space-decoding', spaceDecodingState.score);
+    }
 }
 
 // ====== 4. Video Discrimination ======
@@ -467,6 +571,7 @@ function handleMemRepeatSubmit() {
     
     if (user === original) {
         alert("🎉 精准复述！太棒了！");
+        ScoreManager.saveResult('mem-repeat', 10);
     } else {
         alert("💡 有些出入哦，原句是：\n" + original);
     }
@@ -518,6 +623,7 @@ function handleMemReverseSubmit() {
     
     if (user === correct) {
         alert("🌈 完全正确！你的反应很快！");
+        ScoreManager.saveResult('mem-reverse', 10);
     } else {
         alert(`❌ 不正确哦，"${memReverseState.currentWord}" 倒过来是 "${correct}"`);
     }
@@ -532,20 +638,28 @@ function initDecoding() {
     decodingState.isPlaying = false; document.getElementById('decoding-timer').textContent = '60';
     document.getElementById('decoding-input').disabled = true; document.getElementById('decoding-input').value = '';
     document.getElementById('decoding-expr').textContent = '准备好了吗？';
+    const symMap = {'△':1, '☆':2, '○':3, '□':4, '◇':5};
+    decodingState.legend = symMap;
     const legEl = document.getElementById('decoding-legend');
     const symbols = ['△', '☆', '○', '□', '◇'];
-    let html = '<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:1.8rem;">';
+    let html = '<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:1.8rem; color:#fff; border:2px solid #fff;">';
     html += '<tr style="background:rgba(255,255,255,0.1);">';
-    symbols.forEach(s => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:10px;">${s}</td>`);
+    symbols.forEach(s => html += `<td style="border:1px solid #fff; padding:10px; text-align:center;">${s}</td>`);
     html += '</tr><tr>';
-    symbols.forEach((_, i) => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:10px; color:var(--primary); font-weight:bold;">${i+1}</td>`);
+    symbols.forEach((_, i) => html += `<td style="border:1px solid #fff; padding:10px; color:#40c4ff; font-weight:bold; text-align:center;">${i+1}</td>`);
     html += '</tr></table>'; legEl.innerHTML = html;
 }
 function startDecoding() {
     decodingState.isPlaying = true; decodingState.score = 0; decodingState.timeLeft = 60;
     const inp = document.getElementById('decoding-input'); inp.disabled = false; inp.value = ''; inp.focus();
-    const symMap = {'△':1, '☆':2, '○':3, '□':4, '◇':5}; decodingState.legend = symMap; nextDecodingRound();
-    decodingState.timer = setInterval(() => { if(--decodingState.timeLeft <= 0) { clearInterval(decodingState.timer); decodingState.isPlaying = false; alert(`结束！得分：${decodingState.score}`); } document.getElementById('decoding-timer').textContent = decodingState.timeLeft; }, 1000);
+    nextDecodingRound();
+    decodingState.timer = setInterval(() => { 
+        if(--decodingState.timeLeft <= 0) { 
+            endDecoding(true); 
+            ScoreManager.saveResult('decoding', decodingState.score); 
+        } 
+        document.getElementById('decoding-timer').textContent = decodingState.timeLeft; 
+    }, 1000);
 }
 function nextDecodingRound() {
     const syms = Object.keys(decodingState.legend); const s1 = syms[Math.floor(Math.random()*5)], s2 = syms[Math.floor(Math.random()*5)];
@@ -561,14 +675,14 @@ function initDecodingConn() {
     
     const legEl = document.getElementById('decoding-conn-legend');
     if(legEl) {
-        let html = '<table style="width:100%; border-collapse:collapse; font-size:1.2rem;">';
+        let html = '<table style="width:100%; border-collapse:collapse; font-size:1.2rem; color:#fff; border:2px solid #fff;">';
         html += '<tr style="background:rgba(255,255,255,0.1);">';
-        decodingConnState.letters.forEach(L => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:5px;">${L}</td>`);
+        decodingConnState.letters.forEach(L => html += `<td style="border:1px solid #fff; padding:5px; text-align:center;">${L}</td>`);
         html += '</tr><tr>';
-        decodingConnState.letters.forEach((_, i) => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:5px; color:var(--primary); font-weight:bold;">${i+1}</td>`);
+        decodingConnState.letters.forEach((_, i) => html += `<td style="border:1px solid #fff; padding:5px; color:#40c4ff; font-weight:bold; text-align:center;">${i+1}</td>`);
         html += '</tr></table>';
         legEl.innerHTML = html;
-        legEl.style.display = 'block'; // Ensure block display for the table
+        legEl.style.display = 'block';
     }
 
     const grid = document.getElementById('decoding-conn-grid');
@@ -660,12 +774,13 @@ function startBreathing() {
         
         if(prog) prog.style.width = percent + '%';
         
-        if(elapsed >= p.duration) {
-            currentPhase = (currentPhase + 1) % pattern.length;
-            phaseStart = Date.now();
-            runPhase();
-        }
-    }, 50);
+    if(elapsed >= p.duration) {
+        currentPhase = (currentPhase + 1) % pattern.length;
+        phaseStart = Date.now();
+        runPhase();
+        if(currentPhase === 0) ScoreManager.saveResult('breathing', 1);
+    }
+}, 50);
 }
 
 function stopBreathing() {
@@ -675,19 +790,26 @@ function stopBreathing() {
     }
 }
 
-// ====== House Search Module (Based on User Image) ======
+// ====== House Search Module (Optimized for Image 2) ======
 function drawHouse(ctx, x, y, size, windows) {
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath();
-    // Body
-    ctx.rect(x - size/2, y - size/4, size, size/2);
-    // Roof
-    ctx.moveTo(x - size/2, y - size/4); ctx.lineTo(x, y - size/2); ctx.lineTo(x + size/2, y - size/4);
+    // Pentagon body (Image 2 style)
+    const roofY = y - size/4;
+    ctx.moveTo(x - size/2, roofY);
+    ctx.lineTo(x, y - size/2); // Roof peak
+    ctx.lineTo(x + size/2, roofY);
+    ctx.lineTo(x + size/2, y + size/4);
+    ctx.lineTo(x - size/2, y + size/4);
+    ctx.closePath();
     ctx.stroke();
-    // Windows (simple bitmask)
-    if(windows & 1) ctx.strokeRect(x - size/3.5, y - size/6, size/5, size/5);
-    if(windows & 2) ctx.strokeRect(x + size/10, y - size/6, size/5, size/5);
-    // Door
-    ctx.strokeRect(x - size/8, y + size/10, size/4, size/6.5);
+    
+    // Windows: 4 possible positions (L756: 2x2 grid)
+    const winSize = size / 5;
+    const winOffset = size / 4;
+    if(windows & 1) ctx.strokeRect(x - winOffset, roofY + 5, winSize, winSize);
+    if(windows & 2) ctx.strokeRect(x + winOffset - winSize, roofY + 5, winSize, winSize);
+    if(windows & 4) ctx.strokeRect(x - winOffset, y + size/4 - winSize - 5, winSize, winSize);
+    if(windows & 8) ctx.strokeRect(x + winOffset - winSize, y + size/4 - winSize - 5, winSize, winSize);
 }
 
 function initHouseSearch() {
@@ -696,11 +818,12 @@ function initHouseSearch() {
     grid.innerHTML = '';
     const targetBox = document.getElementById('house-target-canvas').getContext('2d');
     targetBox.clearRect(0,0,100,100);
+    drawHouse(targetBox, 50, 60, 60, 0); // Placeholder
 }
 
 function startHouseSearch() {
     houseSearchState.isPlaying = true; houseSearchState.found = 0;
-    const targetWindows = Math.floor(Math.random()*4);
+    const targetWindows = Math.floor(Math.random()*16); // 4 windows = 2^4 = 16 combinations
     houseSearchState.target = targetWindows;
     houseSearchState.timeLeft = 60;
     
@@ -711,7 +834,7 @@ function startHouseSearch() {
     const grid = document.getElementById('house-search-grid');
     grid.innerHTML = '';
     for(let i=0; i<150; i++) {
-        const win = Math.floor(Math.random()*4);
+        const win = Math.floor(Math.random()*16);
         const canvas = document.createElement('canvas'); canvas.width = 60; canvas.height = 60;
         const ctx = canvas.getContext('2d');
         drawHouse(ctx, 30, 30, 40, win);
@@ -784,6 +907,7 @@ function startVisSpeed() {
         if(--visSpeedState.timeLeft <= 0) {
             clearInterval(visSpeedState.timer); visSpeedState.isPlaying = false;
             alert(`结束！最终得分：${visSpeedState.score}`);
+            ScoreManager.saveResult('vis-speed', visSpeedState.score);
             initVisSpeed();
         }
         document.getElementById('vis-speed-timer').textContent = visSpeedState.timeLeft;
@@ -861,7 +985,97 @@ function nextStroopRound() {
 }
 
 // ====== 7. Assessment & Events ======
-function initAssessmentWechsler() { alert("韦氏评估模块：请完成以下随机测试..."); startDecoding(); }
+// ====== 7. Assessment & Radar Chart (Parent-Friendly) ======
+function initAssessmentWechsler() { 
+    // Aggregate scores into 5 Dimensions
+    const vSearch = (ScoreManager.getBest('vis-cancel') || 0) + (ScoreManager.getBest('vis-video') || 0) + (ScoreManager.getBest('house-search') || 0);
+    const vSpeed = (ScoreManager.getBest('vis-speed') || 0) + (ScoreManager.getBest('decoding') || 0) + (ScoreManager.getBest('space-decoding') || 0);
+    const aMemory = (ScoreManager.getBest('aud-span') || 0) + (ScoreManager.getBest('mem-reverse') || 0) + (ScoreManager.getBest('mem-repeat') || 0);
+    const inhibition = (ScoreManager.getBest('stroop') || 0) + (ScoreManager.getBest('vis-anti-inter') || 0);
+    const tracking = (ScoreManager.getBest('tracker') || 0) + (ScoreManager.getBest('schulte') || 0);
+
+    // Normalize to 0-100 (Assumes rough targets for full mastery)
+    const scores = {
+        "视觉搜索": Math.min(100, Math.round((vSearch / 25) * 100)),
+        "加工速度": Math.min(100, Math.round((vSpeed / 30) * 100)),
+        "听觉记忆": Math.min(100, Math.round((aMemory / 25) * 100)),
+        "干扰抑制": Math.min(100, Math.round((inhibition / 150) * 100)), // Anti-inter has a high max
+        "持续专注": Math.min(100, Math.round((tracking / 15) * 100))
+    };
+
+    renderRadarChart(scores);
+    
+    // Summary Calculation
+    const totalRaw = Object.values(scores).reduce((a, b) => a + b, 0);
+    const fsiq = Math.floor((totalRaw / 5) + 60);
+
+    document.getElementById('wec-vis-score').textContent = Math.round((scores["视觉搜索"] + scores["加工速度"])/2) || '--';
+    document.getElementById('wec-aud-score').textContent = scores["听觉记忆"] || '--';
+    document.getElementById('wec-iq-score').textContent = totalRaw > 0 ? fsiq : '--';
+    
+    const advice = document.getElementById('wec-advice');
+    if(totalRaw === 0) {
+        advice.textContent = "暂无数据。请先完成各专项训练模块以生成您的全维报告。";
+    } else if(fsiq >= 120) {
+        advice.textContent = "评估结论：专注力水平卓越。孩子在多维度认知处理上表现出极强的稳定性，建议保持现有强度的复合挑战。";
+    } else if(fsiq >= 100) {
+        advice.textContent = "评估结论：专注力水平优秀。视觉加工与听觉记忆均处于领先水平，可适当增加干扰抑制类训练。";
+    } else if(fsiq >= 85) {
+        advice.textContent = "评估结论：专注力水平中等。建议针对性加强报告中较低维度的训练，如多练习划消任务。";
+    } else {
+        advice.textContent = "评估结论：专注力处于基础水平。建议每天进行 15 分钟的定制化训练（如舒尔特方格与复述训练）。";
+    }
+}
+
+function renderRadarChart(scores) {
+    const container = document.getElementById('radar-container');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    const size = 300, center = size/2, radius = 90;
+    const labels = Object.keys(scores);
+    const angleStep = (Math.PI * 2) / labels.length;
+    
+    let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="max-width:100%; filter: drop-shadow(0 0 10px rgba(64,196,255,0.2));">`;
+    
+    // Radial Grid
+    for(let i=1; i<=5; i++) {
+        const r = (radius / 5) * i;
+        svg += `<circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="2,2" />`;
+    }
+    
+    // Axes and Labels
+    labels.forEach((label, i) => {
+        const angle = angleStep * i - Math.PI/2;
+        const x = center + radius * Math.cos(angle);
+        const y = center + radius * Math.sin(angle);
+        svg += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.2)" stroke-width="1" />`;
+        
+        // Label position
+        const lx = center + (radius + 25) * Math.cos(angle);
+        const ly = center + (radius + 20) * Math.sin(angle);
+        svg += `<text x="${lx}" y="${ly}" fill="rgba(255,255,255,0.8)" font-size="12" font-weight="500" text-anchor="middle" dominant-baseline="middle">${label}</text>`;
+    });
+    
+    // Data Polygon
+    let points = "";
+    labels.forEach((label, i) => {
+        const val = scores[label] || 0;
+        const dist = (val / 100) * radius;
+        const angle = angleStep * i - Math.PI/2;
+        const x = center + dist * Math.cos(angle);
+        const y = center + dist * Math.sin(angle);
+        points += `${x},${y} `;
+        if(val > 0) svg += `<circle cx="${x}" cy="${y}" r="3" fill="var(--primary)" />`;
+    });
+    
+    if(points) {
+        svg += `<polygon points="${points}" fill="rgba(64,196,255,0.3)" stroke="var(--primary)" stroke-width="2" stroke-linejoin="round" />`;
+    }
+    
+    svg += `</svg>`;
+    container.innerHTML = svg;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // Helper to safely bind event listeners
@@ -959,7 +1173,84 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bindClick('breathing-start', startBreathing);
     bindClick('house-search-start', startHouseSearch);
+    
+    // Bind Voice Input Buttons
+    document.querySelectorAll('.voice-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            STT.start(btn.getAttribute('data-target'));
+        };
+    });
+    
+    bindClick('wec-run', initAssessmentWechsler);
+    
+    // New Module Hooks
+    bindClick('vis-anti-start', () => visAntiInterState.isPlaying ? endVisAntiInter(false) : startVisAntiInter());
 });
+
+// ====== NEW: Visual Anti-Interference Logic (Image 1) ======
+function initVisAntiInter() {
+    visAntiInterState.isPlaying = false;
+    document.getElementById('vis-anti-timer').textContent = '60';
+    const grid = document.getElementById('vis-anti-grid');
+    if(grid) grid.innerHTML = '<div style="text-align: center; font-size: 1.5rem; padding: 4rem; width: 100%;">准备好了吗？找到图中所有的“0 9 3”</div>';
+}
+
+function startVisAntiInter() {
+    visAntiInterState.isPlaying = true;
+    visAntiInterState.score = 0;
+    visAntiInterState.timeLeft = 60;
+    visAntiInterState.foundCount = 0;
+    visAntiInterState.totalTargets = 0;
+
+    const grid = document.getElementById('vis-anti-grid');
+    grid.innerHTML = '';
+    
+    const colors = ['#ff4d4d', '#40c4ff', '#2ea043', '#ffeb3b', '#bc8cff', '#ffa500'];
+    
+    for(let i=0; i<240; i++) { // 20x12 grid
+        const cell = document.createElement('div');
+        cell.className = 'anti-cell';
+        const num = Math.floor(Math.random()*10).toString();
+        cell.textContent = num;
+        cell.style.color = colors[Math.floor(Math.random()*colors.length)];
+        
+        if(visAntiInterState.targets.includes(num)) {
+            visAntiInterState.totalTargets++;
+        }
+        
+        cell.onclick = () => {
+            if(!visAntiInterState.isPlaying || cell.classList.contains('marked')) return;
+            if(visAntiInterState.targets.includes(cell.textContent)) {
+                cell.classList.add('marked');
+                visAntiInterState.score++;
+                visAntiInterState.foundCount++;
+            } else {
+                cell.classList.add('error');
+                setTimeout(() => cell.classList.remove('error'), 400);
+            }
+        };
+        grid.appendChild(cell);
+    }
+    
+    document.getElementById('vis-anti-start').textContent = '放弃挑战';
+    visAntiInterState.timer = setInterval(() => {
+        if(--visAntiInterState.timeLeft <= 0) {
+            endVisAntiInter(true);
+        }
+        document.getElementById('vis-anti-timer').textContent = visAntiInterState.timeLeft;
+    }, 1000);
+}
+
+function endVisAntiInter(completed) {
+    visAntiInterState.isPlaying = false;
+    clearInterval(visAntiInterState.timer);
+    document.getElementById('vis-anti-start').textContent = '开始挑战';
+    if(completed) {
+        alert(`挑战结束！你找到了 ${visAntiInterState.foundCount} 个目标，总计 ${visAntiInterState.totalTargets} 个。`);
+        ScoreManager.saveResult('vis-anti-inter', Math.floor((visAntiInterState.foundCount / visAntiInterState.totalTargets) * 100));
+    }
+}
 
 function resizeCanvas() {
     const c = document.getElementById('tracker-canvas'), v = document.getElementById('video-canvas');

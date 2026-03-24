@@ -31,7 +31,8 @@
                     <li data-view="schulte"><span class="icon">🔢</span><span>舒尔特方格</span></li>
                     <li data-view="tracker"><span class="icon">🎯</span><span>动态追踪</span></li>
                     <li data-view="vis-speed"><span>⚡</span><span>加工速度</span></li>
-                    <li data-view="vis-cancel"><span>🚫</span><span>防漏看训练</span></li>
+                    <li data-view="vis-cancel"><span>🚫</span><span>划消挑战</span></li>
+                    <li data-view="vis-anti-inter"><span>🌈</span><span>视觉抗干扰</span></li>
                     <li data-view="decoding"><span>🔡</span><span>译码运算</span></li>
                     <li data-view="decoding-conn"><span>🔗</span><span>译码连线</span></li>
                     <li data-view="space-decoding"><span>🌌</span><span>空间译码</span></li>
@@ -186,6 +187,7 @@
                             <label>主题: </label>
                             <select id="vis-cancel-theme">
                                 <option value="letter">字母 (bdpq)</option>
+                                <option value="number">数字 (0-9 纯色)</option>
                                 <option value="animal">动物 🐕</option>
                                 <option value="fruit">水果 🍎</option>
                             </select>
@@ -198,25 +200,32 @@
                     </div>
                 </section>
 
+                <!-- Visual Anti-Interference (vis-anti-inter) [NEW: Image 1] -->
+                <section id="vis-anti-inter" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">找出图中所有的“0 9 3”，用鼠标点击划出。</div>
+                        <div class="timer" id="vis-anti-timer">60</div>
+                    </div>
+                    <div id="vis-anti-grid" class="anti-inter-grid glass"></div>
+                    <div class="action-bar">
+                        <button id="vis-anti-start" class="btn primary">开始挑战</button>
+                    </div>
+                </section>
+
                 <!-- Space Decoding (space-decoding) -->
                 <section id="space-decoding" class="view">
                     <div class="game-header">
                         <div class="instruction-text">根据上方的二维对照表，输入下方彩色形状对应的字符。</div>
                         <div class="timer" id="space-decoding-timer">120</div>
                     </div>
-                    <div class="space-decoding-container glass" style="margin-bottom: 2rem; padding: 2rem;">
+                    <div class="space-decoding-container glass" style="margin-bottom: 2rem; padding: 1.5rem;">
                         <!-- 2D Legend 4x8 -->
-                        <div id="space-legend" class="glass" style="margin-bottom: 2rem; overflow-x: auto;">
-                            <!-- Will be filled by JS -->
-                        </div>
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
-                            <div id="space-target-seq" style="display: flex; gap: 15px; font-size: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 15px; min-height: 100px;">
-                                <!-- Target 6 colored shapes -->
-                                请点击开始
-                            </div>
-                            <div class="input-area" style="display: flex; align-items: center; gap: 15px;">
-                                <input type="text" id="space-input" class="glass" placeholder="在此输入序列字符..." style="width: 300px; padding: 1rem; background: rgba(255,255,255,0.1); color: #fff; font-size: 1.5rem; border: 1px solid var(--primary); border-radius: 10px; text-align: center;" disabled>
-                            </div>
+                        <div id="space-legend" class="glass" style="margin-bottom: 1.5rem; overflow-x: auto;"></div>
+                        
+                        <!-- Multi-row work area (Image 3) -->
+                        <div id="space-work-area" class="space-work-grid">
+                            <!-- JS generates rows here -->
+                            <div style="text-align: center; font-size: 1.5rem; padding: 2rem;">点击下方按钮开始挑战</div>
                         </div>
                     </div>
                     <div class="action-bar">
@@ -350,7 +359,10 @@
                             <h3>词语/句子复述</h3>
                             <p id="mem-repeat-msg" class="instruction-text">准备好听一段话了吗？</p>
                             <div id="mem-repeat-input-box" class="hidden" style="margin-top: 2rem; width: 100%;">
-                                <textarea id="mem-repeat-input" rows="3" class="glass" style="width: 100%; font-size: 1.2rem; padding: 1.5rem; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--primary); border-radius: 15px; margin-bottom: 1rem;" placeholder="请输入你听到的完整句子..."></textarea>
+                                <div style="position: relative; width: 100%;">
+                                    <textarea id="mem-repeat-input" rows="3" class="glass" style="width: 100%; font-size: 1.2rem; padding: 1.5rem; padding-right: 50px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--primary); border-radius: 15px; margin-bottom: 1rem;" placeholder="请输入你听到的完整句子..."></textarea>
+                                    <button class="voice-btn" data-target="mem-repeat-input" style="position: absolute; right: 15px; top: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary);">🎤</button>
+                                </div>
                                 <button id="mem-repeat-submit" class="btn primary" onclick="handleMemRepeatSubmit()" style="width: 100%; padding: 1rem;">提交复述</button>
                             </div>
                             <button id="mem-repeat-start" class="btn primary" style="margin-top: 1rem; width: 200px;">开始听音</button>
@@ -362,6 +374,10 @@
                 <section id="assessment-wechsler" class="view">
                     <div class="assessment-container glass">
                         <h2>韦氏全维认知评估报告</h2>
+                        <!-- Radar Chart Container [NEW] -->
+                        <div id="radar-container" style="width: 100%; display: flex; justify-content: center; margin: 1rem 0; min-height: 300px;">
+                            <div style="color: var(--text-muted); padding-top: 100px;">暂无评估数据，请先进行各项挑战</div>
+                        </div>
                         <div class="assessment-scores">
                             <div class="a-card">
                                 <span>视觉加工速度</span>
@@ -411,12 +427,19 @@
                             <h3>听觉广度挑战</h3>
                             <p id="aud-span-msg" class="instruction-text" style="margin-bottom: 2rem;">准备好听数字序列了吗？</p>
                             <div id="aud-span-input-box" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                                <input type="text" id="aud-span-input" class="glass" placeholder="输入听到的数字..." style="width: 100%; max-width: 400px; padding: 1.2rem; background: rgba(255,255,255,0.05); color: var(--primary); font-size: 2.5rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center; font-weight: 900;" autofocus>
+                                <div style="position: relative; width: 100%; max-width: 400px;">
+                                    <input type="text" id="aud-span-input" class="glass" placeholder="输入听到的数字..." style="width: 100%; padding: 1.2rem; padding-right: 50px; background: rgba(255,255,255,0.05); color: var(--primary); font-size: 2.5rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center; font-weight: 900;" autofocus>
+                                    <button class="voice-btn" data-target="aud-span-input" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary);">🎤</button>
+                                </div>
                                 <button id="aud-span-submit" class="btn primary" style="width: 200px;">提交答案</button>
                             </div>
                             <button id="aud-span-start" class="btn primary" style="width: 200px;">开始听音</button>
                         </div>
                     </div>
+                </section>
+
+                <!-- Mem Reverse (mem-reverse) -->
+                <section id="mem-reverse" class="view">
                     <div class="auditory-center">
                         <div class="glass-input-card">
                             <div class="audio-visualizer glass" style="margin: 0 auto 2rem;">
@@ -424,8 +447,11 @@
                             </div>
                             <h3 style="font-size: 2rem; margin-bottom: 1rem;">正话反说挑战</h3>
                             <p id="mem-rev-msg" class="instruction-text" style="margin-bottom: 2rem;">系统会读出一个词，请逆序输入它。</p>
-                            <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                                <input type="text" id="mem-rev-input" class="glass" placeholder="倒着写回来..." style="width: 100%; max-width: 400px; padding: 1.2rem; background: rgba(255,255,255,0.05); color: #fff; font-size: 1.8rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center;" disabled>
+                            <div id="mem-rev-input-box" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                                <div style="position: relative; width: 100%; max-width: 400px;">
+                                    <input type="text" id="mem-rev-input" class="glass" placeholder="倒着写回来..." style="width: 100%; padding: 1.2rem; padding-right: 50px; background: rgba(255,255,255,0.05); color: #fff; font-size: 1.8rem; border: 1px solid var(--primary); border-radius: 12px; text-align: center;" disabled>
+                                    <button class="voice-btn" data-target="mem-rev-input" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary);">🎤</button>
+                                </div>
                                 <button id="mem-rev-start" class="btn primary" style="width: 200px; padding: 1rem; font-size: 1.1rem;">发音</button>
                             </div>
                         </div>
@@ -437,16 +463,17 @@
                     <div class="breathing-container">
                         <div class="b-circle-wrapper">
                             <div class="b-circle glass" id="b-circle"></div>
-                            <div class="b-text" id="b-instruction">准备</div>
+                            <div class="b-text" id="b-text">准备</div>
                         </div>
                     </div>
                     <div class="b-progress-container">
                         <div class="b-progress-bar" id="b-progress"></div>
                     </div>
-                    <div class="action-bar b-actions">
+                    <div class="action-bar b-actions" id="b-setup">
                         <select id="breathing-pattern">
-                            <option value="478">4-7-8 深度放松</option>
-                            <option value="4444">4-4-4-4 盒式呼吸</option>
+                            <option value="478">4-7-8 深度放松模式</option>
+                            <option value="4444">4-4-4-4 盒式平衡模式</option>
+                            <option value="55">5-5 等长平衡模式</option>
                         </select>
                         <button id="breathing-start" class="btn primary">开始呼吸</button>
                     </div>
