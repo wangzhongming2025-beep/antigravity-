@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉追踪训练 - VisionGuard AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .path-line {
+            fill: none;
+            stroke: #3f3f46;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.3s ease;
+        }
+        .path-line.highlight {
+            stroke-width: 5;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+        }
+        .node-dot {
+            fill: #3f3f46;
+            transition: all 0.3s ease;
+        }
+        .node-dot.highlight {
+            r: 6;
+        }
+        .source-item, .target-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .source-item:hover, .target-item:hover {
+            transform: scale(1.1);
+        }
+        .source-item.selected {
+            outline: 3px solid #f59e0b;
+            outline-offset: 4px;
+            border-radius: 8px;
+        }
+        .target-item.matched {
+            filter: none !important;
+            opacity: 1 !important;
+        }
+        .target-item.unmatched {
+            filter: grayscale(1) brightness(0.5);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="p-6 flex justify-between items-center z-50">
+        <a href="training_hub.html" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm font-mono">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            BACK TO HUB
+        </a>
+        <div class="flex items-center gap-4">
+            <div id="stats" class="text-xs font-mono text-zinc-500">
+                MATCHES: <span id="match-count" class="text-amber-500">0/5</span> | ERRORS: <span id="error-count" class="text-rose-500">0</span>
+            </div>
+            <button onclick="initGame()" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-3 py-1 rounded transition-colors font-mono">RESET</button>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex flex-col items-center justify-center p-4">
+        <div class="max-w-4xl w-full text-center mb-8">
+            <h1 class="text-3xl font-black mb-2 tracking-tight">视觉追踪训练</h1>
+            <p class="text-zinc-400 text-sm">点击左侧彩图，顺着线条寻找右侧对应的黑白图并点亮它。</p>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-8 relative flex items-center justify-between gap-12 max-w-5xl w-full h-[600px]">
+            <!-- Source items (Left) -->
+            <div id="source-container" class="flex flex-col justify-between h-full py-4 z-10">
+                <!-- Items will be injected here -->
+            </div>
+
+            <!-- Path Canvas -->
+            <div class="flex-1 h-full relative border-x border-zinc-800/50">
+                <svg id="path-svg" class="w-full h-full" viewBox="0 0 400 500" preserveAspectRatio="none">
+                    <!-- Lines will be injected here -->
+                </svg>
+            </div>
+
+            <!-- Target items (Right) -->
+            <div id="target-container" class="flex flex-col justify-between h-full py-4 z-10">
+                <!-- Items will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const itemSets = [
+            { type: 'socks', sources: ['🧦', '🦿', '🥾', '🩰', '👟'], colors: ['#ff5555', '#55ff55', '#5555ff', '#ffff55', '#ff55ff'] },
+            { type: 'flowers', sources: ['🌸', '🌻', '🌺', '🌹', '🌷'], colors: ['#ff88aa', '#ffcc33', '#ff4444', '#cc0000', '#ff99cc'] },
+            { type: 'monsters', sources: ['👾', '👽', '👹', '👺', '👻'], colors: ['#bb88ff', '#88ffbb', '#ffff88', '#ff8888', '#88bbff'] }
+        ];
+
+        let currentSet = itemSets[0];
+        let connections = []; 
+        let selectedSource = null;
+        let matches = 0;
+        let errors = 0;
+
+        function initGame() {
+            currentSet = itemSets[Math.floor(Math.random() * itemSets.length)];
+            matches = 0;
+            errors = 0;
+            selectedSource = null;
+            updateStats();
+
+            const sourceContainer = document.getElementById('source-container');
+            const targetContainer = document.getElementById('target-container');
+            const pathSvg = document.getElementById('path-svg');
+            
+            sourceContainer.innerHTML = '';
+            targetContainer.innerHTML = '';
+            pathSvg.innerHTML = '';
+
+            let targetOrder = [0, 1, 2, 3, 4];
+            for (let i = targetOrder.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [targetOrder[i], targetOrder[j]] = [targetOrder[j], targetOrder[i]];
+            }
+            
+            // connections[sourceIdx] = index in targetOrder
+            connections = [];
+            targetOrder.forEach((sourceIdx, displayIdx) => {
+                connections[sourceIdx] = displayIdx;
+            });
+
+            currentSet.sources.forEach((item, i) => {
+                const srcDiv = document.createElement('div');
+                srcDiv.className = 'source-item p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-4xl';
+                srcDiv.style.color = currentSet.colors[i];
+                srcDiv.innerHTML = item;
+                srcDiv.onclick = () => selectSource(i, srcDiv);
+                sourceContainer.appendChild(srcDiv);
+            });
+
+            targetOrder.forEach((sourceIdx, i) => {
+                const trgDiv = document.createElement('div');
+                trgDiv.className = 'target-item unmatched p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-4xl';
+                trgDiv.innerHTML = currentSet.sources[sourceIdx];
+                trgDiv.onclick = () => attemptMatch(sourceIdx, trgDiv);
+                targetContainer.appendChild(trgDiv);
+            });
+
+            generatePaths(pathSvg);
+        }
+
+        function generatePaths(svg) {
+            const h = 500;
+            const w = 400;
+            const stepY = h / 5;
+            const startX = 0;
+            const endX = w;
+
+            // Simple random path segments
+            for(let i=0; i<5; i++) {
+                const startY = (i + 0.5) * stepY;
+                const endY = (connections[i] + 0.5) * stepY;
+                
+                let d = `M ${startX} ${startY}`;
+                
+                // Randomize intermediate points for "complex" look
+                const cp1 = 50 + Math.random() * 50;
+                const cp2 = 150 + Math.random() * 100;
+                const cp3 = 300 + Math.random() * 50;
+                
+                // Add vertical segments
+                d += ` L ${cp1} ${startY}`;
+                d += ` L ${cp1} ${endY}`;
+                d += ` L ${endX} ${endY}`;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", d);
+                path.setAttribute("class", "path-line");
+                path.setAttribute("id", `path-${i}`);
+                svg.appendChild(path);
+
+                const startDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                startDot.setAttribute("cx", startX + 5);
+                startDot.setAttribute("cy", startY);
+                startDot.setAttribute("r", 4);
+                startDot.setAttribute("class", "node-dot");
+                startDot.setAttribute("id", `dot-start-${i}`);
+                svg.appendChild(startDot);
+
+                const endDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                endDot.setAttribute("cx", endX - 5);
+                endDot.setAttribute("cy", endY);
+                endDot.setAttribute("r", 4);
+                endDot.setAttribute("class", "node-dot");
+                endDot.setAttribute("id", `dot-end-${connections[i]}`);
+                svg.appendChild(endDot);
+            }
+        }
+
+        function selectSource(index, element) {
+            document.querySelectorAll('.source-item').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.path-line').forEach(el => el.classList.remove('highlight'));
+            document.querySelectorAll('.node-dot').forEach(el => el.classList.remove('highlight'));
+
+            selectedSource = index;
+            element.classList.add('selected');
+            document.getElementById(`dot-start-${index}`).classList.add('highlight');
+        }
+
+        function attemptMatch(sourceIdx, element) {
+            if (selectedSource === null) return;
+            if (element.classList.contains('matched')) return;
+
+            if (selectedSource === sourceIdx) {
+                matches++;
+                element.classList.remove('unmatched');
+                element.classList.add('matched');
+                element.style.color = currentSet.colors[sourceIdx];
+                
+                const path = document.getElementById(`path-${sourceIdx}`);
+                path.classList.add('highlight');
+                path.style.stroke = currentSet.colors[sourceIdx];
+                
+                const sDot = document.getElementById(`dot-start-${sourceIdx}`);
+                const eDot = document.getElementById(`dot-end-${connections[sourceIdx]}`);
+                sDot.classList.add('highlight');
+                eDot.classList.add('highlight');
+                sDot.style.fill = currentSet.colors[sourceIdx];
+                eDot.style.fill = currentSet.colors[sourceIdx];
+
+                document.querySelector('.source-item.selected').classList.remove('selected');
+                selectedSource = null;
+
+                if (matches === 5) {
+                    setTimeout(() => alert('恭喜！完成全部追踪练习！'), 500);
+                }
+            } else {
+                errors++;
+                element.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    element.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                }, 500);
+            }
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('match-count').innerText = `${matches}/5`;
+            document.getElementById('error-count').innerText = errors;
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

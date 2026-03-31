@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉分辨与搜寻训练 - VisionGuard AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 4px;
+            user-select: none;
+        }
+        .grid-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .grid-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        .grid-item.found {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            z-index: 10;
+        }
+        .grid-item.wrong {
+            background: #ef4444;
+        }
+        .target-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 2px dashed #f59e0b;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-6">
+    <nav class="flex justify-between items-center mb-8">
+        <a href="training_hub.html" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm font-mono">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            BACK TO HUB
+        </a>
+        <div class="flex items-center gap-6">
+            <div id="stats" class="text-xs font-mono text-zinc-500">
+                LEVEL: <span id="level" class="text-white">1</span> | FOUND: <span id="found-count" class="text-emerald-500">0/3</span>
+            </div>
+            <button onclick="initGame()" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-3 py-1 rounded transition-colors font-mono">RESET</button>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto w-full flex-1 flex flex-col items-center">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-black mb-2 tracking-tight">视觉分辨训练</h1>
+            <p class="text-zinc-400 text-sm">在下方阵列中找出与目标序列完全一致的组合。</p>
+        </div>
+
+        <!-- Target Sequence -->
+        <div class="target-box rounded-2xl p-6 mb-8 flex items-center gap-4">
+            <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">TARGET SEQUENCE:</span>
+            <div id="target-sequence" class="flex gap-2">
+                <!-- Target symbols will be injected here -->
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div id="grid" class="grid-container w-full glass-panel p-4 rounded-2xl">
+            <!-- Grid items will be injected here -->
+        </div>
+
+        <div id="win-overlay" class="hidden fixed inset-0 bg-emerald-500/20 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="glass-panel p-12 rounded-3xl text-center border-emerald-500/50">
+                <h2 class="text-5xl font-black text-white mb-4">LEVEL UP!</h2>
+                <p class="text-emerald-400 mb-8 font-mono">找到所有目标序列</p>
+                <button onclick="nextLevel()" class="bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8 py-3 rounded-xl transition-all scale-110">进入下一关</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const symbolPool = ['⭐', '⚪', '⬜', '💠', '🔷', '🔶', '⬛', '▫️', '▪️', '✨', '🔘', '📍'];
+        let level = 1;
+        let targetSeq = [];
+        let gridData = [];
+        let foundIndices = new Set();
+        let totalTargets = 3;
+        let foundTargets = 0;
+
+        const ROWS = 12;
+        const COLS = 12;
+
+        function initGame() {
+            foundTargets = 0;
+            foundIndices.clear();
+            document.getElementById('win-overlay').classList.add('hidden');
+            updateStats();
+
+            // Generate target sequence (length increases with level)
+            const seqLen = Math.min(2 + Math.floor(level / 2), 5);
+            targetSeq = Array.from({ length: seqLen }, () => symbolPool[Math.floor(Math.random() * symbolPool.length)]);
+            
+            renderTarget();
+            generateGrid();
+            renderGrid();
+        }
+
+        function renderTarget() {
+            const container = document.getElementById('target-sequence');
+            container.innerHTML = '';
+            targetSeq.forEach(symbol => {
+                const s = document.createElement('span');
+                s.className = 'text-3xl p-2 bg-zinc-900 rounded-lg border border-amber-500/30';
+                s.innerText = symbol;
+                container.appendChild(s);
+            });
+        }
+
+        function generateGrid() {
+            gridData = Array.from({ length: ROWS * COLS }, () => symbolPool[Math.floor(Math.random() * symbolPool.length)]);
+            
+            // Inject target sequences randomly
+            totalTargets = Math.min(2 + level, 8);
+            let placed = 0;
+            while (placed < totalTargets) {
+                const r = Math.floor(Math.random() * ROWS);
+                const c = Math.floor(Math.random() * (COLS - targetSeq.length));
+                const startIdx = r * COLS + c;
+                
+                // Check if space is clear
+                let clear = true;
+                for(let i=0; i<targetSeq.length; i++) {
+                    if (foundIndices.has(startIdx + i)) clear = false;
+                }
+
+                if (clear) {
+                    for(let i=0; i<targetSeq.length; i++) {
+                        gridData[startIdx + i] = targetSeq[i];
+                        // We mark them as "target space" just for internal logic, not shown to user
+                    }
+                    placed++;
+                }
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            gridData.forEach((symbol, i) => {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.innerText = symbol;
+                item.onclick = () => checkMatch(i);
+                grid.appendChild(item);
+            });
+        }
+
+        function checkMatch(idx) {
+            // Check if this idx starts a target sequence
+            let matches = true;
+            for(let i=0; i<targetSeq.length; i++) {
+                if (gridData[idx + i] !== targetSeq[i] || (idx % COLS) + i >= COLS) {
+                    matches = false;
+                    break;
+                }
+            }
+
+            if (matches) {
+                // Check if already found
+                if (foundIndices.has(idx)) return;
+                
+                foundTargets++;
+                for(let i=0; i<targetSeq.length; i++) {
+                    foundIndices.add(idx + i);
+                    const el = document.getElementById('grid').children[idx + i];
+                    el.classList.add('found');
+                }
+                
+                if (foundTargets >= totalTargets) {
+                    setTimeout(() => {
+                        document.getElementById('win-overlay').classList.remove('hidden');
+                    }, 500);
+                }
+            } else {
+                const el = document.getElementById('grid').children[idx];
+                el.classList.add('wrong');
+                setTimeout(() => el.classList.remove('wrong'), 300);
+            }
+            updateStats();
+        }
+
+        function nextLevel() {
+            level++;
+            initGame();
+        }
+
+        function updateStats() {
+            document.getElementById('level').innerText = level;
+            document.getElementById('found-count').innerText = `${foundTargets}/${totalTargets}`;
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

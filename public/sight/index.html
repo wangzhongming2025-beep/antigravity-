@@ -22,6 +22,11 @@
 
     <!-- Use BootCDN for Tailwind (Faster in China) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- MediaPipe Face Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js" crossorigin="anonymous"></script>
 
     <!-- System Fonts for Speed -->
     <style>
@@ -187,40 +192,42 @@
                 <div
                     class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000">
                 </div>
-                <div class="relative bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl">
-                    <div
-                        class="aspect-video bg-zinc-950 flex items-center justify-center text-zinc-800 overflow-hidden relative">
-                        <!-- Replaced blocked video with static image for speed in China -->
-                        <div class="absolute inset-0">
-                            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop"
-                                alt="Coding Demo"
-                                class="w-full h-full object-cover opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-                        </div>
+                <div class="relative bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl" id="camera-container">
+                    <!-- Background Static Image -->
+                    <div class="absolute inset-0" id="camera-feed-bg">
+                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1000&auto=format&fit=crop"
+                            alt="Coding Demo"
+                            class="w-full h-full object-cover opacity-40 grayscale hover:grayscale-0 transition-all duration-700 blur-sm">
+                    </div>
+                    
+                    <video id="webcam" autoplay playsinline class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"></video>
+                    <canvas id="output_canvas" class="absolute inset-0 w-full h-full pointer-events-none z-20"></canvas>
 
-                        <div class="absolute inset-0 z-10 flex items-center justify-center">
-                            <!-- AI Status Badge -->
-                            <div
-                                class="absolute top-4 right-4 bg-black/80 backdrop-blur border border-zinc-700 rounded-lg px-3 py-1 flex items-center gap-2">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span class="text-xs font-mono text-green-400">AI 运行中</span>
-                            </div>
-                            <!-- Scanning Reticle -->
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="w-64 h-64 border-2 border-cyan-500/30 rounded-lg relative">
-                                    <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyan-500">
-                                    </div>
-                                    <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-cyan-500">
-                                    </div>
-                                    <div
-                                        class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-cyan-500">
-                                    </div>
-                                    <div
-                                        class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyan-500">
-                                    </div>
-                                    <div
-                                        class="absolute top-2 left-1/2 -translate-x-1/2 bg-cyan-500/20 text-cyan-400 text-[10px] px-2 py-0.5 rounded font-mono">
-                                        52 cm (良好)</div>
-                                </div>
+                    <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300" id="start-cam-overlay">
+                        <button id="start-camera-btn" class="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                            启动 AI 距离监测
+                        </button>
+                        <p class="text-xs text-zinc-400 mt-4">完全本地运行，保护您的隐私</p>
+                    </div>
+
+                    <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-500" id="monitoring-ui">
+                        <!-- AI Status Badge -->
+                        <div
+                            class="absolute top-4 right-4 bg-black/80 backdrop-blur border border-zinc-700 rounded-lg px-3 py-1 flex items-center gap-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" id="status-dot"></div>
+                            <span class="text-xs font-mono text-green-400" id="status-text">AI 运行中</span>
+                        </div>
+                        <!-- Scanning Reticle -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-64 h-64 border-2 border-cyan-500/30 rounded-lg relative transition-colors duration-300" id="reticle-box">
+                                <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyan-500 reticle-corner"></div>
+                                <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-cyan-500 reticle-corner"></div>
+                                <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-cyan-500 reticle-corner"></div>
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyan-500 reticle-corner"></div>
+                                <div
+                                    class="absolute top-2 left-1/2 -translate-x-1/2 bg-cyan-500/20 text-cyan-400 text-[10px] px-2 py-0.5 rounded font-mono transition-colors duration-300" id="distance-readout">
+                                    连接中...</div>
                             </div>
                         </div>
                     </div>

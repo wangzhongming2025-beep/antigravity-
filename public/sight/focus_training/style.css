@@ -786,19 +786,20 @@ input[type="text"] {
     body { overflow: auto; }
     .app-container { flex-direction: column; }
     
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: fixed;
-        top: 0;
-        left: -100%;
-        height: 100vh;
-        z-index: 1000;
-        transition: var(--transition);
-        background: rgba(15, 20, 31, 0.95);
+    .sidebar { 
+        width: 200px; /* Reduced width for mobile */
+        left: -200px;
     }
-    
     .sidebar.mobile-active { left: 0; }
+    
+    .nav-links li { padding: 0.6rem 0.8rem; }
+    .nav-label { font-size: 0.65rem; padding-left: 0.8rem; }
+    
+    /* Keep labels visible on mobile but smaller */
+    .nav-links li span:last-child { 
+        display: block !important; 
+        font-size: 0.85rem; 
+    }
     
     .main-content { padding-top: 60px; }
     .top-nav { padding: 0 1rem; position: fixed; top: 0; width: 100%; z-index: 100; background: var(--bg-color); }
@@ -821,6 +822,50 @@ input[type="text"] {
         cursor: pointer;
         padding: 10px;
     }
+
+    /* Track Maze Mobile */
+    .track-maze-container svg {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 300px;
+    }
 }
+
+/* New Cognitive Modules Styles */
+.track-maze-container {
+    width: 100%;
+    min-height: 400px;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.symbol-decode-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid transparent;
+}
+.symbol-decode-item.active { border-color: var(--primary); background: rgba(64, 196, 255, 0.1); }
+.symbol-decode-item.correct { border-color: var(--success); }
+.symbol-decode-item.wrong { border-color: var(--danger); }
+
+.pattern-grid-item {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.pattern-grid-item:hover { transform: scale(1.1); background: rgba(255,255,255,0.08); }
+.pattern-grid-item.found { background: var(--success); box-shadow: 0 0 10px var(--success); }
+.pattern-grid-item.wrong { background: var(--danger); }
 
 .mobile-menu-btn { display: none; }

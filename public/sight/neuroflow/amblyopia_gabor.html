@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单眼弱视被动激源 (Gabor + CAM) - NeuroFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+            overflow: hidden;
+            margin: 0;
+        }
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .control-slider {
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #3f3f46;
+            outline: none;
+        }
+        .control-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f59e0b;
+            cursor: pointer;
+            border: 2px solid #18181b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            transition: transform 0.1s;
+        }
+        .control-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        #flicker-layer {
+            position: absolute;
+            inset: 0;
+            background-color: black;
+            pointer-events: none;
+            opacity: 0;
+        }
+        #main-canvas-container {
+            position: relative;
+            flex: 1;
+            background: #000;
+            height: 100vh;
+        }
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="flex">
+
+    <!-- 左侧中控台 (高端玻璃面板) -->
+    <aside class="w-80 h-screen glass-panel flex flex-col z-20 absolute left-0 shadow-[8px_0_30px_rgba(0,0,0,0.8)] border-r border-white/5 transition-transform duration-300" id="sidebar">
+        <div class="p-6 border-b border-zinc-800/60 pb-8 mt-4 relative">
+            <h1 class="text-2xl font-black tracking-tight text-white mb-1">视觉皮层激活</h1>
+            <p class="text-[11px] text-amber-500/80 font-mono tracking-widest uppercase">PEDIATRIC AMBLYOPIA STIMULATOR</p>
+            <button onclick="toggleSidebar()" class="absolute right-4 top-6 text-zinc-500 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+        </div>
+
+        <div class="p-6 flex-1 flex flex-col gap-8 overflow-y-auto">
+            <!-- CAM 光栅参数 -->
+            <div class="space-y-3">
+                <label class="text-[10px] font-mono text-zinc-400 uppercase tracking-widest flex justify-between">
+                    <span>底色 CAM 光栅宽度</span> <span id="val-cam-width" class="text-white">30px</span>
+                </label>
+                <input type="range" id="cam-width" class="control-slider" min="10" max="100" step="5" value="30">
+            </div>
+
+            <div class="space-y-3">
+                <label class="text-[10px] font-mono text-zinc-400 uppercase tracking-widest flex justify-between">
+                    <span>底色光栅转速</span> <span id="val-speed" class="text-white">0.2 rad/s</span>
+                </label>
+                <input type="range" id="speed" class="control-slider" min="0" max="2" step="0.1" value="0.2">
+            </div>
+
+            <div class="h-px bg-zinc-800/60 w-full rounded"></div>
+
+            <!-- Gabor 斑参数 -->
+            <div class="space-y-3">
+                <label class="text-[10px] font-mono text-zinc-400 uppercase tracking-widest flex justify-between">
+                    <span>Gabor 斑空间频率</span> <span id="val-freq" class="text-white">极低(适合幼童)</span>
+                </label>
+                <input type="range" id="freq" class="control-slider" min="0.01" max="0.15" step="0.01" value="0.03">
+            </div>
+
+            <div class="space-y-3">
+                <label class="text-[10px] font-mono text-zinc-400 uppercase tracking-widest flex justify-between">
+                    <span>Gabor 斑对比度</span> <span id="val-contrast" class="text-white">100%</span>
+                </label>
+                <input type="range" id="contrast" class="control-slider" min="0" max="1" step="0.1" value="1">
+            </div>
+
+            <div class="h-px bg-zinc-800/60 w-full rounded"></div>
+
+            <!-- 附加刺激 -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-sm font-semibold text-zinc-200 block mb-1">Alpha 频段闪烁</span>
+                    <span class="text-[10px] text-zinc-500 font-mono">40Hz 强制重置视网膜残留</span>
+                </div>
+                <button id="btn-flicker" class="w-12 h-6 bg-zinc-800 border border-zinc-700 rounded-full relative transition-all duration-300" onclick="toggleFlicker()">
+                    <div id="flicker-knob" class="w-4 h-4 bg-zinc-400 rounded-full absolute left-1 top-[3px] transition-all duration-300"></div>
+                </button>
+            </div>
+
+            <div class="mt-auto pt-6 border-t border-zinc-800/60">
+                <button onclick="toggleFullScreen()" class="w-full glass-panel hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all text-sm mb-3">
+                    进入全屏投射模式
+                </button>
+                <p class="text-[10px] text-center text-zinc-500 font-mono">请确保孩子已遮盖优势眼（左眼）</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 恢复侧边栏按钮 -->
+    <button id="btn-show-sidebar" onclick="toggleSidebar()" class="absolute left-4 top-6 z-10 glass-panel p-2 rounded-lg text-zinc-400 hover:text-white transition-opacity opacity-0 pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+
+    <!-- 视觉渲染主区 -->
+    <main id="main-canvas-container">
+        <!-- 第1层: CAM 旋转高对比光栅 -->
+        <canvas id="cam-layer"></canvas>
+        
+        <!-- 过渡层: 玻璃态混合，降低光栅引起的不适，增加高级感 -->
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-none"></div>
+
+        <!-- 第2层: Gabor 斑块阵列 -->
+        <canvas id="gabor-layer"></canvas>
+
+        <!-- 第3层: 脑波同频闪烁器 -->
+        <div id="flicker-layer"></div>
+    </main>
+
+    <script>
+        /** DOM 元素与状态 */
+        const camCanvas = document.getElementById('cam-layer');
+        const camCtx = camCanvas.getContext('2d');
+        const gaborCanvas = document.getElementById('gabor-layer');
+        const gaborCtx = gaborCanvas.getContext('2d');
+
+        const state = {
+            camWidth: 30,
+            speed: 0.2, // radians per sec
+            freq: 0.03, // Gabor frequency
+            contrast: 1.0,
+            flicker: false,
+            sidebarOpen: true
+        };
+
+        // UI 绑定
+        document.getElementById('cam-width').addEventListener('input', e => { state.camWidth = parseInt(e.target.value); document.getElementById('val-cam-width').innerText = state.camWidth + 'px'; });
+        document.getElementById('speed').addEventListener('input', e => { state.speed = parseFloat(e.target.value); document.getElementById('val-speed').innerText = state.speed + ' rad/s'; });
+        document.getElementById('freq').addEventListener('input', e => { state.freq = parseFloat(e.target.value); document.getElementById('val-freq').innerText = state.freq < 0.05 ? '极低(适合幼童)' : state.freq; updateGaborCache(); });
+        document.getElementById('contrast').addEventListener('input', e => { state.contrast = parseFloat(e.target.value); document.getElementById('val-contrast').innerText = Math.round(state.contrast * 100) + '%'; updateGaborCache(); });
+
+        function toggleFlicker() {
+            state.flicker = !state.flicker;
+            const btn = document.getElementById('btn-flicker');
+            const knob = document.getElementById('flicker-knob');
+            if(state.flicker) {
+                btn.classList.add('bg-amber-500', 'border-amber-400');
+                btn.classList.remove('bg-zinc-800', 'border-zinc-700');
+                knob.classList.add('translate-x-6', 'bg-white');
+                knob.classList.remove('bg-zinc-400');
+                startFlickerSequence();
+            } else {
+                btn.classList.remove('bg-amber-500', 'border-amber-400');
+                btn.classList.add('bg-zinc-800', 'border-zinc-700');
+                knob.classList.remove('translate-x-6', 'bg-white');
+                knob.classList.add('bg-zinc-400');
+                stopFlickerSequence();
+            }
+        }
+
+        function toggleSidebar() {
+            state.sidebarOpen = !state.sidebarOpen;
+            const sidebar = document.getElementById('sidebar');
+            const showBtn = document.getElementById('btn-show-sidebar');
+            if(state.sidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                showBtn.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                showBtn.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`尝试全屏模式失败: ${err.message}`);
+                });
+                if(state.sidebarOpen) toggleSidebar();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        /** 渲染循环与视口处理 */
+        let width, height;
+        let lastTime = 0;
+        let camAngle = 0;
+
+        function resize() {
+            width = camCanvas.width = gaborCanvas.width = window.innerWidth;
+            height = camCanvas.height = gaborCanvas.height = window.innerHeight;
+            initGaborGrid();
+        }
+        window.addEventListener('resize', resize);
+
+        // 先预渲染一个完美的 Gabor Cache
+        let gaborCacheCanvas;
+        const gaborSize = 250; // 对于4岁孩子，图像斑块要大
+
+        function updateGaborCache() {
+            gaborCacheCanvas = document.createElement('canvas');
+            gaborCacheCanvas.width = gaborSize;
+            gaborCacheCanvas.height = gaborSize;
+            const ctx = gaborCacheCanvas.getContext('2d');
+            const imgData = ctx.createImageData(gaborSize, gaborSize);
+            
+            const sigma = gaborSize / 6;
+            for(let py = 0; py < gaborSize; py++) {
+                for(let px = 0; px < gaborSize; px++) {
+                    const dx = px - gaborSize/2;
+                    const dy = py - gaborSize/2;
+                    // 水平方向的 sine wave (之后在绘制时旋转)
+                    const sine = Math.sin(dx * state.freq);
+                    const gauss = Math.exp(-(dx*dx + dy*dy) / (2 * sigma * sigma));
+                    
+                    const magnitude = sine * gauss * state.contrast;
+                    // Map -1..1 to 0..255
+                    let val = 127 + magnitude * 127;
+                    val = Math.max(0, Math.min(255, val));
+                    
+                    const idx = (py * gaborSize + px) * 4;
+                    // 使用温暖的琥珀色交替黑白，更具交互科技感且刺激视锥细胞
+                    // 这里我们为了纯粹的刺激，采用标准的黑/白/灰，配合外层透明度
+                    imgData.data[idx] = val; // R
+                    imgData.data[idx+1] = val; // G
+                    imgData.data[idx+2] = val; // B
+                    // 渐变透明度（去除纯黑背景的硬边缘）
+                    const alphaMask = Math.exp(-(dx*dx + dy*dy) / (2 * (sigma*1.2) * (sigma*1.2)));
+                    imgData.data[idx+3] = 255 * alphaMask; 
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // 管理屏幕上的 Gabor 实体
+        let gabors = [];
+        function initGaborGrid() {
+            gabors = [];
+            const cols = Math.ceil(width / (gaborSize * 0.8));
+            const rows = Math.ceil(height / (gaborSize * 0.8));
+            for(let r = -1; r <= rows; r++) {
+                for(let c = -1; c <= cols; c++) {
+                    gabors.push({
+                        x: c * (gaborSize * 0.8) + (Math.random() * 50),
+                        y: r * (gaborSize * 0.8) + (Math.random() * 50),
+                        angle: Math.random() * Math.PI,
+                        phaseSpeed: (Math.random() - 0.5) * 0.5,
+                        basePhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+        }
+
+        /** 闪烁控制 (模拟40Hz脑机共振) */
+        let flickerInterval;
+        const flickerEl = document.getElementById('flicker-layer');
+        function startFlickerSequence() {
+            // 每秒40次相当于间隔25ms。由于屏幕刷新率多为60Hz（16.6ms），25ms并不精准。
+            // 使用1个frame显示，1个frame黑，相当于30Hz闪烁，足够引发同频。
+            let isDark = false;
+            flickerInterval = setInterval(() => {
+                flickerEl.style.opacity = isDark ? '0' : '0.8';
+                isDark = !isDark;
+            }, 30);
+        }
+        function stopFlickerSequence() {
+            clearInterval(flickerInterval);
+            flickerEl.style.opacity = '0';
+        }
+
+        /** 主循环 */
+        function animate(time) {
+            const dt = (time - lastTime) / 1000 || 0;
+            lastTime = time;
+
+            // --- 渲染层 1：CAM光栅 ---
+            camCtx.fillStyle = '#111';
+            camCtx.fillRect(0, 0, width, height);
+            
+            camAngle += state.speed * dt;
+            camCtx.save();
+            camCtx.translate(width/2, height/2);
+            camCtx.rotate(camAngle);
+            
+            const maxRadius = Math.max(width, height) * 1.5;
+            camCtx.fillStyle = '#efefef';
+            for (let i = -maxRadius; i < maxRadius; i += state.camWidth * 2) {
+                camCtx.fillRect(i, -maxRadius, state.camWidth, maxRadius * 2);
+            }
+            camCtx.restore();
+
+            // --- 渲染层 2：Gabor 斑阵列 ---
+            gaborCtx.clearRect(0, 0, width, height);
+            
+            gabors.forEach(g => {
+                g.angle += g.phaseSpeed * dt * 0.5; // 缓慢旋转干扰
+                gaborCtx.save();
+                gaborCtx.translate(g.x, g.y);
+                gaborCtx.rotate(g.angle);
+                // 使用 destination-out 和 source-over 创造梦幻融合效果
+                gaborCtx.globalCompositeOperation = "screen";
+                gaborCtx.drawImage(gaborCacheCanvas, -gaborSize/2, -gaborSize/2);
+                gaborCtx.restore();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // 初始化
+        updateGaborCache();
+        resize();
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>

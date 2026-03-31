@@ -17,11 +17,15 @@ let videoState = { isPlaying: false, shapes: [], answer: 0 };
 let stroopState = { isPlaying: false, score: 0, timeLeft: 30, timer: null, currentCorrect: '' };
 let visAntiInterState = { isPlaying: false, score: 0, timer: null, timeLeft: 60, targets: ['0', '9', '3'], totalTargets: 0, foundCount: 0 };
 
-let audReactState = { isPlaying: false, targetColor: '', startTime: 0, score: 0 };
-let audInterState = { isPlaying: false, score: 0 };
-let audSpanState = { isPlaying: false, sequence: [], userIdx: 0, currentLevel: 3 };
-let memRepeatState = { isPlaying: false, currentSentence: '' };
 let memReverseState = { isPlaying: false, currentWord: '' };
+let audReactState = { isPlaying: false, score: 0, targetColor: '', startTime: 0 };
+let audSpanState = { isPlaying: false, currentLevel: 3, sequence: [], userIdx: 0 };
+let audInterState = { isPlaying: false, answer: '' };
+let houseSearchState = { isPlaying: false, found: 0, target: 0, timeLeft: 60, timer: null };
+let memRepeatState = { isPlaying: false, currentSentence: '' };
+let trackMazeState = { isPlaying: false, matches: 0, total: 5, paths: [], selectedSource: null };
+let symbolDecodeState = { isPlaying: false, score: 0, timeLeft: 60, timer: null, currentIdx: 0, set: null };
+let patternSearchState = { isPlaying: false, level: 1, found: 0, targetSeq: [], total: 3 };
 
 const THEMES = {
     animal: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗'],
@@ -149,9 +153,11 @@ function setupNavigation() {
             const titleSpan = link.querySelector('span:last-child'); if(titleSpan) viewTitle.textContent = titleSpan.textContent;
             state.currentView = targetView; stopAllActivities(); initView(targetView);
             
-            // Close mobile menu if active
+            // Close mobile menu
             const sidebar = document.querySelector('.sidebar');
-            if(sidebar) sidebar.classList.remove('mobile-active');
+            if(sidebar) {
+                sidebar.classList.remove('mobile-active');
+            }
         });
     });
 
@@ -194,6 +200,9 @@ function initView(viewId) {
         case 'breathing': initBreathing(); break;
         case 'house-search': initHouseSearch(); break;
         case 'vis-anti-inter': initVisAntiInter(); break;
+        case 'track-maze': initTrackMaze(); break;
+        case 'symbol-decode': initSymbolDecode(); break;
+        case 'pattern-search': initPatternSearch(); break;
         case 'assessment-wechsler': initAssessmentWechsler(); break;
     }
 }
@@ -202,11 +211,11 @@ function stopAllActivities() {
     if(schulteState.isPlaying) endSchulteGame(false);
     if(trackerState.isPlaying) { trackerState.isPlaying = false; cancelAnimationFrame(trackerState.animationId); }
     if(visSpeedState.isPlaying) { clearInterval(visSpeedState.timer); visSpeedState.isPlaying = false; }
-    if(stroopState.isPlaying) endStroop(false);
-    if(decodingState.isPlaying) endDecoding(false);
-    if(decodingConnState.isPlaying) endDecodingConn(false);
+    if(stroopState.isPlaying) { clearInterval(stroopState.timer); stroopState.isPlaying = false; }
+    if(decodingState.isPlaying) { clearInterval(decodingState.timer); decodingState.isPlaying = false; }
+    if(decodingConnState.isPlaying) { clearInterval(decodingConnState.timer); decodingConnState.isPlaying = false; }
     if(spaceDecodingState.isPlaying) endSpaceDecoding(false);
-    if(visDiscrimState.isPlaying) endVisDiscrim(false);
+    if(visDiscrimState.isPlaying) { visDiscrimState.isPlaying = false; }
     if(videoState.isPlaying) videoState.isPlaying = false;
     if(audReactState.isPlaying) audReactState.isPlaying = false;
     if(audInterState.isPlaying) initAudInter(); // Reset auditory interference
@@ -215,6 +224,9 @@ function stopAllActivities() {
     if(memReverseState.isPlaying) initMemReverse(); // Reset memory reverse
     if(breathingInterval) stopBreathing(); // Stop breathing exercise
     if(houseSearchState.isPlaying) { clearInterval(houseSearchState.timer); houseSearchState.isPlaying = false; } // Stop house search
+    if(trackMazeState.isPlaying) trackMazeState.isPlaying = false;
+    if(symbolDecodeState.isPlaying) { clearInterval(symbolDecodeState.timer); symbolDecodeState.isPlaying = false; }
+    if(patternSearchState.isPlaying) patternSearchState.isPlaying = false;
     if(state.speechEnabled) window.speechSynthesis.cancel();
 }
 
@@ -334,22 +346,22 @@ function initSpaceDecoding() {
     spaceDecodingState.isPlaying = false; 
     document.getElementById('space-decoding-timer').textContent = '120';
     const legEl = document.getElementById('space-legend');
-    if(!legEl) return;
-    
-    // Header colors
-    let html = '<table style="width:100%; border-collapse:collapse; text-align:center; table-layout:fixed; color:#fff; border:2px solid #fff;"><tr><td style="border:1px solid #fff; background:rgba(0,0,0,0.3); width:12.5%;"></td>';
-    SPACE_CONFIG.colors.forEach(c => html += `<td style="border:1px solid #fff; background:${c}; height:35px;"></td>`);
-    html += '</tr>';
-    
-    // 4 Rows based on Image 3
-    const rowHeaders = SPACE_CONFIG.shapes;
-    rowHeaders.forEach((s, ri) => {
-        html += `<tr><td style="border:1px solid #fff; font-size:1.8rem; padding:10px; background:rgba(255,255,255,0.05);">${s}</td>`;
-        SPACE_CONFIG.mapping[ri].forEach(v => html += `<td style="border:1px solid #fff; padding:10px; font-weight:bold; font-size:1.4rem;">${v}</td>`);
+    if(legEl) {
+        let html = '<table style="width:100%; border-collapse:collapse; text-align:center; table-layout:fixed; color:#fff; border:2px solid #fff;"><tr><td style="border:1px solid #fff; background:rgba(0,0,0,0.3); width:12.5%;"></td>';
+        SPACE_CONFIG.colors.forEach(c => html += `<td style="border:1px solid #fff; background:${c}; height:35px;"></td>`);
         html += '</tr>';
-    });
-    html += '</table>';
-    legEl.innerHTML = html;
+        
+        // 4 Rows based on Image 3
+        const rowHeaders = SPACE_CONFIG.shapes;
+        rowHeaders.forEach((s, ri) => {
+            html += `<tr><td style="border:1px solid #fff; font-size:1.8rem; padding:10px; background:rgba(255,255,255,0.05);">${s}</td>`;
+            SPACE_CONFIG.mapping[ri].forEach(v => html += `<td style="border:1px solid #fff; padding:10px; font-weight:bold; font-size:1.4rem;">${v}</td>`);
+            html += '</tr>';
+        });
+        html += '</table>';
+        legEl.innerHTML = html;
+        legEl.style.display = 'block';
+    }
     
     const workArea = document.getElementById('space-work-area');
     if(workArea) workArea.innerHTML = '<div style="text-align: center; font-size: 1.5rem; padding: 2rem;">准备好了吗？点击开始</div>';
@@ -641,31 +653,71 @@ function initDecoding() {
     const symMap = {'△':1, '☆':2, '○':3, '□':4, '◇':5};
     decodingState.legend = symMap;
     const legEl = document.getElementById('decoding-legend');
-    const symbols = ['△', '☆', '○', '□', '◇'];
-    let html = '<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:1.8rem; color:#fff; border:2px solid #fff;">';
-    html += '<tr style="background:rgba(255,255,255,0.1);">';
-    symbols.forEach(s => html += `<td style="border:1px solid #fff; padding:10px; text-align:center;">${s}</td>`);
-    html += '</tr><tr>';
-    symbols.forEach((_, i) => html += `<td style="border:1px solid #fff; padding:10px; color:#40c4ff; font-weight:bold; text-align:center;">${i+1}</td>`);
-    html += '</tr></table>'; legEl.innerHTML = html;
+    if(legEl) {
+        const symbols = ['△', '☆', '○', '□', '◇'];
+        let html = '<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:1.8rem; color:#fff; border:2px solid #fff;">';
+        html += '<tr style="background:rgba(255,255,255,0.1);">';
+        symbols.forEach(s => html += `<td style="border:1px solid #fff; padding:10px; text-align:center;">${s}</td>`);
+        html += '</tr><tr>';
+        symbols.forEach((_, i) => html += `<td style="border:1px solid #fff; padding:10px; color:#40c4ff; font-weight:bold; text-align:center;">${i+1}</td>`);
+        html += '</tr></table>'; legEl.innerHTML = html;
+        legEl.style.display = 'block';
+    }
 }
 function startDecoding() {
+    // Ensure initialization has been done
+    if(!decodingState.legend || Object.keys(decodingState.legend).length === 0) {
+        initDecoding();
+    }
     decodingState.isPlaying = true; decodingState.score = 0; decodingState.timeLeft = 60;
+    const btn = document.getElementById('decoding-start');
+    if(btn) btn.textContent = '放弃挑战';
     const inp = document.getElementById('decoding-input'); inp.disabled = false; inp.value = ''; inp.focus();
     nextDecodingRound();
     decodingState.timer = setInterval(() => { 
         if(--decodingState.timeLeft <= 0) { 
-            endDecoding(true); 
-            ScoreManager.saveResult('decoding', decodingState.score); 
+            endDecoding(true);
+            return;
         } 
         document.getElementById('decoding-timer').textContent = decodingState.timeLeft; 
     }, 1000);
 }
 function nextDecodingRound() {
-    const syms = Object.keys(decodingState.legend); const s1 = syms[Math.floor(Math.random()*5)], s2 = syms[Math.floor(Math.random()*5)];
+    // Guard: ensure legend is initialized
+    if(!decodingState.legend || Object.keys(decodingState.legend).length === 0) {
+        initDecoding();
+    }
+    const syms = Object.keys(decodingState.legend);
+    const s1 = syms[Math.floor(Math.random() * syms.length)];
+    const s2 = syms[Math.floor(Math.random() * syms.length)];
     const op = Math.random() > 0.5 ? '+' : '-';
-    decodingState.currentAns = op === '+' ? (decodingState.legend[s1]+decodingState.legend[s2]) : (decodingState.legend[s1]-decodingState.legend[s2]);
-    document.getElementById('decoding-expr').textContent = `${s1} ${op} ${s2} = `; document.getElementById('decoding-input').value = '';
+    decodingState.currentAns = op === '+' ? (decodingState.legend[s1] + decodingState.legend[s2]) : (decodingState.legend[s1] - decodingState.legend[s2]);
+    document.getElementById('decoding-expr').textContent = `${s1} ${op} ${s2} = `;
+    document.getElementById('decoding-input').value = '';
+}
+
+function endDecoding(completed) {
+    clearInterval(decodingState.timer);
+    decodingState.isPlaying = false;
+    const btn = document.getElementById('decoding-start');
+    if(btn) btn.textContent = '开始挑战';
+    const inp = document.getElementById('decoding-input');
+    if(inp) inp.disabled = true;
+    if(completed) {
+        alert('时间到！最终得分：' + decodingState.score);
+        ScoreManager.saveResult('decoding', decodingState.score);
+    }
+}
+
+function endDecodingConn(completed) {
+    clearInterval(decodingConnState.timer);
+    decodingConnState.isPlaying = false;
+    const btn = document.getElementById('decoding-conn-start');
+    if(btn) btn.textContent = '开始挑战';
+    if(completed) {
+        alert('时间到！成功完成 ' + decodingConnState.score + ' 组');
+        ScoreManager.saveResult('decoding-conn', decodingConnState.score);
+    }
 }
 
 function initDecodingConn() {
@@ -675,11 +727,11 @@ function initDecodingConn() {
     
     const legEl = document.getElementById('decoding-conn-legend');
     if(legEl) {
-        let html = '<table style="width:100%; border-collapse:collapse; font-size:1.2rem; color:#fff; border:2px solid #fff;">';
+        let html = '<table style="width:100%; border-collapse:collapse; font-size:1.2rem; color:#fff; border:2px solid rgba(255,255,255,0.2);">';
         html += '<tr style="background:rgba(255,255,255,0.1);">';
-        decodingConnState.letters.forEach(L => html += `<td style="border:1px solid #fff; padding:5px; text-align:center;">${L}</td>`);
+        decodingConnState.letters.forEach(L => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:5px; text-align:center;">${L}</td>`);
         html += '</tr><tr>';
-        decodingConnState.letters.forEach((_, i) => html += `<td style="border:1px solid #fff; padding:5px; color:#40c4ff; font-weight:bold; text-align:center;">${i+1}</td>`);
+        decodingConnState.letters.forEach((_, i) => html += `<td style="border:1px solid rgba(255,255,255,0.2); padding:5px; color:#40c4ff; font-weight:bold; text-align:center;">${i+1}</td>`);
         html += '</tr></table>';
         legEl.innerHTML = html;
         legEl.style.display = 'block';
@@ -687,7 +739,8 @@ function initDecodingConn() {
 
     const grid = document.getElementById('decoding-conn-grid');
     if(grid) {
-        grid.innerHTML = Array.from({length:9}, (_, i) => `<button class="btn glass num-btn" data-num="${i+1}">${i+1}</button>`).join('');
+        grid.innerHTML = Array.from({length:9}, (_, i) => `<button class="btn glass num-btn hover:bg-white/10" data-num="${i+1}" style="min-height: 3rem; font-size:1.5rem; border:1px solid rgba(255,255,255,0.1); cursor:pointer; border-radius: 8px;">${i+1}</button>`).join('');
+        grid.style.display = 'grid';
         grid.querySelectorAll('.num-btn').forEach(btn => {
             btn.onclick = () => {
                 if(!decodingConnState.isPlaying) return;
@@ -866,17 +919,17 @@ function startHouseSearch() {
 }
 function startDecodingConn() {
     const grid = document.getElementById('decoding-conn-grid');
-    if(!grid || grid.innerHTML === '') initDecodingConn(); // Ensure initialized
+    if(!grid || grid.innerHTML.trim() === '' || grid.innerHTML.includes('<!--')) initDecodingConn(); // Ensure initialized
     
     decodingConnState.isPlaying = true;
     decodingConnState.score = 0;
     decodingConnState.timeLeft = 60;
+    document.getElementById('decoding-conn-start').textContent = '放弃挑战';
     nextDecodingConnRound();
     decodingConnState.timer = setInterval(() => {
         if(--decodingConnState.timeLeft <= 0) {
-            clearInterval(decodingConnState.timer);
-            decodingConnState.isPlaying = false;
-            alert(`结束！成功 ${decodingConnState.score} 组`);
+            endDecodingConn(true);
+            return;
         }
         const timerEl = document.getElementById('decoding-conn-timer');
         if(timerEl) timerEl.textContent = decodingConnState.timeLeft;
@@ -974,6 +1027,29 @@ function initVisCancel() {
 
 function initStroop() {
     stroopState.isPlaying = false; nextStroopRound();
+}
+function startStroop() {
+    stroopState.isPlaying = true;
+    stroopState.score = 0;
+    stroopState.timeLeft = 30;
+    document.getElementById('stroop-start').textContent = '放弃挑战';
+    nextStroopRound();
+    stroopState.timer = setInterval(() => {
+        if(--stroopState.timeLeft <= 0) {
+            endStroop(true);
+        }
+        const timerEl = document.getElementById('stroop-timer');
+        if(timerEl) timerEl.textContent = stroopState.timeLeft;
+    }, 1000);
+}
+function endStroop(completed) {
+    clearInterval(stroopState.timer);
+    stroopState.isPlaying = false;
+    document.getElementById('stroop-start').textContent = '开始挑战';
+    if(completed) {
+        alert('时间到！你的得分：' + stroopState.score);
+        ScoreManager.saveResult('stroop', stroopState.score);
+    }
 }
 function nextStroopRound() {
     const colors = [{n:'红',c:'red'},{n:'蓝',c:'blue'},{n:'绿',c:'green'},{n:'黄',c:'yellow'}];
@@ -1128,7 +1204,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if(decInp) decInp.oninput = (e) => { if(parseInt(e.target.value) === decodingState.currentAns) { decodingState.score++; nextDecodingRound(); } };
     
     bindClick('vis-discrim-start', startVisDiscrim);
-    document.querySelectorAll('.stroop-option').forEach(b => b.onclick = () => { if(b.getAttribute('data-color') === stroopState.currentCorrect) alert('对！'); nextStroopRound(); });
+    bindClick('stroop-start', () => stroopState.isPlaying ? endStroop(false) : startStroop());
+    document.querySelectorAll('.stroop-option').forEach(b => b.onclick = () => { 
+        if(!stroopState.isPlaying) return;
+        if(b.getAttribute('data-color') === stroopState.currentCorrect) {
+            stroopState.score++;
+        } else {
+            stroopState.timeLeft = Math.max(0, stroopState.timeLeft - 2);
+        }
+        nextStroopRound(); 
+    });
     
     bindClick('aud-react-start', () => audReactState.isPlaying ? initAudReact() : startAudReact());
     document.querySelectorAll('.btn-circle').forEach(b => b.onclick = () => handleAudReactClick(b.getAttribute('data-color')));
@@ -1184,12 +1269,222 @@ document.addEventListener('DOMContentLoaded', () => {
     
     bindClick('wec-run', initAssessmentWechsler);
     
-    // New Module Hooks
+    // New Module Event Listeners
     bindClick('vis-anti-start', () => visAntiInterState.isPlaying ? endVisAntiInter(false) : startVisAntiInter());
+    bindClick('track-maze-start', () => trackMazeState.isPlaying ? (trackMazeState.isPlaying = false) : startTrackMaze());
+    bindClick('symbol-decode-start', () => symbolDecodeState.isPlaying ? (symbolDecodeState.isPlaying = false) : startSymbolDecode());
+    bindClick('pattern-search-start', initPatternSearch);
 });
 
-// ====== NEW: Visual Anti-Interference Logic (Image 1) ======
-function initVisAntiInter() {
+// ====== NEW: Visual Tracking (迷宫连线) ======
+function initTrackMaze() {
+    trackMazeState.isPlaying = false;
+    trackMazeState.matches = 0;
+    document.getElementById('track-match').textContent = '0/5';
+    const container = document.querySelector('.track-maze-container');
+    container.innerHTML = '<div style="text-align: center; font-size: 1.5rem; padding: 4rem; width: 100%;">准备好了吗？顺着线条寻找右侧对应的黑白图。</div>';
+}
+
+function startTrackMaze() {
+    trackMazeState.isPlaying = true;
+    trackMazeState.matches = 0;
+    trackMazeState.selectedSource = null;
+    const container = document.querySelector('.track-maze-container');
+    container.innerHTML = '';
+    
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 800 500");
+    svg.style.width = "100%";
+    svg.style.height = "auto";
+    container.appendChild(svg);
+
+    const sources = ['👾', '👽', '👹', '👺', '👻'];
+    const targets = ['👾', '👽', '👹', '👺', '👻'].sort(() => Math.random() - 0.5);
+    const colors = ['#ff4d4d', '#40c4ff', '#2ea043', '#ffeb3b', '#bc8cff'];
+
+    sources.forEach((s, i) => {
+        // Draw Source
+        const gSource = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", "20"); rect.setAttribute("y", 50 + i * 80);
+        rect.setAttribute("width", "60"); rect.setAttribute("height", "60");
+        rect.setAttribute("rx", "12"); rect.setAttribute("fill", "rgba(255,255,255,0.05)");
+        rect.setAttribute("stroke", "rgba(255,255,255,0.1)");
+        rect.style.cursor = "pointer";
+        rect.onclick = () => {
+            if(!trackMazeState.isPlaying) return;
+            trackMazeState.selectedSource = i;
+            Array.from(svg.querySelectorAll('rect')).forEach(r => r.setAttribute("stroke", "rgba(255,255,255,0.1)"));
+            rect.setAttribute("stroke", colors[i]);
+        };
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", "50"); text.setAttribute("y", 85 + i * 80);
+        text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle");
+        text.setAttribute("font-size", "30"); text.textContent = s;
+        text.style.pointerEvents = "none";
+        gSource.appendChild(rect); gSource.appendChild(text); svg.appendChild(gSource);
+
+        // Draw Target
+        const targetIdx = targets.indexOf(s);
+        const gTarget = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const tRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        tRect.setAttribute("x", "720"); tRect.setAttribute("y", 50 + targetIdx * 80);
+        tRect.setAttribute("width", "60"); tRect.setAttribute("height", "60");
+        tRect.setAttribute("rx", "12"); tRect.setAttribute("fill", "rgba(255,255,255,0.03)");
+        tRect.setAttribute("stroke", "rgba(255,255,255,0.1)");
+        tRect.style.cursor = "pointer";
+        tRect.onclick = () => {
+            if(!trackMazeState.isPlaying || trackMazeState.selectedSource === null) return;
+            if(trackMazeState.selectedSource === i) {
+                tRect.setAttribute("fill", colors[i] + "44");
+                tRect.setAttribute("stroke", colors[i]);
+                trackMazeState.matches++;
+                document.getElementById('track-match').textContent = `${trackMazeState.matches}/5`;
+                if(trackMazeState.matches === 5) {
+                    trackMazeState.isPlaying = false;
+                    alert("全部找对！感知力满分！");
+                    ScoreManager.saveResult('track-maze', 100);
+                }
+            } else {
+                tRect.setAttribute("stroke", "var(--danger)");
+                setTimeout(() => tRect.setAttribute("stroke", "rgba(255,255,255,0.1)"), 400);
+            }
+        };
+        const tText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        tText.setAttribute("x", "750"); tText.setAttribute("y", 85 + targetIdx * 80);
+        tText.setAttribute("text-anchor", "middle"); tText.setAttribute("dominant-baseline", "middle");
+        tText.setAttribute("font-size", "30"); tText.textContent = s;
+        tText.setAttribute("filter", "grayscale(100%) opacity(0.3)");
+        tText.style.pointerEvents = "none";
+        gTarget.appendChild(tRect); gTarget.appendChild(tText); svg.appendChild(gTarget);
+
+        // Draw Path (Random but connected)
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const startY = 80 + i * 80, endY = 80 + targetIdx * 80;
+        const midX1 = 150 + Math.random() * 100, midX2 = 550 + Math.random() * 100;
+        const d = `M 80 ${startY} H ${midX1} V ${endY} H 720`;
+        path.setAttribute("d", d); path.setAttribute("stroke", "rgba(255,255,255,0.1)");
+        path.setAttribute("stroke-width", "3"); path.setAttribute("fill", "none");
+        svg.appendChild(path);
+    });
+}
+
+// ====== NEW: Symbol Decoding (符号码译) ======
+function initSymbolDecode() {
+    symbolDecodeState.isPlaying = false;
+    document.getElementById('symbol-decode-timer').textContent = '60';
+    document.getElementById('symbol-key').innerHTML = '';
+    document.getElementById('symbol-grid').innerHTML = '';
+    document.getElementById('symbol-input-pad').innerHTML = '';
+}
+
+function startSymbolDecode() {
+    symbolDecodeState.isPlaying = true; symbolDecodeState.score = 0; symbolDecodeState.timeLeft = 60;
+    symbolDecodeState.currentIdx = 0;
+    const sets = [
+        { s: ['👍', '👎', '✌️', '🤟', '✋', '👊', '👌', '🤏', '🤞', '🖖'], v: ['1', '3', '5', '7', '9', '0', '2', '4', '6', '8'] },
+        { s: ['⬅️', '➡️', '⬆️', '⬇️', '↖️', '↗️', '↘️', '↙️', '↔️', '↕️'], v: ['B', 'D', 'P', 'Q', 'F', 'b', 'd', 'p', 'q', 'f'] }
+    ];
+    symbolDecodeState.set = sets[Math.floor(Math.random() * sets.length)];
+    
+    // Render Key
+    const keyEl = document.getElementById('symbol-key');
+    keyEl.innerHTML = symbolDecodeState.set.s.map((s, i) => `
+        <div class="glass flex flex-col items-center p-2 rounded-lg" style="border:1px solid rgba(255,255,255,0.1)">
+            <span style="font-size:1.5rem">${s}</span>
+            <span style="font-size:0.8rem; color:var(--primary); font-weight:bold">${symbolDecodeState.set.v[i]}</span>
+        </div>
+    `).join('');
+
+    // Render Grid
+    const gridEl = document.getElementById('symbol-grid');
+    gridEl.innerHTML = '';
+    const puzzle = Array.from({length: 24}, () => Math.floor(Math.random() * 10));
+    symbolDecodeState.puzzle = puzzle;
+    puzzle.forEach((pIdx, i) => {
+        const item = document.createElement('div');
+        item.className = 'symbol-decode-item' + (i === 0 ? ' active' : '');
+        item.id = `sd-item-${i}`;
+        item.innerHTML = `<span>${symbolDecodeState.set.s[pIdx]}</span><span id="sd-val-${i}" style="margin-top:5px; font-weight:bold; min-height:1.2rem"></span>`;
+        gridEl.appendChild(item);
+    });
+
+    // Render Pad
+    const padEl = document.getElementById('symbol-input-pad');
+    padEl.innerHTML = '';
+    symbolDecodeState.set.v.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = 'btn glass';
+        btn.textContent = v;
+        btn.onclick = () => {
+            if(!symbolDecodeState.isPlaying) return;
+            const correctV = symbolDecodeState.set.v[symbolDecodeState.puzzle[symbolDecodeState.currentIdx]];
+            const currentItem = document.getElementById(`sd-item-${symbolDecodeState.currentIdx}`);
+            const valSpan = document.getElementById(`sd-val-${symbolDecodeState.currentIdx}`);
+            if(v === correctV) {
+                valSpan.textContent = v; currentItem.classList.remove('active'); currentItem.classList.add('correct');
+                symbolDecodeState.currentIdx++;
+                if(symbolDecodeState.currentIdx < 24) document.getElementById(`sd-item-${symbolDecodeState.currentIdx}`).classList.add('active');
+                else { symbolDecodeState.isPlaying = false; alert("挑战成功！"); ScoreManager.saveResult('symbol-decode', 100); }
+            } else {
+                currentItem.classList.add('wrong'); setTimeout(() => currentItem.classList.remove('wrong'), 300);
+            }
+        };
+        padEl.appendChild(btn);
+    });
+
+    symbolDecodeState.timer = setInterval(() => {
+        if(--symbolDecodeState.timeLeft <= 0) { clearInterval(symbolDecodeState.timer); symbolDecodeState.isPlaying = false; alert("时间到！"); }
+        document.getElementById('symbol-decode-timer').textContent = symbolDecodeState.timeLeft;
+    }, 1000);
+}
+
+// ====== NEW: Pattern Search (视觉搜寻) ======
+function initPatternSearch() {
+    patternSearchState.level = 1; patternSearchState.found = 0;
+    const pool = ['⭐', '⚪', '⬜', '💠', '🔷', '🔶', '⬛', '▫️', '▪️', '✨', '🔘', '📍'];
+    patternSearchState.targetSeq = Array.from({length: 2}, () => pool[Math.floor(Math.random() * pool.length)]);
+    patternSearchState.total = 3;
+    document.getElementById('pattern-lv').textContent = '1';
+    document.getElementById('pattern-found').textContent = '0/3';
+    
+    // Render Target
+    const targetEl = document.getElementById('pattern-target');
+    targetEl.innerHTML = patternSearchState.targetSeq.map(s => `<span style="font-size:2rem">${s}</span>`).join('');
+
+    // Render Grid
+    const gridEl = document.getElementById('pattern-grid');
+    gridEl.innerHTML = '';
+    const cols = window.innerWidth <= 768 ? 8 : 12; // Adjust columns for mobile
+    gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    const totalCells = cols * 10;
+    const gridData = Array.from({length: totalCells}, () => pool[Math.floor(Math.random() * pool.length)]);
+    
+    // Inject targets
+    for(let i=0; i<3; i++) {
+        const rPos = Math.floor(Math.random() * (totalCells - 2));
+        gridData[rPos] = patternSearchState.targetSeq[0]; gridData[rPos+1] = patternSearchState.targetSeq[1];
+    }
+
+    gridData.forEach((s, i) => {
+        const item = document.createElement('div');
+        item.className = 'pattern-grid-item'; item.textContent = s;
+        item.onclick = () => {
+            if(gridData[i] === patternSearchState.targetSeq[0] && gridData[i+1] === patternSearchState.targetSeq[1]) {
+                if(!item.classList.contains('found')) {
+                    item.classList.add('found'); document.getElementById('pattern-grid').children[i+1].classList.add('found');
+                    patternSearchState.found++; document.getElementById('pattern-found').textContent = `${patternSearchState.found}/${patternSearchState.total}`;
+                    if(patternSearchState.found >= patternSearchState.total) { alert("进入下一关！"); patternSearchState.level++; initPatternSearch(); }
+                }
+            } else {
+                item.classList.add('wrong'); setTimeout(() => item.classList.remove('wrong'), 300);
+            }
+        };
+        gridEl.appendChild(item);
+    });
+}
+
+function _resetVisAntiInter() {
     visAntiInterState.isPlaying = false;
     document.getElementById('vis-anti-timer').textContent = '60';
     const grid = document.getElementById('vis-anti-grid');

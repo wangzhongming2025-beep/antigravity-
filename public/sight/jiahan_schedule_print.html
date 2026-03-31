@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贾涵专属弱视康复与遮盖训练日历</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #fafafa;
+            --card-bg: #ffffff;
+            --accent: #f59e0b;
+            --text-main: #27272a;
+            --text-muted: #71717a;
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        /* A4 Print Setup */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        @media print {
+            body { background-color: #fff; }
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+            .avoid-break { page-break-inside: avoid; }
+            .shadow-lg { box-shadow: none !important; border: 1px solid #e4e4e7; }
+        }
+        .a4-container {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .gradient-top {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #f43f5e, #f59e0b, #10b981);
+        }
+        .stamp {
+            position: absolute;
+            top: 3rem;
+            right: 3rem;
+            border: 3px solid #f43f5e;
+            color: #f43f5e;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 1.25rem;
+            transform: rotate(15deg);
+            opacity: 0.8;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body class="text-zinc-800 antialiased">
+
+    <!-- 打印提示悬浮条 -->
+    <div class="no-print fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-zinc-900 border border-zinc-700 text-white px-8 py-4 rounded-full shadow-2xl backdrop-blur-md">
+        <span class="font-bold">点击右侧按钮生成高品质 PDF 报告文件 👉</span>
+        <button onclick="window.print()" class="bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-white font-black px-6 py-2 rounded-full transition-all shadow-lg hover:shadow-amber-500/30">
+            生成/打印 PDF
+        </button>
+    </div>
+
+    <!-- 第一张 A4 面板 -->
+    <main class="a4-container mt-24 md:mt-12 bg-white relative">
+        <div class="gradient-top"></div>
+        <div class="stamp">VISION GUARD V2.0</div>
+        
+        <!-- Header -->
+        <header class="border-b-2 border-zinc-100 pb-8 mb-8 text-center mt-6">
+            <h1 class="text-4xl font-black text-zinc-900 tracking-tight leading-tight">
+                单眼重度屈光参差性弱视
+                <span class="block text-amber-500 text-3xl mt-2">康复训练与干预课表</span>
+            </h1>
+            <div class="flex justify-center items-center gap-6 mt-6 font-mono text-sm text-zinc-500">
+                <span class="bg-zinc-100 px-3 py-1 rounded-md text-zinc-700 font-bold">患者档案: 贾涵 (4岁)</span>
+                |
+                <span>处方节点: 2026-03</span>
+                |
+                <span class="text-rose-600 font-bold">每日要求: 严控4小时遮盖</span>
+            </div>
+        </header>
+
+        <!-- 临床概况 -->
+        <section class="mb-10 avoid-break border border-zinc-200 rounded-2xl p-6 bg-zinc-50/50">
+            <h2 class="text-xl font-black mb-4 flex items-center gap-2">
+                <span class="w-2 h-6 bg-zinc-800 rounded-sm"></span>
+                临床基线数据与诊断
+            </h2>
+            <div class="grid grid-cols-2 gap-6 text-sm">
+                <div class="space-y-2">
+                    <div class="flex justify-between border-b border-zinc-200 pb-1">
+                        <span class="font-bold text-zinc-600">右眼 (OD) 状态</span>
+                        <span class="text-rose-600 font-black">完全压抑 / 重度弱视</span>
+                    </div>
+                    <div class="flex justify-between border-b border-zinc-200 pb-1">
+                        <span class="text-zinc-500">处方度数</span>
+                        <span class="font-mono font-bold">-5.00DS / +2.25DC</span>
+                    </div>
+                    <div class="flex justify-between pb-1">
+                        <span class="text-zinc-500">最佳矫正视力</span>
+                        <span class="font-bold text-rose-500">0.5 - 0.6</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between border-b border-zinc-200 pb-1">
+                        <span class="font-bold text-zinc-600">左眼 (OS) 状态</span>
+                        <span class="text-emerald-600 font-black">清晰优势眼</span>
+                    </div>
+                    <div class="flex justify-between border-b border-zinc-200 pb-1">
+                        <span class="text-zinc-500">处方度数</span>
+                        <span class="font-mono font-bold">+0.25DS / +1.00DC</span>
+                    </div>
+                    <div class="flex justify-between pb-1">
+                        <span class="text-zinc-500">最佳矫正视力</span>
+                        <span class="font-bold text-emerald-500">1.0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 黄金铁律 -->
+        <section class="mb-10 avoid-break">
+            <h2 class="text-xl font-black mb-6 flex items-center gap-2 text-rose-600">
+                <span class="w-2 h-6 bg-rose-500 rounded-sm"></span>
+                干预铁律 (绝对执行)
+            </h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-rose-50 p-5 rounded-xl border border-rose-100">
+                    <div class="text-3xl mb-2">👓</div>
+                    <h3 class="font-bold text-rose-800 mb-2">全天满轴戴镜</h3>
+                    <p class="text-xs text-rose-700 leading-relaxed">除洗澡/睡觉外一秒都不能摘，摘掉等于大脑放弃读取右眼的图形，引发不可逆反弹。</p>
+                </div>
+                <div class="bg-amber-50 p-5 rounded-xl border border-amber-100">
+                    <div class="text-3xl mb-2">⏱️</div>
+                    <h3 class="font-bold text-amber-800 mb-2">精准4小时遮盖</h3>
+                    <p class="text-xs text-amber-700 leading-relaxed">必须直接用皮肤眼贴封死【左眼】。不可少于4小时间，也不要超额以防剥夺左侧发育。</p>
+                </div>
+                <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <h3 class="font-bold text-blue-800 mb-2">无精细不遮挡</h3>
+                    <p class="text-xs text-blue-700 leading-relaxed">在4小时的眼贴期内，强制提取40-60分钟用于极高强度的精细数字互动与视觉刺激。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 课表 -->
+        <section class="avoid-break">
+            <h2 class="text-xl font-black mb-6 flex items-center gap-2">
+                <span class="w-2 h-6 bg-zinc-800 rounded-sm"></span>
+                标准 4 小时拆分排班表 (针对低龄防抵触)
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- 上午场 -->
+                <div class="border-l-4 border-amber-500 pl-5 relative">
+                    <div class="absolute -left-3 top-0 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm">1</div>
+                    <h3 class="text-lg font-bold flexitems-center gap-2 mb-3">
+                        上午阶段：基础视中枢唤醒期
+                        <span class="text-sm font-normal text-zinc-500 ml-2">(遮盖左眼 2小时)</span>
+                    </h3>
+                    <table class="w-full text-sm border-collapse">
+                        <tr class="border-b border-zinc-100">
+                            <td class="py-3 font-mono text-zinc-500 w-24 align-top">09:30 -</td>
+                            <td class="py-3 font-bold w-36 align-top">被动光栅干预<br><span class="text-[10px] text-rose-500 font-normal">需数字化设备</span></td>
+                            <td class="py-3 text-zinc-600 align-top">通过大屏幕播放系统内的 <span class="bg-zinc-100 px-1 rounded font-mono text-xs">amblyopia_gabor</span> CAM旋转光栅。利用低频图案和40Hz脑震荡波强行清洗右眼残留压抑。(15分钟)</td>
+                        </tr>
+                        <tr class="border-b border-zinc-100">
+                            <td class="py-3 font-mono text-zinc-500 align-top">09:45 -</td>
+                            <td class="py-3 font-bold align-top">高光物理操作</td>
+                            <td class="py-3 text-zinc-600 align-top">在明亮环境下串大号珠子、乐高积木拼搭或描红画画。强化空间几何定位。(30分钟)</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 font-mono text-zinc-500 align-top">10:15 -</td>
+                            <td class="py-3 font-bold align-top">无感日常适应</td>
+                            <td class="py-3 text-zinc-600 align-top">带眼贴正常吃喝玩乐散步，避免疲劳直至满2小时取下。</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- 下午场 -->
+                <div class="border-l-4 border-blue-500 pl-5 relative mt-8">
+                    <div class="absolute -left-3 top-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm">2</div>
+                    <h3 class="text-lg font-bold flexitems-center gap-2 mb-3">
+                        下午阶段：强迫精细跟踪互动
+                        <span class="text-sm font-normal text-zinc-500 ml-2">(遮盖左眼 2小时)</span>
+                    </h3>
+                    <table class="w-full text-sm border-collapse">
+                        <tr class="border-b border-zinc-100">
+                            <td class="py-3 font-mono text-zinc-500 w-24 align-top">16:00 -</td>
+                            <td class="py-3 font-bold text-blue-700 w-36 align-top">幼童雷达追踪<br><span class="text-[10px] bg-blue-100 text-blue-800 px-1 rounded font-normal">系统提分核心</span></td>
+                            <td class="py-3 text-zinc-600 align-top">打开 <span class="bg-zinc-100 px-1 rounded font-mono text-xs">pediatric_tracking</span> 应用舱，要求孩子必须单指全程按住发光琥珀球，强迫极度模糊的右眼前黄斑凹进行“死锁死对焦”。(20分钟)</td>
+                        </tr>
+                        <tr class="border-b border-zinc-100">
+                            <td class="py-3 font-mono text-zinc-500 align-top">16:20 -</td>
+                            <td class="py-3 font-bold align-top">找不同与挑豆</td>
+                            <td class="py-3 text-zinc-600 align-top">颜色相近卡片找茬游戏，或杂乱豆子挑出色豆。锻炼色度视差分辨力。(30分钟)</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 font-mono text-zinc-500 align-top">16:50 -</td>
+                            <td class="py-3 font-bold align-top">无感日常适应</td>
+                            <td class="py-3 text-zinc-600 align-top">自由活动。闹钟一响，一秒不多立刻撕掉眼贴解放左眼。</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 近视防护警告 -->
+        <section class="mt-10 bg-zinc-900 text-white p-6 rounded-2xl avoid-break">
+            <h2 class="text-lg font-bold mb-2 flex items-center gap-2 text-amber-400">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                防控近视红线警告 (近视眼底双管对策)
+            </h2>
+            <p class="text-sm text-zinc-400 leading-relaxed">
+                报告显示双眼均具有**“豹纹状眼底体征”**，加之超长眼轴，**极易引发右眼近视轴度不受控爆发**。在治弱视（大量精细用眼）与防近视（禁止看近）的拉扯中：<br><br>
+                必须保证在每日 **不遮盖** 的时候，强迫达成 <span class="text-amber-400 font-bold border-b border-amber-400">≥ 2小时 的纯户外强日照大运动</span>，催生多巴胺以机械遏制代偿性眼轴拉长。除指定系统训练外，严禁长时间玩手机或读小字绘本。
+            </p>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="mt-12 text-center text-xs text-zinc-400 font-mono border-t border-zinc-100 pt-6">
+            NEUROFLOW PRO THERAPEUTICS • GENERATED 2026-03
+        </footer>
+
+    </main>
+</body>
+</html>

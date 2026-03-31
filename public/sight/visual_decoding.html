@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉译码转换训练 - VisionGuard AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+        }
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .key-box {
+            background: rgba(45, 45, 45, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .decode-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 12px;
+        }
+        .decode-item {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            aspect-ratio: 1 / 1.4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            transition: all 0.2s ease;
+        }
+        .decode-item.active {
+            border-color: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        .decode-item.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .decode-item.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .symbol-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-6">
+    <nav class="flex justify-between items-center mb-8">
+        <a href="training_hub.html" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm font-mono">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            BACK TO HUB
+        </a>
+        <div class="flex items-center gap-6">
+            <div id="timer" class="text-xl font-mono text-amber-500">00:00</div>
+            <div id="score" class="text-xs font-mono text-zinc-500">
+                PROGRESS: <span id="progress" class="text-white">0/32</span> | ERRORS: <span id="errors" class="text-rose-500">0</span>
+            </div>
+            <button onclick="initGame()" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-3 py-1 rounded transition-colors font-mono">NEW GAME</button>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto w-full flex-1 flex flex-col items-center">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-black mb-2 tracking-tight">解码与译码转换训练</h1>
+            <p class="text-zinc-400 text-sm">观察上方对照表，将下方符号转换为对应的数字或字母。</p>
+        </div>
+
+        <!-- Reference Key -->
+        <div id="reference-key" class="glass-panel rounded-2xl p-6 mb-8 w-full grid grid-cols-5 md:grid-cols-10 gap-4">
+            <!-- Reference items will be injected here -->
+        </div>
+
+        <!-- Training Grid -->
+        <div id="training-grid" class="decode-grid w-full mb-8">
+            <!-- Grid items will be injected here -->
+        </div>
+
+        <!-- Input Pad -->
+        <div id="input-pad" class="symbol-pad w-full max-w-lg mb-8">
+            <!-- Buttons will be injected here -->
+        </div>
+
+        <div id="complete-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center">
+                <h2 class="text-3xl font-bold mb-2">训练完成!</h2>
+                <div class="space-y-2 mb-6">
+                    <p class="text-zinc-400">用时: <span id="final-time" class="text-white font-mono"></span></p>
+                    <p class="text-zinc-400">错误次数: <span id="final-errors" class="text-rose-500 font-mono"></span></p>
+                </div>
+                <button onclick="initGame()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 rounded-xl transition-colors">再来一次</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const symbolSets = [
+            { type: 'hand', symbols: ['👍', '👎', '✌️', '🤟', '✋', '👊', '👌', '🤏', '🤞', '🖖'], values: ['1', '3', '5', '7', '9', '0', '2', '4', '6', '8'] },
+            { type: 'arrows', symbols: ['⬅️', '➡️', '⬆️', '⬇️', '↖️', '↗️', '↘️', '↙️', '↔️', '↕️'], values: ['B', 'D', 'P', 'Q', 'F', 'b', 'd', 'p', 'q', 'f'] },
+            { type: 'shapes', symbols: ['🔴', '🔵', '🟢', '🟡', '🟣', '🟠', '⚪', '⚫', '🤎', '💖'], values: ['A', 'C', 'E', 'G', 'I', 'K', 'M', 'O', 'Q', 'S'] }
+        ];
+
+        let currentSet = symbolSets[0];
+        let gridData = [];
+        let currentIndex = 0;
+        let errors = 0;
+        let startTime = null;
+        let timerInterval = null;
+
+        function initGame() {
+            currentSet = symbolSets[Math.floor(Math.random() * symbolSets.length)];
+            gridData = Array.from({ length: 32 }, () => Math.floor(Math.random() * 10));
+            currentIndex = 0;
+            errors = 0;
+            startTime = Date.now();
+            document.getElementById('complete-modal').classList.add('hidden');
+            
+            updateStats();
+            renderKey();
+            renderGrid();
+            renderPad();
+            startTimer();
+        }
+
+        function renderKey() {
+            const keyContainer = document.getElementById('reference-key');
+            keyContainer.innerHTML = '';
+            currentSet.symbols.forEach((symbol, i) => {
+                const box = document.createElement('div');
+                box.className = 'key-box rounded-lg p-2 flex flex-col items-center justify-center';
+                box.innerHTML = `<span class="text-2xl mb-1">${symbol}</span><span class="text-xs font-bold text-zinc-500">${currentSet.values[i]}</span>`;
+                keyContainer.appendChild(box);
+            });
+        }
+
+        function renderGrid() {
+            const gridContainer = document.getElementById('training-grid');
+            gridContainer.innerHTML = '';
+            gridData.forEach((symbolIdx, i) => {
+                const item = document.createElement('div');
+                item.className = 'decode-item rounded-xl' + (i === 0 ? ' active' : '');
+                item.id = `item-${i}`;
+                item.innerHTML = `<span class="text-2xl">${currentSet.symbols[symbolIdx]}</span><span class="text-lg font-mono text-zinc-600 mt-2 h-6" id="val-${i}"></span>`;
+                gridContainer.appendChild(item);
+            });
+        }
+
+        function renderPad() {
+            const padContainer = document.getElementById('input-pad');
+            padContainer.innerHTML = '';
+            currentSet.values.forEach((val, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-zinc-900 border border-zinc-800 hover:border-amber-500 py-4 rounded-xl text-xl font-bold font-mono transition-all';
+                btn.innerText = val;
+                btn.onclick = () => handleInput(val);
+                padContainer.appendChild(btn);
+            });
+        }
+
+        function handleInput(val) {
+            if (currentIndex >= 32) return;
+
+            const correctVal = currentSet.values[gridData[currentIndex]];
+            const currentItem = document.getElementById(`item-${currentIndex}`);
+            const valSpan = document.getElementById(`val-${currentIndex}`);
+
+            if (val === correctVal) {
+                valSpan.innerText = val;
+                valSpan.className = 'text-lg font-mono text-emerald-400 mt-2 h-6';
+                currentItem.classList.remove('active', 'wrong');
+                currentItem.classList.add('correct');
+                currentIndex++;
+                
+                if (currentIndex < 32) {
+                    document.getElementById(`item-${currentIndex}`).classList.add('active');
+                } else {
+                    finishGame();
+                }
+            } else {
+                errors++;
+                currentItem.classList.add('wrong');
+                setTimeout(() => currentItem.classList.remove('wrong'), 300);
+            }
+            updateStats();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const s = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function finishGame() {
+            clearInterval(timerInterval);
+            const timeStr = document.getElementById('timer').innerText;
+            document.getElementById('final-time').innerText = timeStr;
+            document.getElementById('final-errors').innerText = errors;
+            document.getElementById('complete-modal').classList.remove('hidden');
+        }
+
+        function updateStats() {
+            document.getElementById('progress').innerText = `${currentIndex}/32`;
+            document.getElementById('errors').innerText = errors;
+        }
+
+        // Support keyboard input
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toUpperCase();
+            if (currentSet.values.includes(key)) {
+                handleInput(key);
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>
