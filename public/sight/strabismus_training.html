@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斜视与融像康复训练中心 | SightHealth Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="strabismus.css">
+    <style>
+        .module-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .control-panel {
+            background: rgba(0,0,0,0.5);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 1rem;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 animate-slide-up">
+            <div>
+                <div class="inline-block px-4 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded-full mb-3 uppercase tracking-widest">
+                    Vision Therapy Suite
+                </div>
+                <h1 class="tech-font text-3xl md:text-4xl text-white">
+                    斜视与<span class="text-cyan-400">融像</span>康复中心
+                </h1>
+                <p class="text-zinc-500 mt-2">专业的双眼视觉功能提升系统 · 科学训练 · 高效康复</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="vision_checkup.html" class="px-6 py-3 glass-panel text-sm font-bold text-zinc-300 hover:text-white">先去体检</a>
+                <button class="btn-primary" onclick="window.print()">打印方案</button>
+            </div>
+        </header>
+
+        <!-- Module Selection Dashboard -->
+        <div class="module-selector mb-12">
+            <div class="glass-panel module-card active" onclick="selectTab(this, 'fusion')">
+                <div class="icon-wrapper bg-red-500/20 text-red-400 glow-red">🔴🔵</div>
+                <h3 class="font-bold text-white">红绿融像挑战</h3>
+                <p class="text-xs text-zinc-500 mt-2">解决单眼抑制，训练双眼合一</p>
+            </div>
+            <div class="glass-panel module-card" onclick="selectTab(this, 'saccades')">
+                <div class="icon-wrapper bg-green-500/20 text-green-400 glow-green">👁️‍🗨️</div>
+                <h3 class="font-bold text-white">动态扫视练习</h3>
+                <p class="text-xs text-zinc-500 mt-2">精准追踪，提升眼球灵活性</p>
+            </div>
+            <div class="glass-panel module-card" onclick="selectTab(this, 'brock-string')">
+                <div class="icon-wrapper bg-purple-500/20 text-purple-400 glow-purple">🧶</div>
+                <h3 class="font-bold text-white">虚拟布罗克绳</h3>
+                <p class="text-xs text-zinc-500 mt-2">训练集合与散开，解决对焦难</p>
+            </div>
+            <div class="glass-panel module-card" onclick="selectTab(this, 'rds')">
+                <div class="icon-wrapper bg-cyan-500/20 text-cyan-400 glow-cyan">🔲</div>
+                <h3 class="font-bold text-white">立体视增强</h3>
+                <p class="text-xs text-zinc-500 mt-2">随机点立体图，重建空间感</p>
+            </div>
+        </div>
+
+        <!-- Training Area -->
+        <div class="glass-panel p-6 mb-8 relative overflow-hidden">
+            <div class="absolute top-4 right-4 z-10">
+                <button class="px-4 py-2 bg-zinc-800/80 text-xs rounded-lg text-zinc-400 hover:text-white" onclick="toggleFullscreen()">全屏训练</button>
+            </div>
+            
+            <canvas id="training-canvas" width="1000" height="600" class="shadow-2xl"></canvas>
+
+            <!-- Inline Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 control-panel">
+                <div>
+                    <label class="block text-xs uppercase text-zinc-500 mb-2">训练速度 (Speed)</label>
+                    <input type="range" min="0.1" max="5" step="0.1" value="1" oninput="updateParams('speed', this.value)">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase text-zinc-500 mb-2">目标大小 (Size)</label>
+                    <input type="range" min="10" max="100" step="1" value="40" oninput="updateParams('targetSize', this.value)">
+                </div>
+                <div id="extra-control">
+                    <label class="block text-xs uppercase text-zinc-500 mb-2">融像距离 (Separation)</label>
+                    <input type="range" min="0" max="200" step="1" value="50" oninput="updateParams('separation', this.value)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Footer -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="glass-panel p-6 border-l-4 border-cyan-500">
+                <h4 class="font-bold text-cyan-400 mb-4">使用说明 (Instructions)</h4>
+                <ul class="space-y-3 text-sm text-zinc-400">
+                    <li>• <strong class="text-white">红绿融像</strong>：必须戴上红银（左红右绿）眼镜，双眼各看一种颜色。</li>
+                    <li>• <strong class="text-white">扫视练习</strong>：保持头部不动，仅转动眼球跟踪目标。</li>
+                    <li>• <strong class="text-white">布罗克绳</strong>：尝试将三个珠子看成一个，不要出现复视。</li>
+                    <li>• <strong class="text-white">最佳距离</strong>：建议距离屏幕 50cm-80cm。</li>
+                </ul>
+            </div>
+            <div class="glass-panel p-6 border-l-4 border-red-500">
+                <h4 class="font-bold text-red-500 mb-4">特别警示 (Warning)</h4>
+                <p class="text-sm text-zinc-400 leading-relaxed">
+                    视觉训练应在专业医师指导下进行。如训练过程中感到严重头晕、恶心、眼睛刺痛，请立即停止休息。每天建议训练 15-20 分钟，持之以恒会有显著改善。
+                </p>
+            </div>
+        </div>
+
+        <footer class="text-center text-zinc-600 text-xs py-8">
+            © 2026 SightHealth Pro Vision Therapy Clinic · Empowering Eyes
+        </footer>
+    </div>
+
+    <script src="strabismus.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initTraining();
+            // Start with fusion by default
+            startModule('fusion');
+        });
+
+        function selectTab(card, module) {
+            // UI Update
+            document.querySelectorAll('.module-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            
+            // Extra controls visibility
+            const extra = document.getElementById('extra-control');
+            if (module === 'fusion' || module === 'rds') {
+                extra.style.opacity = "1";
+                extra.style.pointerEvents = "auto";
+            } else {
+                extra.style.opacity = "0.3";
+                extra.style.pointerEvents = "none";
+            }
+
+            // Logic Switch
+            startModule(module);
+        }
+
+        function toggleFullscreen() {
+            const canvas = document.getElementById('training-canvas');
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>
