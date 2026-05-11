@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#7c9a92">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ADHD 工具箱</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="home-top fade-in-up">
+    <span class="home-avatar" id="greetingEmoji">🧠</span>
+    <div class="home-greeting" id="greetingText">下午好</div>
+    <div class="home-title">ADHD 工具箱</div>
+    <p class="home-subtitle">帮你把乱糟糟的大脑，理出一点秩序</p>
+  </div>
+
+  <div class="tool-grid">
+    <a href="decompose.html" class="tool-card decompose-card fade-in" style="animation-delay:0.05s">
+      <div class="tool-icon decompose-icon">🧩</div>
+      <div class="tool-info">
+        <div class="tool-name">任务拆解器</div>
+        <div class="tool-desc">把一件不想做的事，拆成10个微小步骤</div>
+      </div>
+      <span class="tool-arrow">→</span>
+    </a>
+
+    <a href="timer.html" class="tool-card timer-card fade-in" style="animation-delay:0.1s">
+      <div class="tool-icon timer-icon">⏱️</div>
+      <div class="tool-info">
+        <div class="tool-name">5分钟启动</div>
+        <div class="tool-desc">只做5分钟就好，不想做了就停下来</div>
+      </div>
+      <span class="tool-arrow">→</span>
+    </a>
+
+    <a href="braindump.html" class="tool-card braindump-card fade-in" style="animation-delay:0.15s">
+      <div class="tool-icon braindump-icon">🌀</div>
+      <div class="tool-info">
+        <div class="tool-name">大脑清理</div>
+        <div class="tool-desc">把所有堵着的事倒出来，清空大脑内存</div>
+      </div>
+      <span class="tool-arrow">→</span>
+    </a>
+
+    <a href="todo.html" class="tool-card todo-card fade-in" style="animation-delay:0.2s">
+      <div class="tool-icon todo-icon">✅</div>
+      <div class="tool-info">
+        <div class="tool-name">三件事</div>
+        <div class="tool-desc">今天只做最重要的3件事，做完就收工</div>
+      </div>
+      <span class="tool-arrow">→</span>
+    </a>
+  </div>
+
+  <div class="footer-note fade-in" style="animation-delay:0.3s">
+    所有数据仅存储在本地 · 不上传服务器
+  </div>
+</div>
+
+<script>
+(function() {
+  const h = new Date().getHours();
+  let emoji, text;
+  if (h < 6) { emoji = '🌙'; text = '还没睡啊'; }
+  else if (h < 9) { emoji = '🌅'; text = '早上好'; }
+  else if (h < 12) { emoji = '☀️'; text = '上午好'; }
+  else if (h < 14) { emoji = '🌤️'; text = '中午好'; }
+  else if (h < 18) { emoji = '🌇'; text = '下午好'; }
+  else if (h < 22) { emoji = '🌆'; text = '晚上好'; }
+  else { emoji = '🌙'; text = '夜深了'; }
+
+  document.getElementById('greetingEmoji').textContent = emoji;
+  document.getElementById('greetingText').textContent = text;
+})();
+</script>
+</body>
+</html>

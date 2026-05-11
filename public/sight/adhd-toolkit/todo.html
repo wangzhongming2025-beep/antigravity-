@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三件事 · ADHD工具箱</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="todo">
+
+<div class="container">
+  <div class="page-header">
+    <a href="index.html" class="back-btn">←</a>
+    <h1>✅ 三件事</h1>
+  </div>
+
+  <div class="card card-soft">
+    <p class="section-subtitle">
+      ADHD的待办清单超过3件事就会瘫痪。<br>
+      做完一件，才能加下一件。
+    </p>
+
+    <div class="section-title">今天最重要的</div>
+
+    <div id="todoEmpty" class="todo-empty" style="display:none">
+      <span class="todo-empty-icon float">🌿</span>
+      <div class="todo-empty-text">
+        今天还没有待办<br>
+        想一件今天做完了会感觉不错的事
+      </div>
+    </div>
+
+    <ul class="todo-list" id="todoList"></ul>
+
+    <div id="todoAllDone" class="todo-celebration" style="display:none">
+      <span class="todo-celebration-icon bounce-in">🎉</span>
+      <div class="todo-celebration-text">今天的事都做完了！</div>
+      <div class="todo-celebration-sub">现在你可以安心休息了 🌿</div>
+      <button class="btn btn-outline btn-sm mt-md" id="addMoreBtn">再加一件</button>
+    </div>
+
+    <div class="todo-input-row mt-md" id="todoInputRow">
+      <input type="text" id="todoInput" placeholder="加一件今天要做的事…" maxlength="60">
+      <button class="btn btn-primary btn-sm" id="addTodoBtn">添加</button>
+    </div>
+    <div class="todo-limit-hint" id="todoLimitHint">最多同时 3 件待办</div>
+  </div>
+
+  <div class="card todo-archived">
+    <div class="todo-archived-header" id="archiveToggle">
+      <span class="arrow">▶</span>
+      <span>📦 已完成的</span>
+      <span id="archiveCount" style="font-size:0.8rem;margin-left:auto"></span>
+    </div>
+    <div class="todo-archived-list" id="archiveList">
+      <ul class="todo-list" id="archivedTodoList"></ul>
+      <button class="btn btn-outline btn-sm btn-block mt-sm" id="clearArchivedBtn" style="display:none">
+        清除已完成记录
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+const MAX_ACTIVE = 3;
+
+const todoInput = document.getElementById('todoInput');
+const addTodoBtn = document.getElementById('addTodoBtn');
+const addMoreBtn = document.getElementById('addMoreBtn');
+const todoList = document.getElementById('todoList');
+const todoEmpty = document.getElementById('todoEmpty');
+const todoAllDone = document.getElementById('todoAllDone');
+const todoInputRow = document.getElementById('todoInputRow');
+const todoLimitHint = document.getElementById('todoLimitHint');
+const archivedTodoList = document.getElementById('archivedTodoList');
+const archiveToggle = document.getElementById('archiveToggle');
+const archiveList = document.getElementById('archiveList');
+const archiveCount = document.getElementById('archiveCount');
+const clearArchivedBtn = document.getElementById('clearArchivedBtn');
+
+function loadTodos() {
+  return Storage.get('todos', { active: [], archived: [] });
+}
+
+function saveTodos(data) {
+  Storage.set('todos', data);
+}
+
+function fireCelebration() {
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  const colors = ['var(--green)', 'var(--primary)', 'var(--accent)', '#f5c842', '#8db580'];
+  for (let i = 0; i < 35; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (4 + Math.random() * 6) + 'px';
+    piece.style.height = (4 + Math.random() * 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.setProperty('--duration', (2 + Math.random() * 2) + 's');
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    overlay.appendChild(piece);
+  }
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 4000);
+}
+
+function render() {
+  const data = loadTodos();
+  const active = data.active || [];
+  const archived = data.archived || [];
+
+  // Active todos
+  todoList.innerHTML = '';
+
+  if (active.length === 0) {
+    todoEmpty.style.display = 'block';
+    todoAllDone.style.display = 'block';
+    todoInputRow.style.display = 'flex';
+  } else {
+    todoEmpty.style.display = 'none';
+    todoAllDone.style.display = 'none';
+    todoInputRow.style.display = 'flex';
+
+    active.forEach((todo, i) => {
+      const li = document.createElement('li');
+      li.className = 'todo-item slide-up';
+      li.style.animationDelay = `${i * 0.06}s`;
+      li.innerHTML = `
+        <input type="checkbox" class="todo-check" data-id="${todo.id}">
+        <span class="todo-text">${todo.text}</span>
+        <button class="todo-delete" data-id="${todo.id}">✕</button>
+      `;
+      li.querySelector('.todo-check').addEventListener('change', function() {
+        if (this.checked) completeTodo(todo.id);
+      });
+      li.querySelector('.todo-delete').addEventListener('click', () => deleteTodo(todo.id));
+      todoList.appendChild(li);
+    });
+  }
+
+  /* Limit hint */
+  if (active.length === 0) {
+    todoLimitHint.textContent = '先加一件事吧';
+  } else if (active.length >= MAX_ACTIVE) {
+    todoLimitHint.textContent = '已满 3 件，先完成一件再加吧';
+  } else {
+    todoLimitHint.textContent = `还可添加 ${MAX_ACTIVE - active.length} 件`;
+  }
+
+  /* Archive */
+  archivedTodoList.innerHTML = '';
+  if (archived.length === 0) {
+    archivedTodoList.innerHTML = '<li style="text-align:center;padding:16px;color:var(--text-muted);font-size:0.85rem;list-style:none;">还没有完成记录</li>';
+    clearArchivedBtn.style.display = 'none';
+  } else {
+    clearArchivedBtn.style.display = '';
+    archived.slice(0, 20).forEach(todo => {
+      const li = document.createElement('li');
+      li.className = 'todo-item done';
+      li.innerHTML = `<span class="todo-text">${todo.text}</span>`;
+      archivedTodoList.appendChild(li);
+    });
+  }
+
+  archiveCount.textContent = `(${archived.length})`;
+}
+
+function addTodo() {
+  const text = todoInput.value.trim();
+  if (!text) return;
+
+  const data = loadTodos();
+  if (data.active.length >= MAX_ACTIVE) return;
+
+  data.active.push({ id: uid(), text, createdAt: Date.now() });
+  saveTodos(data);
+  todoInput.value = '';
+  render();
+  todoInput.focus();
+}
+
+function completeTodo(id) {
+  const data = loadTodos();
+  const idx = data.active.findIndex(t => t.id === id);
+  if (idx === -1) return;
+
+  const todo = data.active[idx];
+  todo.completedAt = Date.now();
+  data.archived.unshift(todo);
+  data.active.splice(idx, 1);
+  if (data.archived.length > 100) data.archived.length = 100;
+  saveTodos(data);
+  render();
+
+  const dataAfter = loadTodos();
+  if (dataAfter.active.length === 0) {
+    fireCelebration();
+  }
+}
+
+function deleteTodo(id) {
+  const data = loadTodos();
+  data.active = data.active.filter(t => t.id !== id);
+  saveTodos(data);
+  render();
+}
+
+addTodoBtn.addEventListener('click', addTodo);
+addMoreBtn.addEventListener('click', () => { todoInput.focus(); });
+todoInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTodo();
+});
+
+clearArchivedBtn.addEventListener('click', () => {
+  if (confirm('清除所有已完成记录？')) {
+    const data = loadTodos();
+    data.archived = [];
+    saveTodos(data);
+    render();
+  }
+});
+
+let archiveOpen = false;
+archiveToggle.addEventListener('click', () => {
+  archiveOpen = !archiveOpen;
+  archiveList.classList.toggle('open', archiveOpen);
+  archiveToggle.classList.toggle('open', archiveOpen);
+});
+
+render();
+</script>
+</body>
+</html>

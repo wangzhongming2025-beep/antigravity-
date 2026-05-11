@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>5分钟启动 · ADHD工具箱</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="timer">
+
+<div class="container">
+  <div class="page-header">
+    <a href="index.html" class="back-btn">←</a>
+    <h1>⏱️ 启动计时器</h1>
+  </div>
+
+  <div class="card">
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="sprint">🚀 5分钟启动</button>
+      <button class="mode-btn" data-mode="focus">🎯 专注·休息</button>
+    </div>
+
+    <div class="timer-display">
+      <div class="timer-circle">
+        <svg viewBox="0 0 220 220">
+          <circle class="timer-circle-bg" cx="110" cy="110" r="100"/>
+          <circle class="timer-circle-progress" id="progressRing" cx="110" cy="110" r="100"
+                  stroke-dasharray="628.32" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-text">
+          <div class="timer-number" id="timerDisplay">05:00</div>
+          <div class="timer-label" id="timerLabel">开始你的5分钟</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="timer-controls">
+      <button class="btn btn-primary btn-big" id="startBtn">▶ 开始</button>
+    </div>
+    <div class="flex-center gap-sm mt-sm">
+      <button class="btn btn-outline btn-sm" id="resetBtn" style="display:none">↺ 重置</button>
+    </div>
+  </div>
+
+  <div class="card card-soft" id="sprintInfo">
+    <p class="section-subtitle" style="text-align:center;margin-bottom:0">
+      ADHD的大脑最难的是<strong>启动</strong>，不是持续。<br>
+      只做 <strong>5分钟</strong>，不想做了就停下来。<br>
+      你可能会发现，开始了就不想停了。
+    </p>
+  </div>
+
+  <div class="card card-soft" id="focusInfo" style="display:none">
+    <div style="display:flex;gap:16px;text-align:center;justify-content:center">
+      <div>
+        <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">25</div>
+        <div class="text-secondary" style="font-size:0.8rem">分钟专注</div>
+      </div>
+      <div style="font-size:1.5rem;color:var(--text-muted);display:flex;align-items:center">→</div>
+      <div>
+        <div style="font-size:1.8rem;font-weight:800;color:var(--primary)">5</div>
+        <div class="text-secondary" style="font-size:0.8rem">分钟休息</div>
+      </div>
+    </div>
+    <p class="section-subtitle" style="text-align:center;margin-bottom:0;margin-top:12px">
+      专注时只做一件事，休息时一定要离开座位
+    </p>
+  </div>
+
+  <div class="card text-center" id="sessionLog" style="display:none">
+    <div class="section-title">🏆 今日记录</div>
+    <div style="display:flex;gap:24px;justify-content:center;margin-top:8px">
+      <div class="dump-stat">
+        <div class="dump-stat-number" id="sessionCount" style="color:var(--accent)">0</div>
+        <div class="dump-stat-label">次完成</div>
+      </div>
+      <div class="dump-stat">
+        <div class="dump-stat-number" id="totalMinutes" style="color:var(--primary)">0</div>
+        <div class="dump-stat-label">总分钟</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+const MODES = {
+  sprint: { duration: 300, label: '开始你的5分钟', doneLabel: '🚀 5分钟到了！不想做了就停下来' },
+  focus: { duration: 1500, label: '专注25分钟', doneLabel: '🎯 25分钟到！休息5分钟' },
+  rest: { duration: 300, label: '休息5分钟', doneLabel: '☕ 休息时间到！' }
+};
+
+let currentMode = 'sprint';
+let timeLeft = MODES.sprint.duration;
+let totalTime = MODES.sprint.duration;
+let isRunning = false;
+let isDone = false;
+let timerInterval = null;
+let sessionCount = 0;
+let totalMinutes = 0;
+
+const timerDisplay = document.getElementById('timerDisplay');
+const timerLabel = document.getElementById('timerLabel');
+const progressRing = document.getElementById('progressRing');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const sprintInfo = document.getElementById('sprintInfo');
+const focusInfo = document.getElementById('focusInfo');
+const sessionLog = document.getElementById('sessionLog');
+const sessionCountEl = document.getElementById('sessionCount');
+const totalMinutesEl = document.getElementById('totalMinutes');
+const modeBtns = document.querySelectorAll('.mode-btn');
+
+const circumference = 628.32;
+
+function loadStats() {
+  const stats = Storage.get('timer_stats', { sessions: 0, minutes: 0, date: '' });
+  const today = dateStr();
+  if (stats.date !== today) {
+    stats.sessions = 0;
+    stats.minutes = 0;
+    stats.date = today;
+    Storage.set('timer_stats', stats);
+  }
+  sessionCount = stats.sessions;
+  totalMinutes = stats.minutes;
+  sessionCountEl.textContent = sessionCount;
+  totalMinutesEl.textContent = totalMinutes;
+  if (sessionCount > 0) sessionLog.style.display = 'block';
+}
+
+function saveStats() {
+  Storage.set('timer_stats', { sessions: sessionCount, minutes: totalMinutes, date: dateStr() });
+}
+
+function updateDisplay() {
+  timerDisplay.textContent = formatTime(timeLeft);
+  const progress = totalTime > 0 ? (timeLeft / totalTime) * circumference : 0;
+  progressRing.style.strokeDashoffset = circumference - progress;
+}
+
+function updateLabel() {
+  const config = MODES[currentMode];
+  timerLabel.textContent = config.label;
+}
+
+function switchMode(mode) {
+  if (isRunning) stopTimer();
+  isDone = false;
+  currentMode = mode;
+  const config = MODES[mode];
+  timeLeft = config.duration;
+  totalTime = config.duration;
+  timerDisplay.className = 'timer-number';
+  progressRing.className = 'timer-circle-progress';
+  updateDisplay();
+  updateLabel();
+
+  modeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+
+  sprintInfo.style.display = mode === 'sprint' ? 'block' : 'none';
+  focusInfo.style.display = mode !== 'sprint' ? 'block' : 'none';
+
+  startBtn.textContent = '▶ 开始';
+  startBtn.style.display = '';
+  resetBtn.style.display = 'none';
+}
+
+function startTimer() {
+  if (isDone) {
+    resetTimer();
+    setTimeout(() => startTimer(), 100);
+    return;
+  }
+  if (isRunning) {
+    pauseTimer();
+    return;
+  }
+  if (timeLeft <= 0) {
+    timeLeft = totalTime;
+    updateDisplay();
+  }
+  isRunning = true;
+  timerDisplay.classList.add('running');
+  progressRing.classList.add('running');
+  startBtn.textContent = '⏸ 暂停';
+  resetBtn.style.display = '';
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateDisplay();
+    if (timeLeft <= 0) {
+      finishTimer();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  isRunning = false;
+  clearInterval(timerInterval);
+  timerDisplay.classList.remove('running');
+  progressRing.classList.remove('running');
+  startBtn.textContent = '▶ 继续';
+}
+
+function stopTimer() {
+  isRunning = false;
+  clearInterval(timerInterval);
+  timerDisplay.classList.remove('running');
+  progressRing.classList.remove('running');
+}
+
+function fireCelebration() {
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  const colors = ['var(--accent)', 'var(--primary)', '#f5c842', '#e88d8d', 'var(--green)', '#f0c0a0'];
+  for (let i = 0; i < 30; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (4 + Math.random() * 6) + 'px';
+    piece.style.height = (4 + Math.random() * 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.setProperty('--duration', (2 + Math.random() * 2) + 's');
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    overlay.appendChild(piece);
+  }
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 4000);
+}
+
+function finishTimer() {
+  stopTimer();
+  isDone = true;
+  timerDisplay.classList.add('done');
+  timerDisplay.textContent = '🎉';
+  timerDisplay.style.fontSize = '2.5rem';
+  timerDisplay.style.letterSpacing = '0';
+  progressRing.classList.add('done');
+  progressRing.style.strokeDashoffset = '0';
+
+  // Calculate minutes completed
+  const completedMinutes = Math.round(MODES[currentMode].duration / 60);
+  sessionCount++;
+  totalMinutes += completedMinutes;
+  sessionCountEl.textContent = sessionCount;
+  totalMinutesEl.textContent = totalMinutes;
+  saveStats();
+  sessionLog.style.display = 'block';
+
+  timerLabel.textContent = currentMode === 'sprint'
+    ? '🚀 5分钟到了！不想做了就停下来'
+    : currentMode === 'rest'
+      ? '☕ 休息时间到！'
+      : '🎯 25分钟到！休息5分钟';
+
+  fireCelebration();
+
+  // After 3 seconds, offer next action
+  setTimeout(() => {
+    if (currentMode === 'focus') {
+      currentMode = 'rest';
+      timeLeft = MODES.rest.duration;
+      totalTime = MODES.rest.duration;
+      updateDisplay();
+      timerDisplay.className = 'timer-number';
+      progressRing.className = 'timer-circle-progress';
+      timerDisplay.style.fontSize = '';
+      timerLabel.textContent = MODES.rest.label;
+      startBtn.textContent = '▶ 开始休息';
+      startBtn.style.display = '';
+      resetBtn.style.display = 'none';
+      isDone = false;
+    } else if (currentMode === 'rest') {
+      currentMode = 'focus';
+      timeLeft = MODES.focus.duration;
+      totalTime = MODES.focus.duration;
+      updateDisplay();
+      timerDisplay.className = 'timer-number';
+      progressRing.className = 'timer-circle-progress';
+      timerDisplay.style.fontSize = '';
+      timerLabel.textContent = MODES.focus.label;
+      startBtn.textContent = '▶ 开始专注';
+      startBtn.style.display = '';
+      resetBtn.style.display = 'none';
+      isDone = false;
+    } else {
+      resetBtn.style.display = '';
+      startBtn.textContent = '▶ 再来5分钟';
+    }
+  }, 3000);
+}
+
+function resetTimer() {
+  stopTimer();
+  isDone = false;
+  const config = MODES[currentMode];
+  timeLeft = config.duration;
+  totalTime = config.duration;
+  timerDisplay.className = 'timer-number';
+  timerDisplay.style.fontSize = '';
+  progressRing.className = 'timer-circle-progress';
+  updateDisplay();
+  updateLabel();
+  startBtn.textContent = '▶ 开始';
+  resetBtn.style.display = 'none';
+}
+
+// Event listeners
+modeBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+});
+
+startBtn.addEventListener('click', startTimer);
+resetBtn.addEventListener('click', resetTimer);
+
+// Initial
+updateDisplay();
+loadStats();
+</script>
+</body>
+</html>

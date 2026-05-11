@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>任务拆解器 · ADHD工具箱</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="decompose">
+
+<div class="container">
+  <div class="page-header">
+    <a href="index.html" class="back-btn">←</a>
+    <h1>🧩 任务拆解器</h1>
+  </div>
+
+  <div class="card card-soft">
+    <p class="section-subtitle">
+      ADHD的大脑面对大任务会直接宕机。<br>把任务拆成微步骤，大脑就不会逃跑了。
+    </p>
+
+    <label class="section-title" for="taskInput">你要做什么？</label>
+    <input type="text" id="taskInput" placeholder="比如：写周报、整理房间、准备面试……" autofocus>
+    <button class="btn btn-primary btn-block mt-sm" id="decomposeBtn">🔨 拆解它</button>
+  </div>
+
+  <div id="resultArea" style="display:none">
+    <div class="card fade-in-up">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span class="section-title" style="margin-bottom:0">拆解步骤</span>
+        <span id="stepCount" class="text-secondary" style="font-size:0.8rem"></span>
+      </div>
+
+      <div id="stepProgress" style="margin-bottom:16px;display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:0.8rem;font-weight:600;color:var(--primary)" id="progressText">0 / 0</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)" id="progressPct">0%</span>
+        </div>
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+          <div id="progressBar" style="height:100%;background:var(--primary);border-radius:2px;width:0%;transition:width 0.4s ease"></div>
+        </div>
+      </div>
+
+      <ul class="step-list" id="stepList"></ul>
+
+      <div id="allDoneCelebration" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:2.5rem;margin-bottom:8px;animation:bounceIn 0.5s ease">🎉</div>
+        <div style="font-weight:700;font-size:1.1rem;color:var(--green)">所有步骤都完成了！</div>
+        <div class="text-secondary mt-sm">你做了一件之前不想做的事 👏</div>
+      </div>
+
+      <button class="btn btn-accent btn-block mt-md" id="firstStepOnly">
+        👣 只做第一步
+      </button>
+      <button class="btn btn-outline btn-block btn-sm mt-sm" id="newTask">
+        换个任务
+      </button>
+    </div>
+
+    <div id="firstStepFocus" class="card text-center fade-in-up" style="display:none;background:var(--accent-light);border:2px solid var(--accent);">
+      <div class="bounce-in" style="font-size:2.5rem;margin-bottom:12px;">👣</div>
+      <div style="font-weight:700;font-size:1.2rem;margin-bottom:4px;">只看第一步就够了</div>
+      <p class="section-subtitle">不用想后面的事。<br>做完这一步，你就已经开始了。</p>
+      <div id="firstStepText" style="font-size:1.1rem;font-weight:600;margin-bottom:16px;padding:12px;background:white;border-radius:8px;"></div>
+      <div class="flex gap-sm" style="justify-content:center">
+        <button class="btn btn-primary" id="doneFirstStep">✅ 做完第一步了</button>
+        <button class="btn btn-outline" id="closeFirstStep">看全部步骤</button>
+      </div>
+    </div>
+
+    <div id="firstStepDone" class="card text-center fade-in-up" style="display:none;background:var(--green-light);border:2px solid var(--green);">
+      <div style="font-size:2.5rem;margin-bottom:8px;animation:bounceIn 0.5s ease">🎯</div>
+      <div style="font-weight:700;font-size:1.2rem;color:var(--green);margin-bottom:4px;">你已经开始了！</div>
+      <p class="section-subtitle">最难的部分已经过去了。<br>看看下一步是什么？</p>
+      <button class="btn btn-primary" onclick="location.reload()">继续拆解新任务</button>
+    </div>
+  </div>
+
+  <div id="historyArea" style="display:none">
+    <div class="card">
+      <div class="section-title">📋 历史记录</div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+const taskInput = document.getElementById('taskInput');
+const decomposeBtn = document.getElementById('decomposeBtn');
+const resultArea = document.getElementById('resultArea');
+const stepList = document.getElementById('stepList');
+const stepCount = document.getElementById('stepCount');
+const stepProgress = document.getElementById('stepProgress');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const progressPct = document.getElementById('progressPct');
+const firstStepOnly = document.getElementById('firstStepOnly');
+const newTask = document.getElementById('newTask');
+const firstStepFocus = document.getElementById('firstStepFocus');
+const firstStepText = document.getElementById('firstStepText');
+const doneFirstStep = document.getElementById('doneFirstStep');
+const closeFirstStep = document.getElementById('closeFirstStep');
+const firstStepDone = document.getElementById('firstStepDone');
+const allDoneCelebration = document.getElementById('allDoneCelebration');
+const historyArea = document.getElementById('historyArea');
+const historyList = document.getElementById('historyList');
+
+function decomposeTask(task) {
+  return [
+    `打开电脑/拿出纸笔，准备开始做「${task}」`,
+    `确认做「${task}」需要什么材料或信息`,
+    `把材料准备好，放在手边`,
+    `设定一个10分钟计时器`,
+    `开始做「${task}」的第1小步`,
+    `做完第1小步后，停下来深呼吸一次`,
+    `检查一下有没有做偏方向`,
+    `继续做下一小步`,
+    `完成「${task}」后，把所有东西收好`,
+    `给自己一个奖励 🎉`
+  ];
+}
+
+let allChecked = false;
+
+function updateProgress() {
+  const items = stepList.querySelectorAll('.step-item');
+  const done = stepList.querySelectorAll('.step-item.done').length;
+  const total = items.length;
+
+  if (total === 0) { stepProgress.style.display = 'none'; return; }
+
+  stepProgress.style.display = 'block';
+  const pct = Math.round((done / total) * 100);
+  progressBar.style.width = pct + '%';
+  progressText.textContent = `${done} / ${total}`;
+  progressPct.textContent = pct + '%';
+
+  if (done === total && total > 0 && !allChecked) {
+    allChecked = true;
+    allDoneCelebration.style.display = 'block';
+    allDoneCelebration.scrollIntoView({ behavior: 'smooth' });
+    fireCelebration();
+  }
+}
+
+function renderSteps(task, steps) {
+  resultArea.style.display = 'block';
+  firstStepFocus.style.display = 'none';
+  firstStepDone.style.display = 'none';
+  allDoneCelebration.style.display = 'none';
+  allChecked = false;
+  stepList.innerHTML = '';
+  stepCount.textContent = `共 ${steps.length} 步`;
+
+  steps.forEach((step, i) => {
+    const li = document.createElement('li');
+    li.className = 'step-item slide-up';
+    li.style.animationDelay = `${i * 0.06}s`;
+    li.innerHTML = `
+      <span class="step-number">${i + 1}</span>
+      <span class="step-text">${step}</span>
+      <input type="checkbox" class="step-checkbox" data-index="${i}">
+    `;
+    li.querySelector('.step-checkbox').addEventListener('change', function() {
+      li.classList.toggle('done', this.checked);
+      updateProgress();
+    });
+    stepList.appendChild(li);
+  });
+
+  updateProgress();
+  saveToHistory(task, steps);
+  renderHistory();
+}
+
+function saveToHistory(task, steps) {
+  const history = Storage.get('decompose_history', []);
+  history.unshift({ task, steps, date: dateStr(), id: uid() });
+  if (history.length > 20) history.length = 20;
+  Storage.set('decompose_history', history);
+}
+
+function renderHistory() {
+  const history = Storage.get('decompose_history', []);
+  if (!history.length) { historyArea.style.display = 'none'; return; }
+  historyArea.style.display = 'block';
+  historyList.innerHTML = '';
+  history.slice(0, 5).forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'dump-entry slide-up';
+    div.innerHTML = `
+      <div class="dump-entry-meta">
+        <span>📅 ${h.date}</span>
+      </div>
+      <strong>${h.task}</strong> · ${h.steps.length} 步
+    `;
+    historyList.appendChild(div);
+  });
+}
+
+function fireCelebration() {
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  const colors = ['var(--green)', 'var(--primary)', 'var(--accent)', 'var(--purple)', '#f5c842', '#e88d8d'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (4 + Math.random() * 6) + 'px';
+    piece.style.height = (4 + Math.random() * 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.setProperty('--duration', (2 + Math.random() * 2) + 's');
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    overlay.appendChild(piece);
+  }
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 4000);
+}
+
+/* ── Event listeners ── */
+decomposeBtn.addEventListener('click', () => {
+  const task = taskInput.value.trim();
+  if (!task) { taskInput.focus(); return; }
+  const steps = decomposeTask(task);
+  renderSteps(task, steps);
+  resultArea.scrollIntoView({ behavior: 'smooth' });
+});
+
+taskInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') decomposeBtn.click();
+});
+
+firstStepOnly.addEventListener('click', () => {
+  const firstStep = stepList.querySelector('.step-item');
+  if (!firstStep) return;
+  firstStepText.textContent = firstStep.querySelector('.step-text').textContent;
+  firstStepFocus.style.display = 'block';
+  firstStepDone.style.display = 'none';
+  firstStepFocus.scrollIntoView({ behavior: 'smooth' });
+});
+
+doneFirstStep.addEventListener('click', () => {
+  const firstCheck = stepList.querySelector('.step-checkbox');
+  if (firstCheck) {
+    firstCheck.checked = true;
+    firstCheck.dispatchEvent(new Event('change'));
+  }
+  firstStepFocus.style.display = 'none';
+  firstStepDone.style.display = 'block';
+  firstStepDone.scrollIntoView({ behavior: 'smooth' });
+});
+
+closeFirstStep.addEventListener('click', () => {
+  firstStepFocus.style.display = 'none';
+});
+
+newTask.addEventListener('click', () => {
+  taskInput.value = '';
+  taskInput.focus();
+  resultArea.style.display = 'none';
+});
+
+renderHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>大脑清理 · ADHD工具箱</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="braindump">
+
+<div class="container">
+  <div class="page-header">
+    <a href="index.html" class="back-btn">←</a>
+    <h1>🌀 大脑清理</h1>
+  </div>
+
+  <div class="card card-soft">
+    <p class="section-subtitle">
+      ADHD的大脑里总是塞满了各种想法。<br>
+      全部倒出来，大脑才能空出空间做正事。
+    </p>
+
+    <textarea id="dumpInput" placeholder="把所有堵在脑子里的事，全部倒出来…&#10;&#10;担心的事、想做的事、还没回的消息、明天的安排、突然想起的创意……&#10;不用整理，不用排序，想到什么写什么。"></textarea>
+
+    <button class="btn btn-primary btn-block btn-big mt-sm" id="dumpBtn">💨 全部倒出来</button>
+    <p class="text-secondary mt-sm" style="font-size:0.75rem;text-align:center">💡 按 Ctrl+Enter 或 ⌘+Enter 快速倒入</p>
+  </div>
+
+  <div id="dumpStatus" style="display:none">
+    <div class="card text-center fade-in-up">
+      <div class="dump-counter">
+        <div class="dump-stat">
+          <div class="dump-stat-number" id="dumpCount">0</div>
+          <div class="dump-stat-label">清理次数</div>
+        </div>
+        <div style="width:1px;height:32px;background:var(--border)"></div>
+        <div class="dump-stat">
+          <div class="dump-stat-number" id="totalItems" style="color:var(--purple)">0</div>
+          <div class="dump-stat-label">条思绪</div>
+        </div>
+      </div>
+
+      <div class="flex gap-sm" style="justify-content:center;margin-top:12px">
+        <button class="btn btn-outline btn-sm" id="exportBtn">📥 导出全部</button>
+        <button class="btn btn-danger btn-sm" id="clearAllBtn">🗑️ 清空全部</button>
+      </div>
+    </div>
+
+    <div class="card" id="lastDump" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span class="section-title" style="margin-bottom:0">🧹 最近一次清理</span>
+        <span style="font-size:0.7rem;color:var(--text-muted)" id="lastDumpDate"></span>
+      </div>
+      <div id="lastDumpContent" style="font-size:0.92rem;line-height:1.7;white-space:pre-wrap;word-break:break-word;"></div>
+    </div>
+
+    <div class="card" id="historyArea">
+      <div class="section-title">📋 清理历史</div>
+      <div id="historyList" class="dump-history" style="margin-top:0"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+const dumpInput = document.getElementById('dumpInput');
+const dumpBtn = document.getElementById('dumpBtn');
+const dumpStatus = document.getElementById('dumpStatus');
+const dumpCount = document.getElementById('dumpCount');
+const totalItems = document.getElementById('totalItems');
+const lastDump = document.getElementById('lastDump');
+const lastDumpDate = document.getElementById('lastDumpDate');
+const lastDumpContent = document.getElementById('lastDumpContent');
+const historyArea = document.getElementById('historyArea');
+const historyList = document.getElementById('historyList');
+const clearAllBtn = document.getElementById('clearAllBtn');
+const exportBtn = document.getElementById('exportBtn');
+
+function updateStats() {
+  const dumps = Storage.get('braindumps', []);
+  const total = dumps.reduce((sum, d) => sum + d.itemCount, 0);
+  dumpCount.textContent = dumps.length;
+  totalItems.textContent = total;
+  if (dumps.length > 0) {
+    dumpStatus.style.display = 'block';
+    showLastDump(dumps[0]);
+    renderHistory();
+  } else {
+    dumpStatus.style.display = 'none';
+  }
+}
+
+function showLastDump(dump) {
+  lastDump.style.display = 'block';
+  lastDumpDate.textContent = dump.date + ' · ' + dump.time;
+  lastDumpContent.textContent = dump.content;
+}
+
+function renderHistory() {
+  const dumps = Storage.get('braindumps', []);
+  historyList.innerHTML = '';
+  dumps.slice(0, 8).forEach((d, i) => {
+    const div = document.createElement('div');
+    div.className = 'dump-entry slide-up';
+    div.style.animationDelay = `${i * 0.04}s`;
+    const preview = d.content.length > 100 ? d.content.slice(0, 100) + '…' : d.content;
+    div.innerHTML = `
+      <div class="dump-entry-meta">
+        <span>📅 ${d.date} ${d.time}</span>
+        <span>· ${d.itemCount} 条</span>
+      </div>
+      ${preview}
+    `;
+    historyList.appendChild(div);
+  });
+}
+
+function fireCelebration() {
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  const colors = ['var(--purple)', 'var(--primary)', 'var(--accent)', '#f5c842', '#a88dc8'];
+  for (let i = 0; i < 20; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (4 + Math.random() * 5) + 'px';
+    piece.style.height = (4 + Math.random() * 5) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.setProperty('--duration', (2 + Math.random() * 2) + 's');
+    piece.style.animationDelay = (Math.random() * 0.4) + 's';
+    overlay.appendChild(piece);
+  }
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 4000);
+}
+
+function doDump() {
+  const content = dumpInput.value.trim();
+  if (!content) { dumpInput.focus(); return; }
+
+  const itemCount = content.split(/[\n,，。.、！？;；]/).filter(s => s.trim()).length || 1;
+
+  const dump = {
+    content,
+    itemCount,
+    date: dateStr(),
+    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+    id: uid()
+  };
+
+  const dumps = Storage.get('braindumps', []);
+  dumps.unshift(dump);
+  if (dumps.length > 50) dumps.length = 50;
+  Storage.set('braindumps', dumps);
+
+  dumpInput.value = '';
+  updateStats();
+  fireCelebration();
+  dumpStatus.scrollIntoView({ behavior: 'smooth' });
+}
+
+dumpBtn.addEventListener('click', doDump);
+dumpInput.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' && (e.metaKey || e.ctrlKey))) doDump();
+});
+
+clearAllBtn.addEventListener('click', () => {
+  if (confirm('确定要清空所有清理记录吗？这个操作不能撤销。')) {
+    Storage.remove('braindumps');
+    updateStats();
+  }
+});
+
+exportBtn.addEventListener('click', () => {
+  const dumps = Storage.get('braindumps', []);
+  if (!dumps.length) { alert('还没有清理记录'); return; }
+
+  let text = '🧠 大脑清理记录\n';
+  text += '═'.repeat(30) + '\n\n';
+  dumps.forEach(d => {
+    text += `📅 ${d.date} ${d.time}\n`;
+    text += d.content + '\n';
+    text += '─'.repeat(20) + '\n\n';
+  });
+
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `大脑清理记录_${dateStr().replace(/\//g, '-')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+updateStats();
+</script>
+</body>
+</html>
