@@ -8,10 +8,17 @@
     <link rel="stylesheet" href="styles.css">
     <script src="tracker.js"></script>
     <style>
+        /* Premium Design Overrides */
+        :root {
+            --rest-primary: #a78bfa;
+            --rest-secondary: #f472b6;
+            --bg-dark: #050608;
+        }
+
         body {
-            background-color: #050505;
+            background-color: var(--bg-dark);
             color: #fff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,141 +27,163 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(167, 139, 250, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 120%, rgba(244, 114, 182, 0.08) 0%, transparent 50%);
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             text-align: center;
+            z-index: 1;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #a78bfa, #f472b6);
-            /* Soft purple/pink for rest */
+            background: linear-gradient(to right, var(--rest-primary), var(--rest-secondary));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: -1px;
         }
 
-        p.subtitle {
-            color: #888;
-            margin-bottom: 2rem;
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
             font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            font-weight: 400;
         }
 
-        .video-wrapper {
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px;
+            border-radius: 30px;
+            width: fit-content;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            padding: 8px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-btn.active {
+            background: var(--rest-primary);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
+        }
+
+        .video-box {
             position: relative;
-            padding-bottom: 56.25%;
-            /* 16:9 */
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
             height: 0;
             background: #000;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(167, 139, 250, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            display: none;
-            /* Hidden by default, toggled via JS */
         }
 
-        .video-wrapper.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .video-wrapper iframe {
+        .video-box iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            border: none;
         }
 
         .info-card {
-            margin-top: 3rem;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 12px;
+            margin-top: 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2.5rem;
+            border-radius: 24px;
             text-align: left;
-            border-left: 4px solid #a78bfa;
+            border-left: 4px solid var(--rest-primary);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left-width: 4px;
         }
 
         .info-card h3 {
             margin-top: 0;
-            color: #e2e8f0;
+            color: #f1f5f9;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
         }
 
         .info-card p {
             color: #94a3b8;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 0;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin: 0;
         }
 
         .nav-back {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #888;
+            position: fixed;
+            top: 32px;
+            left: 32px;
+            color: #94a3b8;
             text-decoration: none;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 5px;
-            transition: color 0.3s;
+            gap: 8px;
+            transition: all 0.3s;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+            backdrop-filter: blur(8px);
         }
 
         .nav-back:hover {
             color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(-4px);
         }
 
-        /* Language Switcher */
-        .lang-switch {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px;
-            border-radius: 30px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+        .source-indicator {
+            font-size: 11px;
+            color: #475569;
+            margin-top: 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
-        .lang-btn {
-            background: none;
-            border: none;
-            color: #888;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .lang-btn.active {
-            background: #a78bfa;
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
-        }
-
-        .lang-btn:hover:not(.active) {
-            color: #fff;
+        @media (max-width: 640px) {
+            h1 { font-size: 2rem; }
+            .subtitle { font-size: 0.9rem; }
+            .nav-back { top: 16px; left: 16px; padding: 6px 12px; }
         }
     </style>
 </head>
@@ -166,31 +195,30 @@
     </a>
 
     <div class="container">
-        <h1>NSDR 非睡眠深度休息</h1>
+        <h1>NSDR 深度休息</h1>
         <p class="subtitle">10分钟重置神经系统 | 提升多巴胺储备 | 加速学习记忆</p>
 
-        <div class="lang-switch">
-            <button class="lang-btn active" onclick="switchLang('en')">English (Huberman)</button>
-            <button class="lang-btn" onclick="switchLang('cn')">中文引导</button>
+        <div class="controls-wrapper">
+            <!-- Language Switcher -->
+            <div class="toggle-group" id="lang-switch">
+                <button class="toggle-btn active" onclick="updatePlayer('en', null)">English (Huberman)</button>
+                <button class="toggle-btn" onclick="updatePlayer('cn', null)">中文引导</button>
+            </div>
+
+            <!-- Source Switcher (Server) -->
+            <div class="toggle-group" id="source-switch">
+                <button class="toggle-btn active" onclick="updatePlayer(null, 'youtube')">YouTube (推荐)</button>
+                <button class="toggle-btn" onclick="updatePlayer(null, 'bilibili')">Bilibili (国内备用)</button>
+            </div>
+            <div class="source-indicator">由于本地媒体文件缺失，已自动切换至云端播放器</div>
         </div>
 
-        <!-- English Video (Default) -->
-        <div class="video-wrapper active" id="video-en">
-            <!-- Huberman Lab NSDR (Local) -->
-            <video width="100%" height="100%" controls
-                style="position:absolute; top:0; left:0; object-fit:cover; border-radius:20px;">
-                <source src="nsdr_en.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-
-        <!-- Chinese Video (Local File) -->
-        <div class="video-wrapper" id="video-cn">
-            <video width="100%" height="100%" controls
-                style="position:absolute; top:0; left:0; object-fit:cover; border-radius:20px;">
-                <source src="nsdr_cn.mp4" type="video/mp4">
-                您的浏览器不支持视频播放。
-            </video>
+        <div class="video-box" id="player-container">
+            <iframe id="video-iframe" 
+                src="" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen></iframe>
         </div>
 
         <div class="info-card">
@@ -201,47 +229,54 @@
     </div>
 
     <script>
-        function switchLang(lang) {
-            // Update buttons
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            if (lang === 'en') {
-                document.querySelector('.lang-btn:nth-child(1)').classList.add('active');
-            } else {
-                document.querySelector('.lang-btn:nth-child(2)').classList.add('active');
+        // State Management
+        let currentLang = 'en';
+        let currentSource = 'youtube';
+
+        // Video Content Map
+        const videoData = {
+            youtube: {
+                en: 'https://www.youtube.com/embed/AKGrmY8OSHM',
+                cn: 'https://www.youtube.com/embed/fA4uU-H3r9c'
+            },
+            bilibili: {
+                en: '//player.bilibili.com/player.html?bvid=BV1Gq4y1Y7x1&page=1&high_quality=1&autoplay=0',
+                cn: '//player.bilibili.com/player.html?bvid=BV1uY411v7Xz&page=1&high_quality=1&autoplay=0'
             }
+        };
 
-            // Update videos
-            const vidEn = document.getElementById('video-en');
-            const vidCn = document.getElementById('video-cn');
+        function updatePlayer(lang, source) {
+            if (lang) currentLang = lang;
+            if (source) currentSource = source;
 
-            if (lang === 'en') {
-                vidEn.classList.add('active');
-                vidCn.classList.remove('active');
-                // Stop the other video
-                resetIframe(vidCn);
-            } else {
-                vidCn.classList.add('active');
-                vidEn.classList.remove('active');
-                // Stop the other video
-                resetIframe(vidEn);
+            // Update UI buttons
+            updateButtons('lang-switch', currentLang === 'en' ? 0 : 1);
+            updateButtons('source-switch', currentSource === 'youtube' ? 0 : 1);
+
+            // Update Iframe
+            const iframe = document.getElementById('video-iframe');
+            const newSrc = videoData[currentSource][currentLang];
+            
+            if (iframe.src !== newSrc) {
+                // Stress impact tracking
+                if (window.NeuroTracker) window.NeuroTracker.updateStress(-10);
+                
+                iframe.src = newSrc;
             }
         }
 
-        // Helper to stop video when switching
-        function resetIframe(wrapper) {
-            if (window.NeuroTracker) window.NeuroTracker.updateStress(-10); // NSDR reduction impact
-            // Handle Iframe
-            const iframe = wrapper.querySelector('iframe');
-            if (iframe) {
-                const src = iframe.src;
-                iframe.src = src; // Reloading iframe stops playback
-            }
-            // Handle HTML5 Video
-            const video = wrapper.querySelector('video');
-            if (video) {
-                video.pause();
-            }
+        function updateButtons(groupId, activeIndex) {
+            const btns = document.getElementById(groupId).querySelectorAll('.toggle-btn');
+            btns.forEach((btn, idx) => {
+                if (idx === activeIndex) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
         }
+
+        // Initialize player on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updatePlayer('en', 'youtube');
+        });
     </script>
 
 </body>

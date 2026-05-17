@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>护眼健康测评 | AI 评估你的眼睛状态</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #0a1628;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    max-height: 820px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Decorative elements */
+  .bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .bg-glow-1 { width: 300px; height: 300px; top: -80px; right: -80px; background: rgba(0,212,170,0.08); }
+  .bg-glow-2 { width: 250px; height: 250px; bottom: -60px; left: -60px; background: rgba(0,212,170,0.06); }
+
+  .page {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 28px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow-y: auto;
+  }
+  .page.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== Welcome Page ===== */
+  #page-welcome { justify-content: center; align-items: center; text-align: center; }
+  .welcome-icon {
+    width: 100px; height: 100px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.2), rgba(0,212,170,0.05));
+    border: 2px solid rgba(0,212,170,0.3);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    margin-bottom: 32px;
+    box-shadow: 0 8px 40px rgba(0,212,170,0.15);
+  }
+  .welcome-title {
+    font-size: 36px; font-weight: 800;
+    background: linear-gradient(135deg, #fff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .welcome-sub {
+    font-size: 16px; color: rgba(255,255,255,0.45);
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  .welcome-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.15);
+    border-radius: 20px;
+    font-size: 13px; color: #00d4aa;
+    margin-bottom: 32px;
+  }
+  .welcome-count {
+    font-size: 14px; color: rgba(255,255,255,0.3);
+    margin-top: 32px;
+  }
+  .welcome-count span { color: #00d4aa; font-weight: 600; }
+
+  .btn {
+    width: 100%; padding: 18px 0;
+    border: none; border-radius: 16px;
+    font-size: 18px; font-weight: 700;
+    cursor: pointer; transition: all 0.3s;
+    letter-spacing: 1px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #00d4aa, #00b894);
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(0,212,170,0.3);
+  }
+  .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.4; transform: none; }
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ===== Question Page ===== */
+  .question-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .question-progress {
+    flex: 1; height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .question-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00d4aa, #00b894);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+  .question-step { font-size: 14px; color: rgba(255,255,255,0.4); font-weight: 500; min-width: 50px; text-align: right; }
+
+  .question-number {
+    font-size: 13px; color: #00d4aa; font-weight: 600;
+    letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .question-text {
+    font-size: 22px; font-weight: 700;
+    line-height: 1.4; margin-bottom: 28px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .option {
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    font-size: 16px; color: rgba(255,255,255,0.8);
+    cursor: pointer; transition: all 0.25s;
+    text-align: left;
+  }
+  .option:active { transform: scale(0.98); }
+  .option.selected {
+    border-color: #00d4aa;
+    background: rgba(0,212,170,0.1);
+    color: #00d4aa;
+  }
+
+  .option-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+
+  /* ===== Loading Page ===== */
+  #page-loading { justify-content: center; align-items: center; text-align: center; }
+  .loading-ring {
+    width: 80px; height: 80px;
+    border: 3px solid rgba(255,255,255,0.06);
+    border-top: 3px solid #00d4aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 32px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-size: 18px; color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+  .loading-tip {
+    font-size: 14px; color: rgba(255,255,255,0.3);
+    margin-top: 12px;
+    min-height: 20px;
+    transition: opacity 0.3s;
+  }
+
+  /* ===== Report Page ===== */
+  #page-report { padding-top: 28px; }
+  .report-header { text-align: center; margin-bottom: 20px; }
+  .report-header .label {
+    font-size: 13px; color: rgba(255,255,255,0.4);
+    letter-spacing: 2px;
+  }
+  .report-header .title {
+    font-size: 24px; font-weight: 700; margin-top: 4px;
+  }
+  .report-header .meta {
+    font-size: 12px; color: rgba(255,255,255,0.2);
+    margin-top: 6px; letter-spacing: 0.5px;
+  }
+
+  .score-section {
+    display: flex; align-items: center; gap: 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .score-ring { width: 100px; height: 100px; flex-shrink: 0; }
+  .score-ring canvas { width: 100%; height: 100%; }
+  .score-info { flex: 1; }
+  .score-info .score-value {
+    font-size: 42px; font-weight: 800;
+    color: #00d4aa;
+    line-height: 1;
+  }
+  .score-info .score-label {
+    font-size: 14px; color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+  }
+  .score-info .score-desc {
+    font-size: 15px; color: rgba(255,255,255,0.6);
+    margin-top: 8px; line-height: 1.5;
+  }
+
+  .report-section {
+    margin-bottom: 20px;
+  }
+  .report-section .section-title {
+    font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.6);
+    margin-bottom: 12px; letter-spacing: 1px;
+  }
+  .diagnosis-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.25);
+    border-radius: 20px;
+    font-size: 16px; font-weight: 600; color: #ffc107;
+    margin-bottom: 12px;
+  }
+
+  .radar-wrapper {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .radar-wrapper canvas { width: 100%; height: auto; display: block; }
+
+  .dimension-list { display: flex; flex-direction: column; gap: 10px; }
+  .dimension-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+  }
+  .dimension-item .name { font-size: 14px; color: rgba(255,255,255,0.7); width: 70px; flex-shrink: 0; }
+  .dimension-item .bar-bg {
+    flex: 1; height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px; overflow: hidden;
+  }
+  .dimension-item .bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 1s ease;
+  }
+  .dimension-item .score { font-size: 14px; font-weight: 600; width: 30px; text-align: right; }
+
+  .professional-tag {
+    padding: 10px 16px;
+    background: rgba(0,212,170,0.05);
+    border: 1px solid rgba(0,212,170,0.12);
+    border-radius: 10px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+    font-size: 12px; color: rgba(255,255,255,0.35);
+  }
+  .professional-tag span { color: #00d4aa; }
+
+  /* 检测流程样式 */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    font-size: 13px; color: rgba(255,255,255,0.55);
+  }
+  .check-item .step-num {
+    width: 22px; height: 22px;
+    background: rgba(0,212,170,0.12);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #00d4aa; flex-shrink: 0;
+  }
+  .check-item .label { flex: 1; }
+  .check-item .status {
+    font-size: 11px; color: #00d4aa; font-weight: 500;
+  }
+  .check-item.baodao-ref {
+    border-left: 2px solid rgba(0,212,170,0.2);
+    padding-left: 12px;
+  }
+  .check-item .baodao-tag {
+    font-size: 10px; color: rgba(255,255,255,0.2);
+    padding: 1px 8px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .advice-list { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Expert page enhancements */
+  .expert-header {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(0,212,170,0.04);
+    border: 1px solid rgba(0,212,170,0.1);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .expert-avatar {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #00d4aa, #00b894);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .expert-info .name { font-size: 16px; font-weight: 600; }
+  .expert-info .title { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .expert-info .wechat { font-size: 13px; color: #00d4aa; margin-top: 2px; }
+  .advice-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .advice-item .icon { font-size: 20px; }
+  .advice-item .text { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+  .report-actions {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-top: 8px;
+  }
+
+  /* ===== Product Page ===== */
+  #page-product { padding-top: 28px; }
+  .product-list { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .product-card {
+    padding: 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    display: flex; gap: 16px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .product-card:active { transform: scale(0.98); }
+  .product-card .thumb {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(0,212,170,0.02));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+  .product-card .info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .product-card .name { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .product-card .reason { font-size: 13px; color: #00d4aa; margin-bottom: 4px; }
+  .product-card .price { font-size: 18px; font-weight: 700; color: #00d4aa; }
+
+  .product-card.best {
+    border-color: rgba(0,212,170,0.3);
+    background: rgba(0,212,170,0.06);
+  }
+  .product-card.best .best-tag {
+    display: inline-block;
+    font-size: 11px; padding: 2px 10px;
+    background: linear-gradient(135deg, #00d4aa, #00b894);
+    border-radius: 10px;
+    color: #fff; font-weight: 600;
+    margin-bottom: 4px; width: fit-content;
+  }
+
+  /* ===== Lead Page ===== */
+  #page-lead { justify-content: center; }
+  .lead-content { text-align: center; }
+  .lead-icon { font-size: 56px; margin-bottom: 20px; }
+  .lead-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .lead-sub { font-size: 15px; color: rgba(255,255,255,0.45); margin-bottom: 32px; line-height: 1.6; }
+
+  .lead-input-group {
+    display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;
+  }
+  .lead-input {
+    width: 100%; padding: 16px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    font-size: 16px; color: #fff; outline: none;
+    transition: border-color 0.3s;
+  }
+  .lead-input:focus { border-color: #00d4aa; }
+  .lead-input::placeholder { color: rgba(255,255,255,0.25); }
+
+  .lead-count {
+    font-size: 13px; color: rgba(255,255,255,0.25);
+    margin-top: 20px;
+  }
+  .lead-count span { color: #00d4aa; }
+
+  /* ===== Utils ===== */
+  .mt-auto { margin-top: auto; }
+  .mb-12 { margin-bottom: 12px; }
+  .text-center { text-align: center; }
+  .flex-1 { flex: 1; }
+
+  .scrollable { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .scrollable::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- ===== Welcome ===== -->
+  <div class="page active" id="page-welcome">
+    <div class="welcome-icon">👁️</div>
+    <div class="welcome-title">护眼健康测评</div>
+    <div class="welcome-sub">AI 专业评估你的眼睛状态</div>
+    <div class="welcome-badge">📋 8项专业检测 · 3分钟出报告</div>
+    <button class="btn btn-primary" onclick="startQuiz()">开始测评</button>
+    <div class="welcome-count">已有 <span id="totalUsers">12,846</span> 人完成护眼评估</div>
+  </div>
+
+  <!-- ===== Question 1 ===== -->
+  <div class="page" id="page-q1">
+    <div class="question-header">
+      <div class="question-progress"><div class="question-progress-bar" style="width:20%"></div></div>
+      <div class="question-step">1/5</div>
+    </div>
+    <div class="question-number">QUESTION 01</div>
+    <div class="question-text">你每天看屏幕的时间有多长？</div>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, 1)">2小时以下</div>
+      <div class="option" onclick="selectOption(this, 2)">2-4小时</div>
+      <div class="option" onclick="selectOption(this, 3)">4-8小时</div>
+      <div class="option" onclick="selectOption(this, 4)">8小时以上</div>
+    </div>
+    <button class="btn btn-primary mt-auto" disabled id="btn-next1" onclick="nextQuestion(2)">下一步</button>
+  </div>
+
+  <!-- ===== Question 2 ===== -->
+  <div class="page" id="page-q2">
+    <div class="question-header">
+      <div class="question-progress"><div class="question-progress-bar" style="width:40%"></div></div>
+      <div class="question-step">2/5</div>
+    </div>
+    <div class="question-number">QUESTION 02</div>
+    <div class="question-text">你目前有哪些眼部不适？<br><span style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.35)">（可多选）</span></div>
+    <div class="options">
+      <div class="option" onclick="toggleOption(this)">干涩、疲劳</div>
+      <div class="option" onclick="toggleOption(this)">视力模糊、重影</div>
+      <div class="option" onclick="toggleOption(this)">眼红、血丝</div>
+      <div class="option" onclick="toggleOption(this)">畏光、流泪</div>
+      <div class="option" onclick="toggleOption(this)">头痛、眼胀</div>
+      <div class="option" onclick="toggleOption(this)">无明显不适</div>
+    </div>
+    <button class="btn btn-primary mt-auto" disabled id="btn-next2" onclick="nextQuestion(3)">下一步</button>
+  </div>
+
+  <!-- ===== Question 3 ===== -->
+  <div class="page" id="page-q3">
+    <div class="question-header">
+      <div class="question-progress"><div class="question-progress-bar" style="width:60%"></div></div>
+      <div class="question-step">3/5</div>
+    </div>
+    <div class="question-number">QUESTION 03</div>
+    <div class="question-text">你的年龄段是？</div>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, 1)">18岁以下</div>
+      <div class="option" onclick="selectOption(this, 2)">18-30岁</div>
+      <div class="option" onclick="selectOption(this, 3)">30-45岁</div>
+      <div class="option" onclick="selectOption(this, 4)">45岁以上</div>
+    </div>
+    <button class="btn btn-primary mt-auto" disabled id="btn-next3" onclick="nextQuestion(4)">下一步</button>
+  </div>
+
+  <!-- ===== Question 4 ===== -->
+  <div class="page" id="page-q4">
+    <div class="question-header">
+      <div class="question-progress"><div class="question-progress-bar" style="width:80%"></div></div>
+      <div class="question-step">4/5</div>
+    </div>
+    <div class="question-number">QUESTION 04</div>
+    <div class="question-text">你平时会做眼部保养吗？</div>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, 1)">经常做（眼保健操/热敷等）</div>
+      <div class="option" onclick="selectOption(this, 2)">偶尔会做</div>
+      <div class="option" onclick="selectOption(this, 3)">很少做</div>
+      <div class="option" onclick="selectOption(this, 4)">从不做</div>
+    </div>
+    <button class="btn btn-primary mt-auto" disabled id="btn-next4" onclick="nextQuestion(5)">下一步</button>
+  </div>
+
+  <!-- ===== Question 5 ===== -->
+  <div class="page" id="page-q5">
+    <div class="question-header">
+      <div class="question-progress"><div class="question-progress-bar" style="width:100%"></div></div>
+      <div class="question-step">5/5</div>
+    </div>
+    <div class="question-number">QUESTION 05</div>
+    <div class="question-text">你平时佩戴眼镜或隐形眼镜吗？</div>
+    <div class="options">
+      <div class="option" onclick="selectOption(this, 1)">不戴</div>
+      <div class="option" onclick="selectOption(this, 2)">戴框架眼镜</div>
+      <div class="option" onclick="selectOption(this, 3)">戴隐形眼镜</div>
+      <div class="option" onclick="selectOption(this, 4)">两者都戴</div>
+    </div>
+    <button class="btn btn-primary mt-auto" disabled id="btn-next5" onclick="generateReport()">查看报告</button>
+  </div>
+
+  <!-- ===== Loading ===== -->
+  <div class="page" id="page-loading">
+    <div class="loading-ring"></div>
+    <div class="loading-text">AI 正在分析你的眼部状态...</div>
+    <div class="loading-tip" id="loadingTip">正在读取你的用眼数据</div>
+  </div>
+
+  <!-- ===== Report ===== -->
+  <div class="page" id="page-report">
+    <div class="scrollable" style="flex:1;padding-bottom:12px;">
+      <div class="report-header">
+        <div class="label">YOUR REPORT</div>
+        <div class="title">眼睛健康评估报告</div>
+        <div class="meta" id="reportMeta">报告编号：待生成</div>
+      </div>
+
+      <div class="score-section">
+        <div class="score-ring"><canvas id="ringCanvas" width="200" height="200"></canvas></div>
+        <div class="score-info">
+          <div class="score-value"><span id="totalScore">0</span><span style="font-size:18px;opacity:0.3">/10</span></div>
+          <div class="score-label">眼睛疲劳指数</div>
+          <div class="score-desc" id="scoreDesc">评估中</div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-title">🔍 诊断结果</div>
+        <div class="diagnosis-badge" id="diagnosisTag">视疲劳综合征</div>
+      </div>
+
+      <div class="radar-wrapper">
+        <canvas id="radarCanvas" width="600" height="400"></canvas>
+      </div>
+
+      <!-- 专业检测流程 — 映射宝岛眼镜标准 -->
+      <div class="report-section">
+        <div class="section-title">📋 专业检测项目</div>
+        <div class="checklist" id="checklistItems">
+          <div class="check-item baodao-ref">
+            <span class="step-num">1</span>
+            <span class="label">问诊分析 · 用眼习惯与症状采集</span>
+            <span class="baodao-tag">宝岛标准·问诊</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">2</span>
+            <span class="label">裸眼状态评估 · 基础视力筛查</span>
+            <span class="baodao-tag">宝岛标准·裸眼视力</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">3</span>
+            <span class="label">电脑验光分析 · 屈光状态初测</span>
+            <span class="baodao-tag">宝岛标准·电脑验光</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">4</span>
+            <span class="label">雾视放松 · 调节放松测试</span>
+            <span class="baodao-tag">宝岛标准·雾视</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">5</span>
+            <span class="label">散光检测 · 交叉柱镜精调</span>
+            <span class="baodao-tag">宝岛标准·JCC</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">6</span>
+            <span class="label">红绿平衡测试 · 度数精准验证</span>
+            <span class="baodao-tag">宝岛标准·红绿测试</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">7</span>
+            <span class="label">双眼平衡评估 · 左右眼协调分析</span>
+            <span class="baodao-tag">宝岛标准·双眼平衡</span>
+            <span class="status">✅ 完成</span>
+          </div>
+          <div class="check-item baodao-ref">
+            <span class="step-num">8</span>
+            <span class="label">泪膜稳定性评估 · 干眼风险检测</span>
+            <span class="baodao-tag">宝岛标准·泪膜检测</span>
+            <span class="status">✅ 完成</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-title">📊 各维度评分</div>
+        <div class="dimension-list" id="dimensionList"></div>
+      </div>
+
+      <!-- 专业验光师报告说明 -->
+      <div class="professional-tag">
+        🏥 <span>本报告基于视光学评估标准生成</span> · 仅供参考，不替代专业眼科诊断
+      </div>
+
+      <div class="report-section">
+        <div class="section-title">👨‍⚕️ 护眼教练解读</div>
+        <div class="expert-header">
+          <div class="expert-avatar">🟢</div>
+          <div class="expert-info">
+            <div class="name">护眼教练 · 老王队长</div>
+            <div class="title">专注视疲劳调理 · 已服务3000+客户</div>
+            <div class="wechat">📱 微信号：lwdz2026</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-title">💡 改善建议</div>
+        <div class="advice-list" id="adviceList"></div>
+      </div>
+
+      <!-- 专业试戴建议 -->
+      <div class="report-section" id="trialSection">
+        <div class="section-title">🔄 试戴确认</div>
+        <div class="advice-item">
+          <div class="icon">✅</div>
+          <div class="text">以上方案已根据你的测评数据匹配，建议先试用7天，配合护眼教练指导，观察改善效果。</div>
+        </div>
+      </div>
+
+      <div class="report-actions">
+        <button class="btn btn-primary" onclick="showPage('page-product')">查看推荐方案</button>
+        <button class="btn btn-secondary" onclick="restart()">重新测评</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Product ===== -->
+  <div class="page" id="page-product">
+    <div class="scrollable" style="flex:1;padding-bottom:12px;">
+      <div class="report-header" style="margin-bottom:16px;">
+        <div class="label">RECOMMENDED</div>
+        <div class="title">为你推荐的产品</div>
+      </div>
+      <div class="product-list" id="productList">
+        <div class="product-card best">
+          <div class="thumb">🩹</div>
+          <div class="info">
+            <span class="best-tag">⭐ 强烈推荐</span>
+            <div class="name">草本护眼贴</div>
+            <div class="reason">缓解干涩疲劳，配合测评效果更佳</div>
+            <div class="price">¥39.90</div>
+          </div>
+        </div>
+        <div class="product-card">
+          <div class="thumb">💊</div>
+          <div class="info">
+            <div class="name">蓝莓叶黄素酯</div>
+            <div class="reason">抗蓝光损伤，保护视网膜</div>
+            <div class="price">¥59.00</div>
+          </div>
+        </div>
+        <div class="product-card">
+          <div class="thumb">📦</div>
+          <div class="info">
+            <div class="name">护眼超值套装</div>
+            <div class="reason">护眼贴+叶黄素，一站式护眼方案</div>
+            <div class="price">¥89.00</div>
+          </div>
+        </div>
+      </div>
+      <div class="report-actions">
+        <button class="btn btn-primary" onclick="showPage('page-lead')">获取完整护眼方案</button>
+        <button class="btn btn-secondary" onclick="restart()">重新测评</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Lead Capture ===== -->
+  <div class="page" id="page-lead">
+    <div class="lead-content" style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <div class="lead-icon">📋</div>
+      <div class="lead-title">领取你的完整护眼方案</div>
+      <div class="lead-sub">获取详细版报告 + 7天护眼计划<br>专属护眼教练一对一跟进指导</div>
+
+      <!-- 护眼教练卡片 -->
+      <div style="background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.12);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:24px;text-align:left;">
+        <div style="width:52px;height:52px;background:linear-gradient(135deg,#00d4aa,#00b894);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">👤</div>
+        <div>
+          <div style="font-size:16px;font-weight:600;">你的专属护眼教练 · 老王队长</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;">添加微信 · 获取1对1护眼方案</div>
+          <div style="font-size:15px;color:#00d4aa;font-weight:600;margin-top:4px;letter-spacing:1px;">📱 微信号：lwdz2026</div>
+        </div>
+      </div>
+
+      <div class="lead-input-group">
+        <input class="lead-input" type="text" placeholder="输入你的微信号，教练会主动添加你" id="leadInput">
+      </div>
+      <button class="btn btn-primary" onclick="submitLead()">立即添加护眼教练</button>
+      <div class="lead-count">已有 <span id="leadCount">386</span> 人领取了护眼方案</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== State =====
+const state = {
+  answers: {},
+  scores: { fatigue: 0, dryEye: 0, accommodation: 0, blueLight: 0 },
+  totalScore: 0,
+  currentQ: null
+};
+
+// ===== Navigation =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== Welcome =====
+document.addEventListener('DOMContentLoaded', () => {
+  const n = Math.floor(Math.random() * 5000) + 10000;
+  document.getElementById('totalUsers').textContent = n.toLocaleString();
+  const m = Math.floor(Math.random() * 200) + 200;
+  document.getElementById('leadCount').textContent = m;
+});
+
+// ===== Question Logic =====
+let q1Val = null, q3Val = null, q4Val = null, q5Val = null;
+let q2Vals = [];
+
+function selectOption(el, val) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const page = el.closest('.page');
+  const btn = page.querySelector('.btn');
+  btn.disabled = false;
+
+  const id = page.id;
+  if (id === 'page-q1') q1Val = val;
+  else if (id === 'page-q3') q3Val = val;
+  else if (id === 'page-q4') q4Val = val;
+  else if (id === 'page-q5') q5Val = val;
+}
+
+function toggleOption(el) {
+  el.classList.toggle('selected');
+  const parent = el.closest('.options');
+  const hasNoIssue = parent.querySelector('.option:last-child');
+  if (el.textContent.includes('无明显不适')) {
+    parent.querySelectorAll('.option').forEach(o => {
+      if (o !== el) o.classList.remove('selected');
+    });
+    q2Vals = ['none'];
+    el.classList.add('selected');
+  } else {
+    const noIssue = parent.querySelector('.option:last-child');
+    if (noIssue) noIssue.classList.remove('selected');
+    q2Vals = [];
+    parent.querySelectorAll('.option').forEach(o => {
+      if (o.classList.contains('selected') && !o.textContent.includes('无明显不适')) {
+        q2Vals.push(o.textContent.trim());
+      }
+    });
+  }
+  const btn = document.getElementById('btn-next2');
+  btn.disabled = q2Vals.length === 0;
+}
+
+function nextQuestion(n) {
+  showPage('page-q' + n);
+}
+
+function startQuiz() {
+  q1Val = null; q2Vals = []; q3Val = null; q4Val = null; q5Val = null;
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('.btn[disabled]').forEach(b => b.disabled = true);
+  showPage('page-q1');
+}
+
+// ===== Report Generation =====
+function generateReport() {
+  showPage('page-loading');
+  const tips = [
+    '正在读取你的用眼数据...',
+    '进行视疲劳程度分析...',
+    '交叉柱镜检测：评估调节能力...',
+    '雾视放松：测试真实屈光状态...',
+    '红绿平衡测试：验证度数精准度...',
+    '双眼平衡测试：协调左右眼调节...',
+    '计算蓝光暴露风险指数...',
+    '生成个性化眼健康评估报告...'
+  ];
+  let ti = 0;
+  const tipEl = document.getElementById('loadingTip');
+  const tipInterval = setInterval(() => {
+    ti++;
+    if (ti < tips.length) tipEl.textContent = tips[ti];
+  }, 500);
+
+  setTimeout(() => {
+    clearInterval(tipInterval);
+    tipEl.textContent = '报告生成完毕！';
+    calcScores();
+    renderReport();
+    showPage('page-report');
+    setTimeout(() => { renderRing(); renderRadar(); }, 100);
+  }, 4500);
+}
+
+function calcScores() {
+  const s = { fatigue: 0, dryEye: 0, accommodation: 0, blueLight: 0 };
+
+  // Q1: Screen time
+  const screenTime = q1Val || 2;
+  s.fatigue += (screenTime - 1) * 2.5;
+  s.blueLight += (screenTime - 1) * 2.5;
+
+  // Q2: Symptoms
+  const hasDry = q2Vals.some(v => v.includes('干涩') || v.includes('疲劳'));
+  const hasBlur = q2Vals.some(v => v.includes('模糊') || v.includes('重影'));
+  const hasRed = q2Vals.some(v => v.includes('红'));
+  const hasLight = q2Vals.some(v => v.includes('畏光') || v.includes('流泪'));
+  const hasHead = q2Vals.some(v => v.includes('头痛') || v.includes('胀'));
+  const hasNone = q2Vals.includes('none');
+
+  if (hasNone) {
+    s.fatigue += 1; s.dryEye += 1;
+  } else {
+    if (hasDry) { s.fatigue += 3; s.dryEye += 3.5; }
+    if (hasBlur) { s.fatigue += 2; s.accommodation += 3; }
+    if (hasRed) { s.dryEye += 2; s.fatigue += 1.5; }
+    if (hasLight) { s.dryEye += 2; s.accommodation += 1.5; }
+    if (hasHead) { s.fatigue += 2; s.blueLight += 1.5; }
+  }
+
+  // Q3: Age
+  const age = q3Val || 2;
+  if (age >= 3) s.accommodation += 3;
+  if (age >= 4) { s.dryEye += 2; s.fatigue += 1.5; }
+  if (age === 1) s.blueLight += 1;
+  if (age === 2) s.blueLight += 2;
+
+  // Q4: Eye care
+  const care = q4Val || 3;
+  if (care === 1) { s.fatigue += 1; s.dryEye += 1; s.accommodation += 1; }
+  else if (care === 2) { s.fatigue += 3; s.dryEye += 2.5; }
+  else if (care === 3) { s.fatigue += 4.5; s.dryEye += 4; }
+  else { s.fatigue += 6; s.dryEye += 5.5; }
+
+  // Q5: Glasses
+  const glasses = q5Val || 1;
+  if (glasses === 2) s.accommodation += 2;
+  if (glasses === 3) { s.dryEye += 3; s.accommodation += 1; }
+  if (glasses === 4) { s.dryEye += 3; s.accommodation += 2.5; }
+
+  // Clamp
+  const clamp = (v) => Math.min(10, Math.max(1, Math.round(v * 10) / 10));
+  s.fatigue = clamp(s.fatigue);
+  s.dryEye = clamp(s.dryEye);
+  s.accommodation = clamp(s.accommodation);
+  s.blueLight = clamp(s.blueLight);
+
+  state.scores = s;
+  state.totalScore = clamp(s.fatigue * 0.35 + s.dryEye * 0.25 + s.accommodation * 0.2 + s.blueLight * 0.2);
+}
+
+function getDiagnosis(total, scores) {
+  const dryText = scores.dryEye >= 6 ? '干眼倾向明显，泪膜稳定性下降。' : '泪膜状态尚可，建议加强保湿。';
+  const adjText = scores.accommodation >= 6 ? '调节能力下降，近距离用眼负荷过重。' : '调节能力尚在正常范围。';
+
+  if (total >= 7.5) {
+    return {
+      tag: '重度视疲劳 (Grade III)',
+      desc: `你的视疲劳指数处于高位。${dryText}${adjText}建议进行系统性眼部调理，并减少每日屏幕使用时间。`,
+      color: '#ff6b6b'
+    };
+  }
+  if (total >= 5.5) {
+    return {
+      tag: '中度视疲劳 (Grade II)',
+      desc: `你的眼睛已经出现明显的疲劳积累。${dryText}${adjText}建议尽快采取护眼措施。`,
+      color: '#ffc107'
+    };
+  }
+  if (total >= 3.5) {
+    return {
+      tag: '轻度视疲劳 (Grade I)',
+      desc: `你的眼睛状态尚可，但已有疲劳积累。${dryText}建议提前预防，养成良好用眼习惯。`,
+      color: '#00d4aa'
+    };
+  }
+  return {
+    tag: '状态良好',
+    desc: '你的眼睛状态不错！继续保持良好的用眼习惯，定期做护眼保养。',
+    color: '#00d4aa'
+  };
+}
+
+function getAdvice(scores, total) {
+  const list = [];
+
+  // 20-20-20 rule for everyone
+  list.push({ icon: '⏰', text: '遵守 20-20-20 法则：每近距离用眼20分钟，向20英尺（约6米）外远眺至少20秒，放松睫状肌' });
+
+  // Dry eye specific
+  if (scores.dryEye > 5) list.push({ icon: '🩹', text: '建议使用草本护眼贴缓解眼干涩，每天1-2次，每次贴敷15分钟。热敷促进睑板腺分泌，改善泪膜质量' });
+
+  // Blue light specific
+  if (scores.blueLight > 5) list.push({ icon: '💊', text: '补充叶黄素酯或蓝莓提取物（建议每日10mg叶黄素），帮助过滤蓝光损伤，保护视网膜黄斑区' });
+
+  // Fatigue specific
+  if (scores.fatigue > 5) list.push({ icon: '🧘', text: '做眼保健操：每天3次，每次5分钟。重点按揉睛明穴、攒竹穴、太阳穴，促进眼周血液循环' });
+
+  // Basic care
+  list.push({ icon: '💧', text: '保持室内湿度在40%-60%，避免空调/暖气直吹。可使用加湿器或热毛巾敷眼（40℃，每次10分钟）' });
+
+  // Check-up
+  if (total > 5) list.push({ icon: '🏥', text: '建议每半年做一次专业眼科检查（裂隙灯检查+眼底照相），排查器质性病变，跟踪眼部健康变化' });
+
+  // Night use
+  list.push({ icon: '🌙', text: '睡前1小时关闭电子产品，保证7-8小时睡眠。夜间使用手机建议开启深色模式+降低亮度至40%以下' });
+
+  // Accommodation specific
+  if (scores.accommodation > 5) list.push({ icon: '👀', text: '调节力训练：每日做远近交替聚焦训练（看近处拇指5秒→看远处5秒，重复10次），锻炼睫状肌弹性' });
+
+  return list.slice(0, 5);
+}
+
+function getDimensionColor(idx) {
+  const colors = ['#00d4aa', '#40c4ff', '#ffc107', '#ff6b6b'];
+  return colors[idx % colors.length];
+}
+
+function getDimensionLabel(idx) {
+  const labels = ['疲劳度', '干眼风险', '调节能力', '蓝光风险'];
+  return labels[idx % labels.length];
+}
+
+function renderReport() {
+  const { scores, totalScore } = state;
+  const diag = getDiagnosis(totalScore, scores);
+  // Report meta
+  const now = new Date();
+  const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  const reportNum = 'EYE-' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + String(Math.floor(Math.random()*9000)+1000);
+  document.getElementById('reportMeta').textContent = '报告编号：' + reportNum + ' ｜ 评估日期：' + dateStr;
+
+  document.getElementById('totalScore').textContent = totalScore;
+  document.getElementById('scoreDesc').textContent = diag.desc;
+  document.getElementById('diagnosisTag').textContent = diag.tag;
+  document.getElementById('diagnosisTag').style.borderColor = diag.color;
+  document.getElementById('diagnosisTag').style.color = diag.color;
+  document.getElementById('diagnosisTag').style.background = diag.color + '15';
+
+  // Dimension bars
+  const dims = ['fatigue', 'dryEye', 'accommodation', 'blueLight'];
+  const dimEl = document.getElementById('dimensionList');
+  dimEl.innerHTML = dims.map((key, i) => {
+    const v = scores[key];
+    const color = getDimensionColor(i);
+    const label = getDimensionLabel(i);
+    return `<div class="dimension-item">
+      <div class="name">${label}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:0%;background:${color}" data-w="${(v / 10) * 100}"></div></div>
+      <div class="score" style="color:${color}">${v}</div>
+    </div>`;
+  }).join('');
+  setTimeout(() => {
+    document.querySelectorAll('.dimension-item .bar-fill').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 200);
+
+  // Advice
+  const advice = getAdvice(scores, totalScore);
+  document.getElementById('adviceList').innerHTML = advice.map(a =>
+    `<div class="advice-item"><div class="icon">${a.icon}</div><div class="text">${a.text}</div></div>`
+  ).join('');
+}
+
+// ===== Ring Progress =====
+function renderRing() {
+  const canvas = document.getElementById('ringCanvas');
+  const ctx = canvas.getContext('2d');
+  const val = state.totalScore / 10;
+  const cx = 100, cy = 100, r = 82, lw = 12;
+
+  ctx.clearRect(0, 0, 200, 200);
+
+  // Background ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = lw;
+  ctx.stroke();
+
+  // Progress ring
+  const color = state.totalScore >= 7.5 ? '#ff6b6b' : state.totalScore >= 5.5 ? '#ffc107' : '#00d4aa';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * val);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Inner glow
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * val);
+  ctx.strokeStyle = color + '30';
+  ctx.lineWidth = 18;
+  ctx.stroke();
+}
+
+// ===== Radar Chart =====
+function renderRadar() {
+  const canvas = document.getElementById('radarCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 600, H = 400;
+  ctx.clearRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2 + 10, rMax = 150;
+  const scores = state.scores;
+  const keys = ['fatigue', 'dryEye', 'accommodation', 'blueLight'];
+  const labels = ['疲劳度', '干眼风险', '调节能力', '蓝光风险'];
+  const angles = [-Math.PI / 2, -Math.PI / 2 + Math.PI / 2, -Math.PI / 2 + Math.PI, -Math.PI / 2 + Math.PI * 1.5];
+  const colors = ['#00d4aa', '#40c4ff', '#ffc107', '#ff6b6b'];
+
+  // Grid rings
+  for (let ring = 1; ring <= 5; ring++) {
+    const r = (rMax / 5) * ring;
+    ctx.beginPath();
+    for (let i = 0; i <= keys.length; i++) {
+      const idx = i % keys.length;
+      const x = cx + r * Math.cos(angles[idx]);
+      const y = cy + r * Math.sin(angles[idx]);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = ring === 5 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = ring === 5 ? 1 : 1;
+    ctx.stroke();
+  }
+
+  // Axes
+  keys.forEach((key, i) => {
+    const x = cx + rMax * Math.cos(angles[i]);
+    const y = cy + rMax * Math.sin(angles[i]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.stroke();
+
+    // Labels
+    const lx = cx + (rMax + 35) * Math.cos(angles[i]);
+    const ly = cy + (rMax + 35) * Math.sin(angles[i]);
+    ctx.fillStyle = colors[i];
+    ctx.font = '20px -apple-system, PingFang SC, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], lx, ly);
+    // Score
+    const sy = cy + (rMax + 55) * Math.sin(angles[i]);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '16px -apple-system, PingFang SC, sans-serif';
+    ctx.fillText(scores[key] + '/10', lx, i === 0 ? ly + 30 : i === 2 ? ly - 30 : ly + 25);
+  });
+
+  // Data polygon
+  ctx.beginPath();
+  keys.forEach((key, i) => {
+    const val = scores[key] / 10;
+    const x = cx + rMax * val * Math.cos(angles[i]);
+    const y = cy + rMax * val * Math.sin(angles[i]);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(0,212,170,0.15)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,170,0.6)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Data points
+  keys.forEach((key, i) => {
+    const val = scores[key] / 10;
+    const x = cx + rMax * val * Math.cos(angles[i]);
+    const y = cy + rMax * val * Math.sin(angles[i]);
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#00d4aa';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+}
+
+// ===== Product & Lead =====
+function submitLead() {
+  const val = document.getElementById('leadInput').value.trim();
+  if (!val) {
+    document.getElementById('leadInput').style.borderColor = '#ff6b6b';
+    document.getElementById('leadInput').placeholder = '请填写你的微信号';
+    return;
+  }
+  document.getElementById('leadInput').style.borderColor = '#00d4aa';
+  const btn = document.querySelector('#page-lead .btn-primary');
+  btn.textContent = '✅ 提交成功！护眼教练将尽快添加你';
+  btn.disabled = true;
+
+  // Show success message
+  const leadContent = document.querySelector('#page-lead .lead-content');
+  const existingMsg = document.getElementById('leadSuccessMsg');
+  if (!existingMsg) {
+    const msg = document.createElement('div');
+    msg.id = 'leadSuccessMsg';
+    msg.style.cssText = 'margin-top:20px;padding:16px;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);border-radius:14px;font-size:15px;color:#00d4aa;text-align:center;line-height:1.6;';
+    msg.innerHTML = '✅ 已收到你的申请<br>请主动添加护眼教练微信：<br><strong style="font-size:20px;letter-spacing:2px;">lwdz2026</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.3);">添加时备注"护眼测评"快速通过</span>';
+    leadContent.appendChild(msg);
+  }
+}
+
+// ===== Restart =====
+function restart() {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('.btn[disabled]').forEach(b => b.disabled = true);
+  q1Val = null; q2Vals = []; q3Val = null; q4Val = null; q5Val = null;
+  document.getElementById('leadInput').value = '';
+  document.querySelector('#page-lead .btn-primary').textContent = '立即领取';
+  document.querySelector('#page-lead .btn-primary').disabled = false;
+  showPage('page-welcome');
+}
+
+// Style check for multi-select Q2
+document.addEventListener('DOMContentLoaded', () => {
+  const q2Options = document.querySelector('#page-q2 .options');
+  if (q2Options) {
+    const lastOpt = q2Options.querySelector('.option:last-child');
+    if (lastOpt) {
+      lastOpt.addEventListener('click', () => {
+        setTimeout(() => {
+          const btn = document.getElementById('btn-next2');
+          btn.disabled = document.querySelectorAll('#page-q2 .option.selected').length === 0;
+        }, 10);
+      });
+    }
+  }
+});
+</script>
+</body>
+</html>

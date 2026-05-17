@@ -24,6 +24,22 @@ const nextConfig: NextConfig = {
         source: '/sight/gallup_pro/index.html',
         destination: '/sight/gallup_pro/index.html',
       },
+      {
+        source: '/ai-assistant',
+        destination: '/ai-assistant/index.html',
+      },
+      {
+        source: '/ai-assistant/',
+        destination: '/ai-assistant/index.html',
+      },
+      {
+        source: '/eye-test',
+        destination: '/eye-test/index.html',
+      },
+      {
+        source: '/eye-test/',
+        destination: '/eye-test/index.html',
+      },
     ];
   },
 };
