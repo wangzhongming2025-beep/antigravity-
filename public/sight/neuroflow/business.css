@@ -1,100 +1,48 @@
-.how-to-guide .tip-badge {
-    background: var(--gradient-main);
-    color: var(--bg-deep);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 800;
-    margin-right: 8px;
-    font-size: 11px;
+/* Legacy business styles - consolidated into styles.css */
+/* Keep file for backward compatibility with sub-pages */
+
+/* Toggle Switch (used by push module) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
 }
 
-/* Business & Conversion Components */
-.business-banner {
-    grid-column: span 12;
-    margin-bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, rgba(0, 255, 194, 0.15) 0%, rgba(0, 229, 255, 0.05) 100%);
-    border: 2px solid var(--primary-neon);
-    animation: glow-border 2s ease-in-out infinite alternate;
-    padding: 24px;
-    border-radius: 24px;
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-@keyframes glow-border {
-    from { box-shadow: 0 0 10px rgba(0, 255, 194, 0.2); }
-    to { box-shadow: 0 0 25px rgba(0, 255, 194, 0.5); }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: 0.3s;
+  border-radius: 24px;
 }
 
-.banner-content h3 {
-    font-size: 24px;
-    margin: 8px 0;
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
 }
 
-.badge-new {
-    background: var(--primary-neon);
-    color: var(--bg-deep);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 800;
+input:checked + .slider {
+  background-color: var(--primary-neon);
 }
 
-.partner-highlight {
-    color: var(--primary-neon) !important;
-    border: 1px solid var(--primary-neon);
-    padding: 4px 12px !important;
-    border-radius: 8px;
-    opacity: 1 !important;
-}
-
-/* Floating CTA Styles */
-.float-cta {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: var(--gradient-main);
-    padding: 12px 20px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    z-index: 999;
-    box-shadow: 0 10px 30px rgba(0, 255, 194, 0.4);
-    transition: var(--transition-smooth);
-}
-
-.float-cta:hover {
-    transform: scale(1.1) translateY(-5px);
-}
-
-.cta-icon {
-    font-size: 20px;
-}
-
-.cta-text {
-    color: var(--bg-deep);
-    font-weight: 800;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-    .business-banner {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-    }
-    
-    .float-cta .cta-text {
-        display: none;
-    }
-    
-    .float-cta {
-        padding: 12px;
-        right: 20px;
-        bottom: 20px;
-    }
+input:checked + .slider:before {
+  transform: translateX(20px);
 }
