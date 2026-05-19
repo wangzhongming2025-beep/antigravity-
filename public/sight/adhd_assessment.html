@@ -168,12 +168,12 @@
         <div id="screen-login" class="min-h-[80vh] flex flex-col justify-center hidden">
             <div class="glass-card rounded-3xl p-8 fade-in">
                 <div class="text-center mb-8">
-                    <div
+                    <div id="login-icon"
                         class="w-16 h-16 bg-sky-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
                         🔐
                     </div>
-                    <h2 class="text-2xl font-bold text-white mb-2">登录以保存记录</h2>
-                    <p class="text-slate-400 text-sm">使用手机号或自定义ID，方便查看历史评估结果</p>
+                    <h2 id="login-title" class="text-2xl font-bold text-white mb-2">登录以保存记录</h2>
+                    <p id="login-desc" class="text-slate-400 text-sm">使用手机号或自定义ID，方便查看历史评估结果</p>
                 </div>
 
                 <div class="space-y-4">
@@ -294,6 +294,23 @@
                 <div id="interpretation-text" class="text-slate-300 text-sm leading-relaxed space-y-3">
                     <!-- Interpretation will be injected here -->
                 </div>
+            </div>
+
+            <!-- NeuroFlow Recommendation -->
+            <div id="neuroflow-section" class="glass-card rounded-3xl p-6 mb-6 border-sky-500/30 fade-in hidden">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 bg-gradient-to-br from-sky-500 to-cyan-400 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                        🧠
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-white mb-1">NeuroFlow · 你的专注力训练工具</h3>
+                        <p id="neuroflow-text" class="text-slate-300 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+                <a href="https://sighthealthpro.com/sight/neuroflow/index.html" target="_blank"
+                   class="block w-full mt-2 bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold py-3 rounded-xl text-center hover:opacity-90 transition-opacity shadow-lg">
+                    开始使用 NeuroFlow →
+                </a>
             </div>
 
             <!-- Pro Features (Locked) -->
@@ -509,6 +526,7 @@
         let options = [];
         let userId = null;
         let startTime = null;
+        let loginMode = 'pre'; // 'pre' = before assessment, 'post' = after assessment
 
         // ========== NAVIGATION ==========
         function showScreen(screenId) {
@@ -521,14 +539,13 @@
             questions = version === 'adult' ? ASRS_QUESTIONS : SNAPIV_QUESTIONS;
             options = version === 'adult' ? ASRS_OPTIONS : SNAPIV_OPTIONS;
             answers = new Array(questions.length).fill(null);
-
-            // Check if already logged in
-            userId = localStorage.getItem('adhd_user_id');
-            if (userId) {
-                startAssessment();
-            } else {
-                showScreen('screen-login');
-            }
+            loginMode = 'pre';
+            // Reset login screen text
+            document.getElementById('login-icon').textContent = '🔐';
+            document.getElementById('login-title').textContent = '登录以保存记录';
+            document.getElementById('login-desc').textContent = '使用手机号或自定义ID，方便查看历史评估结果';
+            // Go straight to assessment — no login gate before answering
+            startAssessment();
         }
 
         function handleLogin() {
@@ -545,12 +562,20 @@
                 TraineeAuth.setTraineeId(userId);
             }
 
-            startAssessment();
+            if (loginMode === 'post') {
+                calculateResults();
+            } else {
+                startAssessment();
+            }
         }
 
         function skipLogin() {
             userId = null;
-            startAssessment();
+            if (loginMode === 'post') {
+                calculateResults();
+            } else {
+                startAssessment();
+            }
         }
 
         function startAssessment() {
@@ -559,6 +584,16 @@
             showScreen('screen-assessment');
             document.getElementById('total-q-num').textContent = questions.length;
             renderQuestion();
+        }
+
+        function showLoginForResults() {
+            loginMode = 'post';
+            // Update login screen for post-assessment context
+            document.getElementById('login-icon').textContent = '🎉';
+            document.getElementById('login-title').textContent = '评估已完成！';
+            document.getElementById('login-desc').textContent = '登录保存你的报告，方便复测时对比进步。';
+            document.getElementById('login-id-input').value = '';
+            showScreen('screen-login');
         }
 
         // ========== ASSESSMENT LOGIC ==========
@@ -619,8 +654,13 @@
                 currentQuestionIndex++;
                 renderQuestion();
             } else {
-                // Finish assessment
-                calculateResults();
+                // All questions answered — check login before showing results
+                userId = localStorage.getItem('adhd_user_id');
+                if (!userId) {
+                    showLoginForResults();
+                } else {
+                    calculateResults();
+                }
             }
         }
 
@@ -768,6 +808,9 @@
             // Render interpretation
             const interpretationContainer = document.getElementById('interpretation-text');
             interpretationContainer.innerHTML = generateInterpretation(results);
+
+            // Show NeuroFlow recommendation based on severity
+            showNeuroflowRecommendation(results);
         }
 
         function renderSubscaleBar(label, score, max, colorClass) {
@@ -902,6 +945,24 @@
             if (history[index]) {
                 displayResults(history[index]);
             }
+        }
+
+        // ========== NEUROFLOW RECOMMENDATION ==========
+        function showNeuroflowRecommendation(results) {
+            const section = document.getElementById('neuroflow-section');
+            const textEl = document.getElementById('neuroflow-text');
+
+            const recommendations = {
+                low: '你的专注力状态不错！NeuroFlow 的 40Hz 专注波可以帮助你在工作时进入心流状态，效率更高。',
+                mild: '你的评分提示存在一定程度的专注力挑战。NeuroFlow 的 5 分钟呼吸唤醒和多巴胺任务切片机可以帮助你降低启动阻力。建议连续使用 7 天后复测，观察进步。',
+                moderate: '你的评分达到中度水平。NeuroFlow 专为 ADHD 大脑设计，包含 5 分钟呼吸唤醒、40Hz 专注波、NSDR 深度休息等工具。建议每天使用，一周后复测对比。',
+                high: '你的评分偏高。NeuroFlow 可以帮助你系统性地训练专注力。建议从 5 分钟呼吸唤醒开始，每天使用核心工具，7 天后复测观察改善。',
+                very_high: '你的评分较高。NeuroFlow 提供完整的专注力训练系统，建议从 5 分钟呼吸唤醒开始，逐步使用全部工具，连续 7 天后复测对比变化。',
+                severe: '你的评分较高。NeuroFlow 提供完整的专注力训练系统，建议从 5 分钟呼吸唤醒开始，逐步使用全部工具，连续 7 天后复测对比变化。'
+            };
+
+            textEl.textContent = recommendations[results.severity] || '试试 NeuroFlow 的专注力训练工具，帮你提升专注力。';
+            section.classList.remove('hidden');
         }
 
         // ========== UTILITIES ==========
