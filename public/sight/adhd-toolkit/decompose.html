@@ -4,13 +4,456 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>任务拆解器 · ADHD工具箱</title>
-<link rel="stylesheet" href="css/style.css">
+<style>
+/* ── CSS variables ── */
+:root {
+  --bg: #f5f0eb;
+  --bg-gradient: linear-gradient(165deg, #f5f0eb 0%, #ebe4dc 50%, #f0e8e0 100%);
+  --card: rgba(255,255,255,0.85);
+  --card-border: rgba(255,255,255,0.5);
+  --primary: #7c9a92;
+  --primary-dark: #5d7d75;
+  --primary-light: #e8f0ee;
+  --primary-glow: rgba(124,154,146,0.15);
+  --accent: #d4a574;
+  --accent-dark: #c08e5a;
+  --accent-light: #f5ede4;
+  --accent-glow: rgba(212,165,116,0.15);
+  --purple: #a88dc8;
+  --purple-light: #ede8f5;
+  --green: #8db580;
+  --green-light: #e8f5e8;
+  --danger: #d18e8e;
+  --danger-light: #f8eeee;
+  --text: #3d3d3d;
+  --text-secondary: #8a8a8a;
+  --text-muted: #b8b0a8;
+  --border: rgba(0,0,0,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow: 0 4px 20px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+  --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+  --transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-linear: 0.2s ease;
+}
+[data-theme="decompose"] { --theme: var(--primary); --theme-light: var(--primary-light); --theme-glow: var(--primary-glow); }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0;
+}
+
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px 16px 80px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding-top: 8px;
+}
+.page-header h1 { font-size: 1.35rem; font-weight: 700; }
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border: none;
+  background: var(--card);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--card-border);
+}
+.back-btn:hover { transform: scale(1.1) translateX(-2px); box-shadow: var(--shadow); }
+.back-btn:active { transform: scale(0.92); }
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  transition: box-shadow var(--transition-linear);
+}
+.card-soft {
+  background: linear-gradient(135deg, var(--theme-light) 0%, var(--card) 60%);
+  border: 1px solid var(--card-border);
+}
+
+input {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  width: 100%;
+  transition: border-color var(--transition-linear), box-shadow var(--transition-linear);
+  outline: none;
+}
+input:focus {
+  border-color: var(--theme, var(--primary));
+  box-shadow: 0 0 0 4px var(--theme-glow, var(--primary-glow));
+  background: white;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition-linear);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.96); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--theme, var(--primary)) 0%, var(--theme, var(--primary-dark)) 100%);
+  color: white;
+  box-shadow: 0 4px 14px var(--theme-glow, var(--primary-glow));
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--theme-glow, var(--primary-glow));
+}
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.btn-accent:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
+.btn-outline {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+  box-shadow: none;
+}
+.btn-outline:hover:not(:disabled) {
+  border-color: var(--text-muted);
+  color: var(--text);
+  background: rgba(0,0,0,0.02);
+  transform: translateY(-1px);
+}
+.btn-sm { padding: 10px 16px; font-size: 0.85rem; }
+.btn-block { width: 100%; }
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.section-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.text-center { text-align: center; }
+.text-secondary { color: var(--text-secondary); font-size: 0.9rem; }
+.mt-sm { margin-top: 8px; }
+.mt-md { margin-top: 16px; }
+.mt-lg { margin-top: 24px; }
+.mb-sm { margin-bottom: 8px; }
+.flex { display: flex; }
+.gap-sm { gap: 8px; }
+
+/* ── Step list ── */
+.step-list { list-style: none; }
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity var(--transition-linear);
+}
+.step-item:last-child { border-bottom: none; }
+.step-number {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all var(--transition);
+}
+.step-item.done .step-number {
+  background: var(--green-light);
+  color: var(--green);
+}
+.step-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.step-emoji {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+.step-text {
+  flex: 1;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  transition: color var(--transition-linear);
+}
+.step-item.done .step-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.step-checkbox {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+}
+.step-checkbox:checked {
+  background: var(--green);
+  border-color: var(--green);
+  animation: pop 0.3s ease;
+}
+.step-checkbox:checked::after {
+  content: '✓';
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Category tag ── */
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--theme-light, var(--primary-light));
+  color: var(--primary-dark);
+  margin-bottom: 8px;
+}
+.steps-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--theme-glow, var(--primary-glow));
+  color: var(--primary-dark);
+}
+
+/* ── Task examples ── */
+.task-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.task-example-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  background: var(--bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-linear);
+  border: 1px solid transparent;
+  user-select: none;
+}
+.task-example-chip:hover {
+  border-color: var(--theme, var(--primary));
+  color: var(--text);
+  background: white;
+}
+
+/* ── Focus mode ── */
+#firstStepFocus .big-step-wrap {
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin: 12px 0;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+#firstStepFocus .big-step-wrap .step-emoji {
+  font-size: 1.3rem;
+  margin-top: 1px;
+}
+#firstStepFocus .big-step-wrap .big-step-text {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* ── Back to top ── */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-linear), transform var(--transition);
+  z-index: 50;
+}
+.back-to-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.back-to-top-btn:hover {
+  transform: translateY(-3px);
+  color: var(--text);
+}
+
+/* ── Celebration overlay ── */
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  animation: confettiFall var(--duration, 3s) ease-out forwards;
+  opacity: 0;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.3); opacity: 0; }
+}
+
+/* ── History ── */
+.dump-entry {
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-left: 3px solid var(--primary);
+}
+.dump-entry-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up { animation: fadeInUp 0.5s ease both; }
+.bounce-in { animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.slide-up { animation: slideUp 0.3s ease both; }
+
+@media (max-width: 480px) {
+  .container { padding: 20px 14px 60px; }
+  .card { padding: 20px; }
+  .page-header h1 { font-size: 1.2rem; }
+  .task-examples { gap: 4px; }
+  .task-example-chip { font-size: 0.7rem; padding: 3px 8px; }
+}
+</style>
 </head>
 <body data-theme="decompose">
 
 <div class="container">
   <div class="page-header">
-    <a href="index.html" class="back-btn">←</a>
+    <a href="#" onclick="event.preventDefault();history.back()" class="back-btn">←</a>
     <h1>🧩 任务拆解器</h1>
   </div>
 
@@ -18,17 +461,26 @@
     <p class="section-subtitle">
       ADHD的大脑面对大任务会直接宕机。<br>把任务拆成微步骤，大脑就不会逃跑了。
     </p>
-
     <label class="section-title" for="taskInput">你要做什么？</label>
     <input type="text" id="taskInput" placeholder="比如：写周报、整理房间、准备面试……" autofocus>
     <button class="btn btn-primary btn-block mt-sm" id="decomposeBtn">🔨 拆解它</button>
+    <div class="task-examples" id="taskExamples">
+      <span class="task-example-chip">📝 写周报</span>
+      <span class="task-example-chip">🧹 收拾房间</span>
+      <span class="task-example-chip">📚 准备面试</span>
+      <span class="task-example-chip">💻 写代码</span>
+      <span class="task-example-chip">🏃 开始运动</span>
+    </div>
   </div>
 
   <div id="resultArea" style="display:none">
     <div class="card fade-in-up">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <span class="section-title" style="margin-bottom:0">拆解步骤</span>
-        <span id="stepCount" class="text-secondary" style="font-size:0.8rem"></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <span id="categoryTag" class="category-tag" style="display:none"></span>
+          <span class="section-title" style="margin-bottom:0">拆解步骤</span>
+        </div>
+        <span id="stepCount" class="steps-badge"></span>
       </div>
 
       <div id="stepProgress" style="margin-bottom:16px;display:none">
@@ -50,7 +502,7 @@
       </div>
 
       <button class="btn btn-accent btn-block mt-md" id="firstStepOnly">
-        👣 只做第一步
+        👣 只看第一步
       </button>
       <button class="btn btn-outline btn-block btn-sm mt-sm" id="newTask">
         换个任务
@@ -61,7 +513,7 @@
       <div class="bounce-in" style="font-size:2.5rem;margin-bottom:12px;">👣</div>
       <div style="font-weight:700;font-size:1.2rem;margin-bottom:4px;">只看第一步就够了</div>
       <p class="section-subtitle">不用想后面的事。<br>做完这一步，你就已经开始了。</p>
-      <div id="firstStepText" style="font-size:1.1rem;font-weight:600;margin-bottom:16px;padding:12px;background:white;border-radius:8px;"></div>
+      <div id="firstStepText" class="big-step-wrap"></div>
       <div class="flex gap-sm" style="justify-content:center">
         <button class="btn btn-primary" id="doneFirstStep">✅ 做完第一步了</button>
         <button class="btn btn-outline" id="closeFirstStep">看全部步骤</button>
@@ -72,7 +524,8 @@
       <div style="font-size:2.5rem;margin-bottom:8px;animation:bounceIn 0.5s ease">🎯</div>
       <div style="font-weight:700;font-size:1.2rem;color:var(--green);margin-bottom:4px;">你已经开始了！</div>
       <p class="section-subtitle">最难的部分已经过去了。<br>看看下一步是什么？</p>
-      <button class="btn btn-primary" onclick="location.reload()">继续拆解新任务</button>
+      <button class="btn btn-primary" id="continueToAllSteps">👀 看全部步骤</button>
+      <button class="btn btn-outline mt-sm" id="newTask2">换个新任务</button>
     </div>
   </div>
 
@@ -84,74 +537,378 @@
   </div>
 </div>
 
-<script src="js/utils.js"></script>
-<script>
-const taskInput = document.getElementById('taskInput');
-const decomposeBtn = document.getElementById('decomposeBtn');
-const resultArea = document.getElementById('resultArea');
-const stepList = document.getElementById('stepList');
-const stepCount = document.getElementById('stepCount');
-const stepProgress = document.getElementById('stepProgress');
-const progressBar = document.getElementById('progressBar');
-const progressText = document.getElementById('progressText');
-const progressPct = document.getElementById('progressPct');
-const firstStepOnly = document.getElementById('firstStepOnly');
-const newTask = document.getElementById('newTask');
-const firstStepFocus = document.getElementById('firstStepFocus');
-const firstStepText = document.getElementById('firstStepText');
-const doneFirstStep = document.getElementById('doneFirstStep');
-const closeFirstStep = document.getElementById('closeFirstStep');
-const firstStepDone = document.getElementById('firstStepDone');
-const allDoneCelebration = document.getElementById('allDoneCelebration');
-const historyArea = document.getElementById('historyArea');
-const historyList = document.getElementById('historyList');
+<button class="back-to-top-btn" id="backToTop" aria-label="返回顶部">↑</button>
 
-function decomposeTask(task) {
+<script>
+/* ── 工具函数（替代原 utils.js）── */
+const Storage = {
+  get(key, fallback) {
+    try { return JSON.parse(localStorage.getItem('adhd_' + key)) ?? fallback; } catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem('adhd_' + key, JSON.stringify(value)); } catch {}
+  }
+};
+function dateStr() {
+  return new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function playNotification() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [660, 880].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.2 + 0.5);
+      osc.start(ctx.currentTime + i * 0.2);
+      osc.stop(ctx.currentTime + i * 0.2 + 0.5);
+    });
+  } catch {}
+}
+/* ── 工具函数结束 ── */
+
+/* ============================================================
+   🧠 智能任务拆解引擎 v2
+   — 基于任务类型识别 + 场景定制化步骤生成
+   ============================================================ */
+
+const CATEGORIES = [
+  {
+    id: 'cleaning',
+    name: '整理/打扫',
+    icon: '🧹',
+    keywords: [
+      { word: '收拾', score: 10 }, { word: '整理', score: 10 }, { word: '打扫', score: 10 },
+      { word: '清理', score: 8 }, { word: '收纳', score: 8 }, { word: '房间', score: 6 },
+      { word: '衣柜', score: 8 }, { word: '桌面', score: 6 }, { word: '厨房', score: 6 },
+      { word: '卫生间', score: 6 }, { word: '客厅', score: 6 }, { word: '书房', score: 6 },
+      { word: '卧室', score: 6 }, { word: '清洁', score: 8 }, { word: '拖地', score: 9 },
+      { word: '擦', score: 5 }, { word: '归类', score: 7 }, { word: '断舍离', score: 9 },
+      { word: '大扫除', score: 10 }, { word: '叠', score: 5 }, { word: '柜子', score: 6 },
+      { word: '抽屉', score: 6 }, { word: '杂物', score: 6 }, { word: '布置', score: 5 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '🚶', text: `站到${obj || '目标区域'}前，快速扫一眼全貌，决定从哪个角落开始` },
+        { emoji: '📦', text: `准备一个垃圾袋和一个收纳筐（分类用）` },
+        { emoji: '🔍', text: `把不属于${obj || '这个空间'}的东西挑出来，放到一边` },
+        { emoji: '🗑️', text: `把显眼的垃圾和不需要的东西扔掉` },
+        { emoji: '📐', text: `从最小的平面开始整理（比如一个桌面/一格柜子）` },
+        { emoji: '🏷️', text: `把同类物品归到一起，决定它们该放在哪` },
+        { emoji: '👐', text: `把归好类的物品放回原位` },
+        { emoji: '🧽', text: `用抹布擦干净清理过的表面` },
+        { emoji: '👀', text: `后退一步，检查整体效果，微调摆放` },
+        { emoji: '🎉', text: `奖励自己——你完成了一部分「${task}」！` },
+      ];
+    }
+  },
+  {
+    id: 'writing',
+    name: '写作/文档',
+    icon: '✍️',
+    keywords: [
+      { word: '写', score: 6 }, { word: '周报', score: 10 }, { word: '月报', score: 10 },
+      { word: '日报', score: 10 }, { word: '报告', score: 8 }, { word: '文档', score: 7 },
+      { word: '论文', score: 8 }, { word: '文章', score: 8 }, { word: '文案', score: 8 },
+      { word: '总结', score: 7 }, { word: '邮件', score: 8 }, { word: '稿件', score: 8 },
+      { word: '博客', score: 7 }, { word: '述职', score: 9 }, { word: '复盘', score: 8 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '💻', text: `打开电脑/拿出纸笔，新建一个空白文档` },
+        { emoji: '🔙', text: `快速回顾需要写的内容素材（聊天记录、邮件、资料等）` },
+        { emoji: '📝', text: `随便列3-5个要点，不追求完整句子` },
+        { emoji: '📋', text: `给列出的要点排个顺序，决定先写什么后写什么` },
+        { emoji: '✏️', text: `从最简单的部分开始写第一段` },
+        { emoji: '➡️', text: `顺着往下写下一段，不用回头改` },
+        { emoji: '👁️', text: `通读一遍，检查有没有漏掉重要的内容` },
+        { emoji: '🔧', text: `修正错别字和不通顺的地方` },
+        { emoji: '📄', text: `调整格式和排版，确保整洁` },
+        { emoji: '✅', text: `保存/发送「${task}」，任务完成！` },
+      ];
+    }
+  },
+  {
+    id: 'study',
+    name: '学习/备考',
+    icon: '📚',
+    keywords: [
+      { word: '学习', score: 8 }, { word: '复习', score: 9 }, { word: '备考', score: 10 },
+      { word: '考试', score: 9 }, { word: '背书', score: 8 }, { word: '背单词', score: 9 },
+      { word: '做题', score: 7 }, { word: '刷题', score: 8 }, { word: '阅读', score: 6 },
+      { word: '看书', score: 6 }, { word: '面试', score: 8 }, { word: '读书', score: 6 },
+      { word: '预习', score: 7 }, { word: '作业', score: 7 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '📦', text: `准备好学习资料和工具（书、笔、电脑、水）` },
+        { emoji: '🔇', text: `把手机调成勿扰模式，放在视线之外` },
+        { emoji: '📖', text: `快速浏览今天要学的整体内容框架（目录/大纲）` },
+        { emoji: '🎯', text: `选择最小的一个知识点开始（不要贪多）` },
+        { emoji: '🧠', text: `专注学习这个知识点5-10分钟` },
+        { emoji: '🗣️', text: `用自己的话复述一遍刚学的内容` },
+        { emoji: '✍️', text: `做一道相关的练习题或写一句话笔记` },
+        { emoji: '☕', text: `休息5分钟，站起来走走、喝水` },
+        { emoji: '🔄', text: `重复以上步骤，进入下一个知识点` },
+        { emoji: '📝', text: `回顾今天「${task}」的收获，写在笔记本上` },
+      ];
+    }
+  },
+  {
+    id: 'creative',
+    name: '创意/设计',
+    icon: '🎨',
+    keywords: [
+      { word: '设计', score: 8 }, { word: '做图', score: 6 }, { word: '修图', score: 6 },
+      { word: '剪辑', score: 7 }, { word: '视频', score: 6 }, { word: 'PPT', score: 8 },
+      { word: '幻灯片', score: 8 }, { word: '海报', score: 8 }, { word: '排版', score: 6 },
+      { word: '插画', score: 7 }, { word: '画画', score: 7 }, { word: '绘画', score: 7 },
+      { word: '创作', score: 6 }, { word: '摄影', score: 5 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '💡', text: `明确「${task}」的用途和受众（给谁看？什么场景？）` },
+        { emoji: '🔍', text: `找3个你喜欢的参考作品作为灵感` },
+        { emoji: '📝', text: `在纸上简单画出大致的构图/框架` },
+        { emoji: '🎨', text: `确定主色调和字体风格` },
+        { emoji: '🖌️', text: `做出第一版草稿，不要追求完美` },
+        { emoji: '👀', text: `退后一步，看看整体效果` },
+        { emoji: '🔧', text: `调整不满意的地方（最多改3处）` },
+        { emoji: '👍', text: `发给一个人看看，获取反馈` },
+        { emoji: '🎯', text: `根据反馈做最终调整` },
+        { emoji: '📤', text: `导出/提交「${task}」的最终版本` },
+      ];
+    }
+  },
+  {
+    id: 'coding',
+    name: '编程/开发',
+    icon: '💻',
+    keywords: [
+      { word: '写代码', score: 10 }, { word: '编程', score: 9 }, { word: '开发', score: 8 },
+      { word: '调试', score: 8 }, { word: '修bug', score: 9 }, { word: '改bug', score: 9 },
+      { word: '部署', score: 8 }, { word: '上线', score: 7 }, { word: '重构', score: 7 },
+      { word: '测试', score: 7 }, { word: '代码', score: 5 }, { word: '配置', score: 5 },
+      { word: '优化', score: 5 }, { word: '迁移', score: 6 },
+    ],
+    templates(task, obj) {
+      const isBug = /bug|问题|故障|异常|报错/i.test(task);
+      if (isBug) {
+        return [
+          { emoji: '🔍', text: `复现bug，搞清楚在什么条件下触发` },
+          { emoji: '📋', text: `查看报错信息和相关日志` },
+          { emoji: '🎯', text: `定位到出问题的具体文件/代码行` },
+          { emoji: '🧠', text: `理解这段代码原本想做什么` },
+          { emoji: '🔧', text: `写出修复方案（可以先去搜一下类似问题）` },
+          { emoji: '✏️', text: `修改代码，改最少的地方` },
+          { emoji: '✅', text: `验证修复是否有效，确保没引入新问题` },
+          { emoji: '📤', text: `提交代码并描述修复了什么` },
+        ];
+      }
+      return [
+        { emoji: '📝', text: `明确「${task}」要做什么，写下核心目标（1句话）` },
+        { emoji: '📋', text: `拆解成3-5个小任务，列在纸上/记事本里` },
+        { emoji: '🔧', text: `准备好开发环境（拉最新代码、安装依赖）` },
+        { emoji: '🎯', text: `从最简单的一个小任务开始做` },
+        { emoji: '💻', text: `写核心逻辑，先让功能跑起来` },
+        { emoji: '🐛', text: `边写边测试，确保当前部分没问题` },
+        { emoji: '🔄', text: `继续下一个任务，重复直到完成` },
+        { emoji: '🧹', text: `整理代码（删掉调试语句、补充注释）` },
+        { emoji: '📤', text: `提交代码，写好commit信息` },
+      ];
+    }
+  },
+  {
+    id: 'social',
+    name: '社交/沟通',
+    icon: '💬',
+    keywords: [
+      { word: '发消息', score: 8 }, { word: '打电话', score: 8 }, { word: '约', score: 7 },
+      { word: '见面', score: 6 }, { word: '沟通', score: 5 }, { word: '回复', score: 6 },
+      { word: '联系', score: 6 }, { word: '拜访', score: 7 }, { word: '邀请', score: 6 },
+      { word: '道歉', score: 7 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '🧠', text: `想清楚「${task}」的目的是什么？想达到什么结果？` },
+        { emoji: '📝', text: `在备忘录里写几个要点（避免说着说着忘记）` },
+        { emoji: '😮‍💨', text: `深呼吸3次，放松肩膀——对方也是普通人` },
+        { emoji: '📱', text: `打开聊天窗口/找到对方的联系方式` },
+        { emoji: '👋', text: `自然开场，简单问候后直接说事` },
+        { emoji: '👂', text: `说完后给对方回应的时间，认真听` },
+        { emoji: '💬', text: `根据对方的反应补充细节或回答问题` },
+        { emoji: '✅', text: `确认双方都理解一致，明确下一步` },
+        { emoji: '🙏', text: `感谢对方的时间，友好结束` },
+        { emoji: '📝', text: `把沟通结果记下来，防止忘记` },
+      ];
+    }
+  },
+  {
+    id: 'health',
+    name: '健康/锻炼',
+    icon: '💪',
+    keywords: [
+      { word: '运动', score: 8 }, { word: '跑步', score: 8 }, { word: '健身', score: 8 },
+      { word: '锻炼', score: 8 }, { word: '瑜伽', score: 7 }, { word: '冥想', score: 7 },
+      { word: '散步', score: 6 }, { word: '拉伸', score: 6 }, { word: '跳绳', score: 7 },
+      { word: '减肥', score: 6 }, { word: '减脂', score: 6 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '👕', text: `换上运动服/舒服的衣服（穿上就是成功的一半）` },
+        { emoji: '👟', text: `穿上鞋子，准备好水杯` },
+        { emoji: '🎵', text: `放一首你喜欢的音乐或者播客` },
+        { emoji: '⏱️', text: `告诉自己：只做5分钟，不想做就停下来` },
+        { emoji: '🏃', text: `开始动起来！先做最轻松的部分` },
+        { emoji: '🔥', text: `感觉不错的话，再做5分钟……` },
+        { emoji: '💧', text: `停下来喝口水，检查身体状态` },
+        { emoji: '🧘', text: `做几分钟拉伸放松` },
+        { emoji: '🚿', text: `洗个澡/擦把脸，清爽收尾` },
+        { emoji: '📝', text: `记录今天运动了多久（看到数据会有成就感）` },
+      ];
+    }
+  },
+  {
+    id: 'errand',
+    name: '出行/办事',
+    icon: '🚶',
+    keywords: [
+      { word: '出门', score: 6 }, { word: '买', score: 5 }, { word: '购物', score: 6 },
+      { word: '超市', score: 5 }, { word: '医院', score: 6 }, { word: '取快递', score: 8 },
+      { word: '寄', score: 6 }, { word: '办理', score: 6 }, { word: '预约', score: 6 },
+      { word: '挂号', score: 7 }, { word: '买菜', score: 7 },
+    ],
+    templates(task, obj) {
+      return [
+        { emoji: '📝', text: `写下去哪里、做什么、需要带什么` },
+        { emoji: '🎒', text: `准备好要带的物品（包、证件、手机、钥匙）` },
+        { emoji: '🗺️', text: `确认路线/地址/营业时间` },
+        { emoji: '👟', text: `换好鞋子，拿上东西，出门！` },
+        { emoji: '✅', text: `到地方后优先办最重要的事` },
+        { emoji: '🛍️', text: `顺便处理其他次要事项` },
+        { emoji: '🏠', text: `回来把所有东西归位` },
+      ];
+    }
+  }
+];
+
+/* ── 通用兜底模板 ── */
+function getFallbackSteps(task) {
   return [
-    `打开电脑/拿出纸笔，准备开始做「${task}」`,
-    `确认做「${task}」需要什么材料或信息`,
-    `把材料准备好，放在手边`,
-    `设定一个10分钟计时器`,
-    `开始做「${task}」的第1小步`,
-    `做完第1小步后，停下来深呼吸一次`,
-    `检查一下有没有做偏方向`,
-    `继续做下一小步`,
-    `完成「${task}」后，把所有东西收好`,
-    `给自己一个奖励 🎉`
+    { emoji: '✋', text: `深呼吸一次，告诉自己：我要开始做「${task}」了` },
+    { emoji: '🔍', text: `想一想「${task}」的第一步最简单能做什么？` },
+    { emoji: '🔧', text: `准备好需要的工具/材料/信息` },
+    { emoji: '⏱️', text: `设定一个5分钟计时器——只做5分钟就好` },
+    { emoji: '🎯', text: `动起来！开始做第1小步` },
+    { emoji: '☕', text: `完成一个小阶段后，停下来喘口气` },
+    { emoji: '👀', text: `检查进度，决定下一步做什么` },
+    { emoji: '🏁', text: `继续推进直到完成「${task}」的核心部分` },
+    { emoji: '🎉', text: `做完后给自己一个奖励` },
   ];
 }
+
+/* ── 从任务文本中提取目标对象 ── */
+function extractObject(task) {
+  const patterns = [
+    /(?:收拾|整理|打扫|清理|收纳|擦|刷|洗|叠)\s*(.{1,6})$/,
+    /(?:写|做|改|修|设计|画|拍|剪|准备|复习|学|背|练|约|办|买|去)\s*(.{1,10})$/,
+  ];
+  for (const p of patterns) {
+    const m = task.match(p);
+    if (m && m[1] && m[1].length >= 1) {
+      return m[1].replace(/[的了我吧呢吗]/g, '').trim();
+    }
+  }
+  return '';
+}
+
+/* ── 类别识别引擎 ── */
+function categorizeTask(task) {
+  let best = null;
+  let bestScore = 0;
+  for (const cat of CATEGORIES) {
+    let score = 0;
+    for (const kw of cat.keywords) {
+      if (task.includes(kw.word)) score += kw.score;
+    }
+    if (task.includes(cat.name)) score += 5;
+    if (score > bestScore) { bestScore = score; best = cat; }
+  }
+  if (best && bestScore >= 5) return { category: best, score: bestScore };
+  return null;
+}
+
+/* ── 核心拆解函数 ── */
+function decomposeTask(task) {
+  if (!task.trim()) return [];
+  const result = categorizeTask(task);
+  const obj = extractObject(task);
+  let steps;
+  if (result) {
+    steps = result.category.templates(task, obj);
+  } else {
+    steps = getFallbackSteps(task);
+  }
+  return steps.map(s => ({ text: s.text, emoji: s.emoji || '•', done: false }));
+}
+
+/* ============================================================
+   UI 逻辑
+   ============================================================ */
+
+const els = {};
+['taskInput','decomposeBtn','resultArea','stepList','stepCount','stepProgress',
+ 'progressBar','progressText','progressPct','firstStepOnly','newTask',
+ 'firstStepFocus','firstStepText','doneFirstStep','closeFirstStep',
+ 'firstStepDone','continueToAllSteps','allDoneCelebration',
+ 'historyArea','historyList','categoryTag','backToTop','newTask2','taskExamples'
+].forEach(id => els[id] = document.getElementById(id));
 
 let allChecked = false;
 
 function updateProgress() {
-  const items = stepList.querySelectorAll('.step-item');
-  const done = stepList.querySelectorAll('.step-item.done').length;
+  const items = els.stepList.querySelectorAll('.step-item');
+  const done = els.stepList.querySelectorAll('.step-item.done').length;
   const total = items.length;
-
-  if (total === 0) { stepProgress.style.display = 'none'; return; }
-
-  stepProgress.style.display = 'block';
+  if (total === 0) { els.stepProgress.style.display = 'none'; return; }
+  els.stepProgress.style.display = 'block';
   const pct = Math.round((done / total) * 100);
-  progressBar.style.width = pct + '%';
-  progressText.textContent = `${done} / ${total}`;
-  progressPct.textContent = pct + '%';
+  els.progressBar.style.width = pct + '%';
+  els.progressText.textContent = `${done} / ${total}`;
+  els.progressPct.textContent = pct + '%';
+  els.stepCount.textContent = `${done} / ${total}`;
 
   if (done === total && total > 0 && !allChecked) {
     allChecked = true;
-    allDoneCelebration.style.display = 'block';
-    allDoneCelebration.scrollIntoView({ behavior: 'smooth' });
+    els.allDoneCelebration.style.display = 'block';
+    els.allDoneCelebration.scrollIntoView({ behavior: 'smooth' });
+    playNotification();
     fireCelebration();
   }
 }
 
 function renderSteps(task, steps) {
-  resultArea.style.display = 'block';
-  firstStepFocus.style.display = 'none';
-  firstStepDone.style.display = 'none';
-  allDoneCelebration.style.display = 'none';
+  els.resultArea.style.display = 'block';
+  els.firstStepFocus.style.display = 'none';
+  els.firstStepDone.style.display = 'none';
+  els.allDoneCelebration.style.display = 'none';
   allChecked = false;
-  stepList.innerHTML = '';
-  stepCount.textContent = `共 ${steps.length} 步`;
+  els.stepList.innerHTML = '';
+
+  const result = categorizeTask(task);
+  if (result) {
+    els.categoryTag.style.display = 'inline-flex';
+    els.categoryTag.textContent = `${result.category.icon} ${result.category.name}`;
+  } else {
+    els.categoryTag.style.display = 'none';
+  }
+
+  els.stepCount.textContent = `0 / ${steps.length}`;
 
   steps.forEach((step, i) => {
     const li = document.createElement('li');
@@ -159,55 +916,56 @@ function renderSteps(task, steps) {
     li.style.animationDelay = `${i * 0.06}s`;
     li.innerHTML = `
       <span class="step-number">${i + 1}</span>
-      <span class="step-text">${step}</span>
+      <div class="step-content">
+        <span class="step-emoji">${step.emoji}</span>
+        <span class="step-text">${step.text}</span>
+      </div>
       <input type="checkbox" class="step-checkbox" data-index="${i}">
     `;
     li.querySelector('.step-checkbox').addEventListener('change', function() {
       li.classList.toggle('done', this.checked);
       updateProgress();
     });
-    stepList.appendChild(li);
+    els.stepList.appendChild(li);
   });
 
   updateProgress();
   saveToHistory(task, steps);
   renderHistory();
+  setTimeout(() => els.resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 }
 
 function saveToHistory(task, steps) {
   const history = Storage.get('decompose_history', []);
-  history.unshift({ task, steps, date: dateStr(), id: uid() });
+  const cat = categorizeTask(task);
+  const tag = cat ? `${cat.category.icon} ${cat.category.name}` : '📋 通用';
+  history.unshift({ task, steps: steps.length, date: dateStr(), id: uid(), tag });
   if (history.length > 20) history.length = 20;
   Storage.set('decompose_history', history);
 }
 
 function renderHistory() {
   const history = Storage.get('decompose_history', []);
-  if (!history.length) { historyArea.style.display = 'none'; return; }
-  historyArea.style.display = 'block';
-  historyList.innerHTML = '';
+  if (!history.length) { els.historyArea.style.display = 'none'; return; }
+  els.historyArea.style.display = 'block';
+  els.historyList.innerHTML = '';
   history.slice(0, 5).forEach(h => {
     const div = document.createElement('div');
     div.className = 'dump-entry slide-up';
-    div.innerHTML = `
-      <div class="dump-entry-meta">
-        <span>📅 ${h.date}</span>
-      </div>
-      <strong>${h.task}</strong> · ${h.steps.length} 步
-    `;
-    historyList.appendChild(div);
+    div.innerHTML = `<div class="dump-entry-meta"><span>${h.tag || '📋'}</span><span>📅 ${h.date}</span></div>
+      <strong>${h.task.length > 30 ? h.task.slice(0, 30) + '…' : h.task}</strong> · ${h.steps} 步`;
+    els.historyList.appendChild(div);
   });
 }
 
 function fireCelebration() {
   const overlay = document.createElement('div');
   overlay.className = 'celebration-overlay';
-  const colors = ['var(--green)', 'var(--primary)', 'var(--accent)', 'var(--purple)', '#f5c842', '#e88d8d'];
+  const colors = ['#8db580', '#7c9a92', '#d4a574', '#a88dc8', '#f5c842', '#e88d8d'];
   for (let i = 0; i < 40; i++) {
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
     piece.style.left = Math.random() * 100 + '%';
-    piece.style.top = '-10px';
     piece.style.background = colors[Math.floor(Math.random() * colors.length)];
     piece.style.width = (4 + Math.random() * 6) + 'px';
     piece.style.height = (4 + Math.random() * 6) + 'px';
@@ -220,49 +978,79 @@ function fireCelebration() {
   setTimeout(() => overlay.remove(), 4000);
 }
 
-/* ── Event listeners ── */
-decomposeBtn.addEventListener('click', () => {
-  const task = taskInput.value.trim();
-  if (!task) { taskInput.focus(); return; }
-  const steps = decomposeTask(task);
-  renderSteps(task, steps);
-  resultArea.scrollIntoView({ behavior: 'smooth' });
+/* ── 事件绑定 ── */
+els.decomposeBtn.addEventListener('click', () => {
+  const task = els.taskInput.value.trim();
+  if (!task) { els.taskInput.focus(); return; }
+  renderSteps(task, decomposeTask(task));
 });
 
-taskInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') decomposeBtn.click();
+els.taskInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') els.decomposeBtn.click();
 });
 
-firstStepOnly.addEventListener('click', () => {
-  const firstStep = stepList.querySelector('.step-item');
+els.taskExamples.addEventListener('click', e => {
+  const chip = e.target.closest('.task-example-chip');
+  if (chip) {
+    els.taskInput.value = chip.textContent.replace(/^[^\s]+\s/, '');
+    els.decomposeBtn.click();
+  }
+});
+
+els.firstStepOnly.addEventListener('click', () => {
+  const firstStep = els.stepList.querySelector('.step-item');
   if (!firstStep) return;
-  firstStepText.textContent = firstStep.querySelector('.step-text').textContent;
-  firstStepFocus.style.display = 'block';
-  firstStepDone.style.display = 'none';
-  firstStepFocus.scrollIntoView({ behavior: 'smooth' });
+  const emojiEl = firstStep.querySelector('.step-emoji');
+  const textEl = firstStep.querySelector('.step-text');
+  els.firstStepText.innerHTML =
+    `<span class="step-emoji">${emojiEl ? emojiEl.textContent : '👣'}</span>
+     <span class="big-step-text">${textEl ? textEl.textContent : ''}</span>`;
+  els.firstStepFocus.style.display = 'block';
+  els.firstStepDone.style.display = 'none';
+  els.firstStepFocus.scrollIntoView({ behavior: 'smooth' });
 });
 
-doneFirstStep.addEventListener('click', () => {
-  const firstCheck = stepList.querySelector('.step-checkbox');
+els.doneFirstStep.addEventListener('click', () => {
+  const firstCheck = els.stepList.querySelector('.step-checkbox');
   if (firstCheck) {
     firstCheck.checked = true;
     firstCheck.dispatchEvent(new Event('change'));
   }
-  firstStepFocus.style.display = 'none';
-  firstStepDone.style.display = 'block';
-  firstStepDone.scrollIntoView({ behavior: 'smooth' });
+  els.firstStepFocus.style.display = 'none';
+  els.firstStepDone.style.display = 'block';
+  els.firstStepDone.scrollIntoView({ behavior: 'smooth' });
 });
 
-closeFirstStep.addEventListener('click', () => {
-  firstStepFocus.style.display = 'none';
+els.closeFirstStep.addEventListener('click', () => {
+  els.firstStepFocus.style.display = 'none';
 });
 
-newTask.addEventListener('click', () => {
-  taskInput.value = '';
-  taskInput.focus();
-  resultArea.style.display = 'none';
+els.continueToAllSteps.addEventListener('click', () => {
+  els.firstStepDone.style.display = 'none';
+  els.firstStepFocus.style.display = 'none';
+  els.stepList.scrollIntoView({ behavior: 'smooth' });
 });
 
+els.newTask.addEventListener('click', () => {
+  els.taskInput.value = '';
+  els.taskInput.focus();
+  els.resultArea.style.display = 'none';
+});
+els.newTask2.addEventListener('click', () => {
+  els.taskInput.value = '';
+  els.taskInput.focus();
+  els.resultArea.style.display = 'none';
+});
+
+/* ── 返回顶部 ── */
+window.addEventListener('scroll', () => {
+  els.backToTop.classList.toggle('visible', window.scrollY > 400);
+});
+els.backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ── 初始化 ── */
 renderHistory();
 </script>
 </body>
