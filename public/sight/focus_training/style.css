@@ -621,6 +621,13 @@ input[type="text"] {
     transform: scale(0.95);
 }
 
+.video-placeholder {
+    width: 100%;
+    height: 450px;
+    position: relative;
+    overflow: hidden;
+}
+
 #video-question {
     font-size: 1.5rem;
     margin-bottom: 2rem;
@@ -784,13 +791,29 @@ input[type="text"] {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     body { overflow: auto; }
-    .app-container { flex-direction: column; }
     
-    .sidebar { 
-        width: 200px; /* Reduced width for mobile */
-        left: -200px;
+    .app-container { 
+        flex-direction: column; 
+        height: 100vh;
+        height: 100dvh;
     }
-    .sidebar.mobile-active { left: 0; }
+    
+    /* Fixed off-canvas sidebar for mobile */
+    .sidebar { 
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -280px;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+    }
+    .sidebar.mobile-active { 
+        left: 0; 
+    }
     
     .nav-links li { padding: 0.6rem 0.8rem; }
     .nav-label { font-size: 0.65rem; padding-left: 0.8rem; }
@@ -801,15 +824,173 @@ input[type="text"] {
         font-size: 0.85rem; 
     }
     
-    .main-content { padding-top: 60px; }
-    .top-nav { padding: 0 1rem; position: fixed; top: 0; width: 100%; z-index: 100; background: var(--bg-color); }
+    .main-content { 
+        padding-top: 60px; 
+        height: 100%;
+    }
+    
+    /* Fixed top navigation layout */
+    .top-nav { 
+        height: 60px;
+        padding: 0 1rem; 
+        position: fixed; 
+        top: 0; 
+        left: 0;
+        width: 100%; 
+        z-index: 100; 
+        background: var(--bg-color); 
+    }
+    
     .views-wrapper { padding: 1rem; }
     
     .dashboard-grid { grid-template-columns: 1fr; }
     .card .score { font-size: 1.5rem; }
     
     .grid-container { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)) !important; }
-    .cancel-grid { grid-template-columns: repeat(8, 1fr); }
+    
+    /* Schulte Grid Mobile Sizing */
+    #schulte-grid {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    .grid-cell {
+        aspect-ratio: 1/1;
+        font-size: 1.8rem;
+        border-radius: 8px;
+    }
+    
+    /* Tracker canvas container height on mobile */
+    .tracker-container {
+        height: 350px;
+    }
+    
+    /* Visual Processing Speed Mobile */
+    .vis-speed-container {
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+    .target-symbol {
+        width: 100px;
+        height: 100px;
+        font-size: 3rem;
+    }
+    .search-symbol {
+        font-size: 2rem;
+    }
+    .vis-speed-container .separator {
+        width: 60%;
+        height: 2px;
+        background: var(--glass-border);
+        margin: 0 auto;
+    }
+    
+    /* Visual Cancellation Mobile */
+    .cancel-grid { 
+        grid-template-columns: repeat(8, 1fr); 
+        gap: 4px;
+        padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+    .cancel-cell {
+        width: auto;
+        height: auto;
+        aspect-ratio: 1/1;
+        font-size: 1.5rem;
+    }
+    
+    /* Visual Anti-Interference Mobile */
+    .anti-inter-grid {
+        grid-template-columns: repeat(12, 1fr);
+        gap: 2px;
+        padding: 0.5rem;
+    }
+    .anti-cell {
+        font-size: 0.9rem;
+    }
+    
+    /* Space Decoding Mobile */
+    .space-row {
+        padding: 6px 10px;
+        gap: 5px;
+    }
+    .space-row-seq {
+        font-size: 1.2rem;
+        gap: 3px;
+    }
+    .space-row-input {
+        width: 100px;
+        font-size: 1rem;
+        padding: 4px 6px;
+    }
+    
+    /* Decoding Connection Mobile */
+    #decoding-conn-sequence {
+        font-size: 1.8rem !important;
+        letter-spacing: 8px !important;
+    }
+    #decoding-conn-grid {
+        gap: 8px !important;
+    }
+    
+    /* Visual Discrimination & House Search Mobile Layout */
+    .vis-discrim-layout {
+        flex-direction: column !important;
+        min-height: auto !important;
+    }
+    #discrim-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        padding: 1rem !important;
+    }
+    #house-search-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+        padding: 0.5rem !important;
+    }
+    .target-box {
+        padding: 1rem !important;
+    }
+    
+    /* Video Discrimination Canvas Sizing */
+    .video-placeholder {
+        height: 300px;
+    }
+    
+    /* Symbol Decoding Mobile Layout */
+    .symbol-decode-container {
+        padding: 1rem !important;
+    }
+    #symbol-key {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 6px !important;
+        padding: 0.5rem !important;
+    }
+    #symbol-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px !important;
+    }
+    #symbol-input-pad {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 6px !important;
+    }
+    
+    /* Pattern Search Mobile Layout */
+    #pattern-grid {
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 6px !important;
+    }
+    
+    /* Wechsler Assessment Mobile */
+    .assessment-scores {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+    .a-card {
+        text-align: center;
+    }
     
     .b-circle-wrapper { width: 220px; height: 220px; }
     .b-text { font-size: 1.8rem; }
