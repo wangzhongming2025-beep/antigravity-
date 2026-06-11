@@ -28,9 +28,9 @@ let symbolDecodeState = { isPlaying: false, score: 0, timeLeft: 60, timer: null,
 let patternSearchState = { isPlaying: false, level: 1, found: 0, targetSeq: [], total: 3 };
 
 const THEMES = {
-    animal: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗'],
-    fruit: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '茄', '🥑', '🥦', '🌽', '🥕', '🥔', '🍠', '🍄'],
-    space: ['🚀', '🛸', '🪐', '🌟', '🌙', '☀️', '🌍', '☄️', '🛰️', '🧑‍🚀', '👽', '🔭', '🔭', '🌌', '🛸', '🛰️', '🌠', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘']
+    animal: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐙', '🦖'],
+    fruit: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🌽', '🥕', '🥔', '🍠', '🍄', '🧅', '🧄', '🥐', '🥯', '🥞'],
+    space: ['🚀', '🛸', '🪐', '🌟', '🌙', '☀️', '🌍', '☄️', '🛰️', '🧑‍🚀', '👽', '🔭', '🌌', '🌠', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘', '🌎', '🌏', '🌀', '🔆', '📡', '👾', '☄', '🌟']
 };
 
 const SPACE_CONFIG = {
@@ -238,9 +238,128 @@ function updateDashboard() {
 }
 
 // ====== 1. Schulte Grid ======
+function renderCircularSchulte(container, theme) {
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNamespace, "svg");
+    svg.setAttribute("viewBox", "0 0 500 500");
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+    svg.style.maxWidth = "500px";
+    svg.style.display = "block";
+    svg.style.margin = "0 auto";
+    
+    container.appendChild(svg);
+    
+    let items = Array.from({length: 30}, (_, i) => i + 1);
+    if (theme !== 'number') {
+        const icons = [...THEMES[theme]].sort(() => 0.5 - Math.random());
+        schulteState.themeData = items.map(i => icons[i-1]);
+    } else { schulteState.themeData = items; }
+    
+    let displayItems = items.map(i => ({ val: i, display: schulteState.themeData[i-1] })).sort(() => Math.random() - 0.5);
+    
+    const xc = 250, yc = 250;
+    const r0 = 0, r1 = 80, r2 = 160, r3 = 240;
+    const innerSectors = 6, middleSectors = 10, outerSectors = 14;
+    const innerOffset = 0, middleOffset = 0.25, outerOffset = 0.45;
+    let itemIndex = 0;
+    
+    function getSectorPath(x_c, y_c, r_in, r_out, startAngle, endAngle) {
+        const x_in_start = x_c + r_in * Math.cos(startAngle);
+        const y_in_start = y_c + r_in * Math.sin(startAngle);
+        const x_in_end = x_c + r_in * Math.cos(endAngle);
+        const y_in_end = y_c + r_in * Math.sin(endAngle);
+        const x_out_start = x_c + r_out * Math.cos(startAngle);
+        const y_out_start = y_c + r_out * Math.sin(startAngle);
+        const x_out_end = x_c + r_out * Math.cos(endAngle);
+        const y_out_end = y_c + r_out * Math.sin(endAngle);
+        
+        if (r_in === 0) {
+            return `M ${x_c} ${y_c} L ${x_out_start} ${y_out_start} A ${r_out} ${r_out} 0 0 1 ${x_out_end} ${y_out_end} Z`;
+        } else {
+            return `M ${x_in_start} ${y_in_start} L ${x_out_start} ${y_out_start} A ${r_out} ${r_out} 0 0 1 ${x_out_end} ${y_out_end} L ${x_in_end} ${y_in_end} A ${r_in} ${r_in} 0 0 0 ${x_in_start} ${y_in_start} Z`;
+        }
+    }
+    
+    function drawZone(numSectors, r_in, r_out, angleOffset) {
+        const angleStep = (2 * Math.PI) / numSectors;
+        for (let i = 0; i < numSectors; i++) {
+            const startAngle = angleOffset + i * angleStep;
+            const endAngle = angleOffset + (i + 1) * angleStep;
+            const midAngle = (startAngle + endAngle) / 2;
+            const r_mid = r_in === 0 ? r_out * 0.55 : (r_in + r_out) / 2;
+            const x_text = xc + r_mid * Math.cos(midAngle);
+            const y_text = yc + r_mid * Math.sin(midAngle);
+            
+            const item = displayItems[itemIndex++];
+            if (!item) break;
+            
+            const g = document.createElementNS(svgNamespace, "g");
+            g.setAttribute("class", "grid-cell circular-cell");
+            g.setAttribute("style", "cursor: pointer;");
+            
+            const path = document.createElementNS(svgNamespace, "path");
+            path.setAttribute("d", getSectorPath(xc, yc, r_in, r_out, startAngle, endAngle));
+            path.setAttribute("fill", "rgba(255, 255, 255, 0.02)");
+            path.setAttribute("stroke", "rgba(255, 255, 255, 0.12)");
+            path.setAttribute("stroke-width", "1.5");
+            g.appendChild(path);
+            
+            const text = document.createElementNS(svgNamespace, "text");
+            text.setAttribute("x", x_text);
+            text.setAttribute("y", y_text);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            
+            const fontSize = r_in === 0 ? "2.2rem" : (r_in === 80 ? "1.8rem" : "1.5rem");
+            text.setAttribute("font-size", fontSize);
+            text.setAttribute("font-weight", "bold");
+            
+            if (item.val === 1 || item.val === 30) {
+                text.setAttribute("fill", "#ff4d4d");
+            } else {
+                text.setAttribute("fill", "#fff");
+            }
+            text.textContent = item.display;
+            g.appendChild(text);
+            
+            g.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                handleCellClick(g, item.val);
+            });
+            
+            svg.appendChild(g);
+        }
+    }
+    
+    drawZone(innerSectors, r0, r1, innerOffset);
+    drawZone(middleSectors, r1, r2, middleOffset);
+    drawZone(outerSectors, r2, r3, outerOffset);
+    
+    const borderCircle = document.createElementNS(svgNamespace, "circle");
+    borderCircle.setAttribute("cx", xc);
+    borderCircle.setAttribute("cy", yc);
+    borderCircle.setAttribute("r", r3);
+    borderCircle.setAttribute("fill", "none");
+    borderCircle.setAttribute("stroke", "rgba(255, 255, 255, 0.2)");
+    borderCircle.setAttribute("stroke-width", "2");
+    svg.appendChild(borderCircle);
+}
+
 function generateSchulteGrid() {
     const sGrid = document.getElementById('schulte-grid'); if(!sGrid) return;
     sGrid.innerHTML = ''; const size = schulteState.size; const theme = document.getElementById('schulte-theme').value;
+    
+    if (size === 'circular') {
+        sGrid.style.display = 'block';
+        sGrid.style.gridTemplateColumns = 'none';
+        sGrid.classList.remove('grid');
+        renderCircularSchulte(sGrid, theme);
+        return;
+    }
+    
+    sGrid.style.display = 'grid';
+    sGrid.classList.add('grid');
     sGrid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     let items = Array.from({length: size*size}, (_, i) => i + 1);
     if (theme !== 'number') {
@@ -253,16 +372,19 @@ function generateSchulteGrid() {
         cell.addEventListener('mousedown', () => handleCellClick(cell, item.val)); sGrid.appendChild(cell);
     });
 }
+
 function handleCellClick(cell, val) {
     if (!schulteState.isPlaying) return;
+    const maxVal = (schulteState.size === 'circular') ? 30 : (schulteState.size * schulteState.size);
     if (val === schulteState.expectedNumber) {
         cell.classList.add('active-hit');
-        if (++schulteState.expectedNumber > schulteState.size ** 2) endSchulteGame(true);
+        if (++schulteState.expectedNumber > maxVal) endSchulteGame(true);
         else document.getElementById('schulte-next').textContent = schulteState.themeData[schulteState.expectedNumber-1];
     } else {
         cell.classList.add('error-hit'); schulteState.startTime -= 1000; setTimeout(() => cell.classList.remove('error-hit'), 300);
     }
 }
+
 function startSchulteGame() {
     schulteState.isPlaying = true; schulteState.expectedNumber = 1; generateSchulteGrid();
     document.getElementById('schulte-next').textContent = schulteState.themeData[0];
@@ -272,6 +394,7 @@ function startSchulteGame() {
         const timeEl = document.getElementById('schulte-timer'); if(timeEl) timeEl.textContent = ((Date.now() - schulteState.startTime) / 1000).toFixed(2);
     }, 40);
 }
+
 function endSchulteGame(completed) {
     schulteState.isPlaying = false; clearInterval(schulteState.timerInterval);
     const btn = document.getElementById('schulte-start'); if(btn) { btn.textContent = '开始挑战'; btn.classList.replace('danger', 'primary'); }
@@ -1167,7 +1290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     bindClick('schulte-start', () => schulteState.isPlaying ? endSchulteGame(false) : startSchulteGame());
     const sTheme = document.getElementById('schulte-theme'); if(sTheme) sTheme.onchange = () => { stopAllActivities(); generateSchulteGrid(); };
-    const sSize = document.getElementById('schulte-size'); if(sSize) sSize.onchange = (e) => { stopAllActivities(); schulteState.size = parseInt(e.target.value); generateSchulteGrid(); };
+    const sSize = document.getElementById('schulte-size'); if(sSize) sSize.onchange = (e) => { stopAllActivities(); const val = e.target.value; schulteState.size = (val === 'circular') ? 'circular' : parseInt(val); generateSchulteGrid(); };
     
     bindClick('tracker-start', () => initTrackerGame(true));
     const tCanvas = document.getElementById('tracker-canvas');
