@@ -26,6 +26,7 @@ let memRepeatState = { isPlaying: false, currentSentence: '' };
 let trackMazeState = { isPlaying: false, matches: 0, total: 5, paths: [], selectedSource: null };
 let symbolDecodeState = { isPlaying: false, score: 0, timeLeft: 60, timer: null, currentIdx: 0, set: null };
 let patternSearchState = { isPlaying: false, level: 1, found: 0, targetSeq: [], total: 3 };
+let spiralTrackState = { isPlaying: false, expectedIndex: 0, startTime: 0, timerInterval: null, sequence: [] };
 
 const THEMES = {
     animal: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐙', '🦖'],
@@ -203,6 +204,7 @@ function initView(viewId) {
         case 'track-maze': initTrackMaze(); break;
         case 'symbol-decode': initSymbolDecode(); break;
         case 'pattern-search': initPatternSearch(); break;
+        case 'spiral-track': initSpiralTrack(); break;
         case 'assessment-wechsler': initAssessmentWechsler(); break;
     }
 }
@@ -227,6 +229,7 @@ function stopAllActivities() {
     if(trackMazeState.isPlaying) trackMazeState.isPlaying = false;
     if(symbolDecodeState.isPlaying) { clearInterval(symbolDecodeState.timer); symbolDecodeState.isPlaying = false; }
     if(patternSearchState.isPlaying) patternSearchState.isPlaying = false;
+    if(spiralTrackState.isPlaying) endSpiralTrack(false);
     if(state.speechEnabled) window.speechSynthesis.cancel();
 }
 
@@ -1282,6 +1285,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupNavigation(); 
     updateDashboard(); 
+    initView(state.currentView);
     setTimeout(resizeCanvas, 100); 
     window.addEventListener('resize', resizeCanvas);
     
@@ -1293,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sSize = document.getElementById('schulte-size'); if(sSize) sSize.onchange = (e) => { stopAllActivities(); const val = e.target.value; schulteState.size = (val === 'circular') ? 'circular' : parseInt(val); generateSchulteGrid(); };
     
     bindClick('tracker-start', () => initTrackerGame(true));
+    bindClick('spiral-start', () => spiralTrackState.isPlaying ? endSpiralTrack(false) : startSpiralTrack());
     const tCanvas = document.getElementById('tracker-canvas');
     if(tCanvas) tCanvas.onmousedown = (e) => {
         if(trackerState.phase !== 'select') return;
@@ -1674,4 +1679,194 @@ function resizeCanvas() {
     const c = document.getElementById('tracker-canvas'), v = document.getElementById('video-canvas');
     if(c && c.offsetParent) { c.width = c.clientWidth; c.height = c.clientHeight; }
     if(v && v.offsetParent) { v.width = v.parentElement.clientWidth || 800; v.height = v.parentElement.clientHeight || 450; }
+}
+
+// ====== Spiral Tracking Game Implementation ======
+function initSpiralTrack() {
+    spiralTrackState.isPlaying = false;
+    document.getElementById('spiral-timer').textContent = '00.00';
+    
+    const row1 = document.getElementById('spiral-row-1');
+    const row2 = document.getElementById('spiral-row-2');
+    if (row1 && row2) {
+        row1.innerHTML = Array.from({length: 10}, () => `<td></td>`).join('');
+        row2.innerHTML = Array.from({length: 10}, () => `<td></td>`).join('');
+    }
+    
+    generateSpiralTrack();
+}
+
+function generateSpiralTrack() {
+    const wrapper = document.getElementById('spiral-svg-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+    
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNamespace, "svg");
+    svg.setAttribute("viewBox", "0 0 500 500");
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+    
+    const xc = 250, yc = 250;
+    const rStart = 220;
+    const rEnd = 30;
+    const thetaStart = 0;
+    const thetaEnd = 7 * Math.PI;
+    
+    let d = "";
+    const numPoints = 300;
+    for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints;
+        const theta = thetaStart + t * (thetaEnd - thetaStart);
+        const r = rStart + t * (rEnd - rStart);
+        const x = xc + r * Math.cos(theta);
+        const y = yc + r * Math.sin(theta);
+        if (i === 0) d += `M ${x} ${y}`;
+        else d += ` L ${x} ${y}`;
+    }
+    
+    const path = document.createElementNS(svgNamespace, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "#ff8c42");
+    path.setAttribute("stroke-width", "5");
+    path.setAttribute("stroke-linecap", "round");
+    svg.appendChild(path);
+    
+    const seq = Array.from({length: 20}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+    spiralTrackState.sequence = seq;
+    
+    const numNodes = 20;
+    for (let i = 0; i < numNodes; i++) {
+        const t = 0.03 + 0.94 * (i / (numNodes - 1));
+        const theta = thetaStart + t * (thetaEnd - thetaStart);
+        const r = rStart + t * (rEnd - rStart);
+        const x = xc + r * Math.cos(theta);
+        const y = yc + r * Math.sin(theta);
+        
+        const nodeVal = seq[i];
+        
+        const g = document.createElementNS(svgNamespace, "g");
+        g.setAttribute("class", "spiral-node");
+        g.dataset.val = nodeVal;
+        g.dataset.index = i;
+        
+        const circle = document.createElementNS(svgNamespace, "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", "16");
+        circle.setAttribute("fill", "#40c4ff");
+        circle.setAttribute("stroke", "rgba(255, 255, 255, 0.4)");
+        circle.setAttribute("stroke-width", "2");
+        g.appendChild(circle);
+        
+        const text = document.createElementNS(svgNamespace, "text");
+        text.setAttribute("x", x);
+        text.setAttribute("y", y);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "central");
+        text.setAttribute("fill", "#000");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("font-size", "14px");
+        text.textContent = nodeVal;
+        g.appendChild(text);
+        
+        g.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            handleSpiralNodeClick(g, nodeVal, i);
+        });
+        
+        svg.appendChild(g);
+    }
+    
+    const arrowStartTheta = thetaStart;
+    const arrowStartX = xc + (rStart + 10) * Math.cos(arrowStartTheta);
+    const arrowStartY = yc + (rStart + 10) * Math.sin(arrowStartTheta);
+    
+    const arrow1 = document.createElementNS(svgNamespace, "path");
+    arrow1.setAttribute("d", `M ${arrowStartX} ${arrowStartY + 8} L ${arrowStartX - 6} ${arrowStartY - 4} L ${arrowStartX + 6} ${arrowStartY - 4} Z`);
+    arrow1.setAttribute("fill", "#ff4d4d");
+    svg.appendChild(arrow1);
+    
+    const arrowEndTheta = thetaEnd;
+    const arrowEndX = xc + (rEnd - 12) * Math.cos(arrowEndTheta);
+    const arrowEndY = yc + (rEnd - 12) * Math.sin(arrowEndTheta);
+    const arrow2 = document.createElementNS(svgNamespace, "path");
+    const cosAngle = Math.cos(arrowEndTheta);
+    const sinAngle = Math.sin(arrowEndTheta);
+    arrow2.setAttribute("d", `M ${arrowEndX + 5 * cosAngle} ${arrowEndY + 5 * sinAngle} L ${arrowEndX - 5 * sinAngle} ${arrowEndY + 5 * cosAngle} L ${arrowEndX + 5 * sinAngle} ${arrowEndY - 5 * cosAngle} Z`);
+    arrow2.setAttribute("fill", "#ff4d4d");
+    svg.appendChild(arrow2);
+    
+    wrapper.appendChild(svg);
+}
+
+function startSpiralTrack() {
+    spiralTrackState.isPlaying = true;
+    spiralTrackState.expectedIndex = 0;
+    
+    const cells = document.querySelectorAll('#spiral-answer-table td');
+    cells.forEach(c => {
+        c.textContent = '';
+        c.classList.remove('filled');
+    });
+    
+    generateSpiralTrack();
+    
+    const btn = document.getElementById('spiral-start');
+    if (btn) {
+        btn.textContent = '放弃挑战';
+        btn.classList.replace('primary', 'danger');
+    }
+    
+    spiralTrackState.startTime = Date.now();
+    spiralTrackState.timerInterval = setInterval(() => {
+        const timerEl = document.getElementById('spiral-timer');
+        if (timerEl) {
+            timerEl.textContent = ((Date.now() - spiralTrackState.startTime) / 1000).toFixed(2);
+        }
+    }, 40);
+}
+
+function endSpiralTrack(completed) {
+    spiralTrackState.isPlaying = false;
+    clearInterval(spiralTrackState.timerInterval);
+    
+    const btn = document.getElementById('spiral-start');
+    if (btn) {
+        btn.textContent = '开始挑战';
+        btn.classList.replace('danger', 'primary');
+    }
+    
+    if (completed) {
+        const final = parseFloat(document.getElementById('spiral-timer').textContent);
+        const key = `focus_spiral_best`;
+        if (final < (parseFloat(localStorage.getItem(key)) || Infinity)) {
+            localStorage.setItem(key, final);
+        }
+        alert(`完成！用时：${final} 秒`);
+    }
+}
+
+function handleSpiralNodeClick(element, val, index) {
+    if (!spiralTrackState.isPlaying) return;
+    
+    if (index === spiralTrackState.expectedIndex) {
+        element.classList.add('active-hit');
+        
+        const cells = document.querySelectorAll('#spiral-answer-table td');
+        if (cells[spiralTrackState.expectedIndex]) {
+            cells[spiralTrackState.expectedIndex].textContent = val;
+            cells[spiralTrackState.expectedIndex].classList.add('filled');
+        }
+        
+        spiralTrackState.expectedIndex++;
+        if (spiralTrackState.expectedIndex >= 20) {
+            endSpiralTrack(true);
+        }
+    } else {
+        element.classList.add('error-hit');
+        spiralTrackState.startTime -= 1000;
+        setTimeout(() => element.classList.remove('error-hit'), 300);
+    }
 }

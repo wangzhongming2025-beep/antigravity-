@@ -65,6 +65,7 @@
                 <p class="nav-label">幼儿认知</p>
                 <ul class="nav-links">
                     <li data-view="track-maze"><span class="icon">🌀</span><span>视觉追踪</span></li>
+                    <li data-view="spiral-track"><span class="icon">🌀</span><span>螺旋追踪</span></li>
                     <li data-view="symbol-decode"><span class="icon">🔣</span><span>符号对照</span></li>
                     <li data-view="pattern-search"><span class="icon">🔍</span><span>视觉搜寻</span></li>
                 </ul>
@@ -554,6 +555,36 @@
                     </div>
                     <div class="action-bar" style="margin-top: 2rem;">
                         <button id="pattern-search-start" class="btn primary">重新开始</button>
+                    </div>
+                </section>
+
+                <!-- Spiral Tracking (spiral-track) -->
+                <section id="spiral-track" class="view">
+                    <div class="game-header">
+                        <div class="instruction-text">按箭头所指的方向（从外向内）顺着线条用眼睛追踪数字，并在下方按顺序点击填入表格中。</div>
+                        <div class="timer" id="spiral-timer">00.00</div>
+                    </div>
+                    <div class="spiral-track-container glass" style="margin-top: 1rem; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; width: 100%;">
+                        <div id="spiral-svg-wrapper" style="width: 100%; max-width: 500px; aspect-ratio: 1/1; position: relative; display: flex; justify-content: center; align-items: center;">
+                            <!-- SVG injected by JS -->
+                        </div>
+                        
+                        <!-- 2x10 Answer Sheet Table -->
+                        <div class="spiral-answer-table-wrapper" style="width: 100%; max-width: 500px; overflow-x: auto;">
+                            <table id="spiral-answer-table" style="width: 100%; border-collapse: collapse; text-align: center; color: #fff;">
+                                <tbody>
+                                    <tr id="spiral-row-1">
+                                        <!-- 10 cells -->
+                                    </tr>
+                                    <tr id="spiral-row-2">
+                                        <!-- 10 cells -->
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="action-bar" style="margin-top: 2rem;">
+                        <button id="spiral-start" class="btn primary">开始挑战</button>
                     </div>
                 </section>
                 

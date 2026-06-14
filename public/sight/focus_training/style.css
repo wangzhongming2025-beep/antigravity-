@@ -490,10 +490,13 @@ body {
     fill: rgba(255, 255, 255, 0.08);
 }
 
+.circular-cell.active-hit {
+    pointer-events: none;
+}
+
 .circular-cell.active-hit path {
     fill: rgba(46, 160, 67, 0.4) !important;
     stroke: var(--success) !important;
-    pointer-events: none;
 }
 
 .circular-cell.active-hit text {
@@ -1087,3 +1090,48 @@ input[type="text"] {
 .pattern-grid-item.wrong { background: var(--danger); }
 
 .mobile-menu-btn { display: none; }
+
+/* Spiral Tracking View Styles */
+#spiral-answer-table td {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.02);
+}
+#spiral-answer-table td.filled {
+    background: rgba(64, 196, 255, 0.15) !important;
+    color: var(--primary) !important;
+    text-shadow: 0 0 5px var(--primary-glow);
+}
+
+.spiral-node circle {
+    transition: fill 0.2s, stroke 0.2s, transform 0.2s;
+    cursor: pointer;
+}
+.spiral-node:hover circle {
+    fill: rgba(64, 196, 255, 0.2) !important;
+}
+.spiral-node.active-hit circle {
+    fill: rgba(46, 160, 67, 0.3) !important;
+    stroke: var(--success) !important;
+    pointer-events: none;
+}
+.spiral-node.active-hit text {
+    fill: #2ea043 !important;
+}
+.spiral-node.error-hit circle {
+    fill: rgba(218, 54, 51, 0.3) !important;
+    stroke: var(--danger) !important;
+    animation: cell-shake 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    #spiral-answer-table td {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 1rem !important;
+    }
+}
