@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=ZCOOL+KuaiLe&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=ZCOOL+KuaiLe&family=Fredoka+One&family=Inter:wght@400;600;800&display=swap');
 
 /* ========== 基础变量 & 全局配置 ========== */
 :root {
@@ -9,8 +9,8 @@
   --border-color: #E2E8F0;
   --primary-color: #3B82F6;
   --primary-hover: #2563EB;
-  --radius-lg: 20px;
-  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-md: 16px;
   --radius-sm: 10px;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
   --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
@@ -58,8 +58,8 @@ body {
 }
 
 .panel-header h1 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.5rem;
+  font-family: 'ZCOOL KuaiLe', sans-serif;
+  font-size: 1.8rem;
   font-weight: 800;
   background: linear-gradient(135deg, #3B82F6, #10B981);
   -webkit-background-clip: text;
@@ -207,7 +207,7 @@ body {
   background: white;
   box-shadow: var(--shadow-lg);
   border-radius: var(--radius-lg);
-  padding: 14mm 12mm;
+  padding: 12mm 10mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -218,61 +218,64 @@ body {
 
 /* ========== 主题样式定制 ========== */
 
-/* 1. 经典/忍者修炼主题 (经典红蓝插画风格) */
+/* 1. 经典/忍者修炼主题 */
 .theme-ninja {
   --theme-bg: #FFFFFF;
   --theme-text: #1E293B;
   --theme-primary: #1E3A8A;   /* 深蓝 */
-  --theme-accent: #EF4444;    /* 亮红 */
-  --theme-accent-light: #FEE2E2;
+  --theme-accent: #E11D48;    /* 玫瑰红 */
+  --theme-accent-light: #FFE4E6;
   --theme-card-bg: #F8FAFC;
-  --theme-border: #94A3B8;
-  --theme-title-font: 'ZCOOL KuaiLe', 'Fredoka One', sans-serif;
+  --theme-border: #475569;
+  --theme-title-font: 'ZCOOL KuaiLe', sans-serif;
+  --theme-hand-font: 'Gaegu', 'ZCOOL KuaiLe', sans-serif;
 }
 
 .theme-ninja .gameboard-paper {
   background-color: var(--theme-bg);
-  border: 12px solid var(--theme-primary);
+  border: 10px solid var(--theme-primary);
   outline: 4px solid var(--theme-accent);
   outline-offset: -8px;
 }
 
-/* 2. 星际探索主题 (深邃蓝夜与活力橙) */
+/* 2. 星际探索主题 */
 .theme-space {
   --theme-bg: #0F172A;
   --theme-text: #F8FAFC;
-  --theme-primary: #8B5CF6;   /* 紫色 */
-  --theme-accent: #F97316;    /* 橙色 */
-  --theme-accent-light: #311B92;
+  --theme-primary: #7C3AED;   /* 紫色 */
+  --theme-accent: #EA580C;    /* 橙色 */
+  --theme-accent-light: #2E1065;
   --theme-card-bg: #1E293B;
-  --theme-border: #475569;
-  --theme-title-font: 'ZCOOL KuaiLe', 'Fredoka One', sans-serif;
+  --theme-border: #64748B;
+  --theme-title-font: 'ZCOOL KuaiLe', sans-serif;
+  --theme-hand-font: 'Gaegu', 'ZCOOL KuaiLe', sans-serif;
 }
 
 .theme-space .gameboard-paper {
   background-color: var(--theme-bg);
   color: var(--theme-text);
-  border: 12px solid var(--theme-primary);
+  border: 10px solid var(--theme-primary);
   outline: 4px solid var(--theme-accent);
   outline-offset: -8px;
 }
 
-/* 3. 魔法学院主题 (温馨复古绿与金色) */
+/* 3. 魔法学院主题 */
 .theme-magic {
-  --theme-bg: #FAF6EE;
+  --theme-bg: #FAF5EB;
   --theme-text: #451A03;
   --theme-primary: #065F46;   /* 森林绿 */
-  --theme-accent: #D97706;    /* 金色 */
+  --theme-accent: #B45309;    /* 金色 */
   --theme-accent-light: #FEF3C7;
   --theme-card-bg: #F0FDF4;
-  --theme-border: #D97706;
-  --theme-title-font: 'ZCOOL KuaiLe', 'Fredoka One', sans-serif;
+  --theme-border: #B45309;
+  --theme-title-font: 'ZCOOL KuaiLe', sans-serif;
+  --theme-hand-font: 'Gaegu', 'ZCOOL KuaiLe', sans-serif;
 }
 
 .theme-magic .gameboard-paper {
   background-color: var(--theme-bg);
   color: var(--theme-text);
-  border: 12px solid var(--theme-primary);
+  border: 10px solid var(--theme-primary);
   outline: 4px solid var(--theme-accent);
   outline-offset: -8px;
 }
@@ -283,26 +286,27 @@ body {
 .board-header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   border-bottom: 3px dashed var(--theme-primary);
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   position: relative;
 }
 
 .header-mascot-box {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .header-mascot-box img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.12));
 }
 
 .board-title {
@@ -311,7 +315,7 @@ body {
 
 .board-title h2 {
   font-family: var(--theme-title-font);
-  font-size: 2.2rem;
+  font-size: 2.3rem;
   font-weight: 800;
   color: var(--theme-primary);
   letter-spacing: 0.05em;
@@ -319,7 +323,8 @@ body {
 }
 
 .board-title .tagline {
-  font-size: 0.9rem;
+  font-family: var(--theme-hand-font);
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--theme-accent);
   letter-spacing: 0.02em;
@@ -329,7 +334,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.85rem;
+  font-family: var(--theme-hand-font);
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--theme-text);
 }
@@ -343,11 +349,54 @@ body {
 
 .board-meta .meta-line {
   display: inline-block;
-  min-width: 90px;
+  min-width: 80px;
   border-bottom: 2px solid var(--theme-primary);
   text-align: center;
   font-weight: 800;
   padding-bottom: 2px;
+}
+
+/* 装饰性气泡 */
+.mascot-speech {
+  position: absolute;
+  background: white;
+  border: 2px solid var(--theme-primary);
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-family: var(--theme-hand-font);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--theme-primary);
+  top: -8px;
+  left: 65px;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--theme-primary);
+  z-index: 20;
+}
+
+.mascot-speech::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 12px;
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: white transparent;
+  display: block;
+  width: 0;
+}
+
+.mascot-speech::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 11px;
+  border-width: 8px 7px 0;
+  border-style: solid;
+  border-color: var(--theme-primary) transparent;
+  display: block;
+  width: 0;
+  z-index: -1;
 }
 
 /* 任务栏 */
@@ -355,15 +404,15 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  margin-top: 15px;
+  margin-top: 14px;
 }
 
 .task-col {
-  border-radius: var(--radius-md);
-  padding: 10px;
-  min-height: 100px;
-  border: 2px solid var(--theme-border);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; /* 经典手绘不规则边框 */
+  padding: 12px;
+  min-height: 105px;
+  border: 3.5px solid var(--theme-border);
+  box-shadow: 2px 5px 0 rgba(0,0,0,0.05);
 }
 
 .task-col.easy { background: var(--color-green-light); border-color: var(--color-green); }
@@ -371,13 +420,14 @@ body {
 .task-col.hard { background: var(--color-red-light); border-color: var(--color-red); }
 
 .task-col-header {
-  font-size: 0.82rem;
+  font-family: var(--theme-title-font);
+  font-size: 0.9rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
-  border-bottom: 1.5px dashed var(--theme-border);
+  border-bottom: 2px dashed var(--theme-border);
   padding-bottom: 6px;
 }
 
@@ -392,9 +442,10 @@ body {
 }
 
 .task-item {
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1.45;
+  font-family: var(--theme-hand-font);
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.35;
   color: var(--theme-text);
   word-break: break-all;
   display: flex;
@@ -407,10 +458,10 @@ body {
 }
 
 .task-item::before {
-  content: "✦";
-  font-size: 0.8rem;
+  content: "★";
+  font-size: 0.85rem;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 .task-col.easy .task-item::before { color: var(--color-green); }
 .task-col.med .task-item::before { color: var(--color-yellow); }
@@ -420,11 +471,11 @@ body {
 .board-map-container {
   flex: 1;
   position: relative;
-  margin: 15px 0;
-  background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  margin: 12px 0;
+  background-image: linear-gradient(rgba(0,0,0,0.035) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(0,0,0,0.035) 1.5px, transparent 1.5px);
   background-size: 15px 15px;
   border-radius: var(--radius-lg);
-  border: 2px solid var(--theme-border);
+  border: 3.5px solid var(--theme-border);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -478,8 +529,8 @@ body {
 }
 
 .node-circle {
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   border: 4px solid var(--theme-primary);
   background: white;
@@ -489,7 +540,7 @@ body {
   margin-bottom: 4px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--theme-primary);
   position: relative;
 }
@@ -501,7 +552,8 @@ body {
 }
 
 .node-label {
-  font-size: 0.75rem;
+  font-family: var(--theme-title-font);
+  font-size: 0.78rem;
   font-weight: 800;
   color: var(--theme-text);
   line-height: 1.25;
@@ -512,9 +564,10 @@ body {
 }
 
 .node-desc {
-  font-size: 0.62rem;
+  font-family: var(--theme-hand-font);
+  font-size: 0.72rem;
   font-weight: 700;
-  opacity: 0.8;
+  opacity: 0.9;
   margin-top: 2px;
   max-width: 85px;
   display: block;
@@ -534,15 +587,15 @@ body {
   right: -10px;
   background-color: var(--theme-accent);
   color: white;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 900;
-  padding: 2px 5px;
+  padding: 2px 6px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 .node-circle .node-illustration {
-  font-size: 1.3rem;
+  font-size: 1.45rem;
 }
 
 /* 底部积分与奖励卡 */
@@ -557,8 +610,8 @@ body {
 
 .rewards-ledger {
   background: var(--theme-card-bg);
-  border: 2px solid var(--theme-border);
-  border-radius: var(--radius-md);
+  border: 3.5px solid var(--theme-border);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; /* 手绘边框 */
   padding: 12px 16px;
   position: relative;
 }
@@ -568,13 +621,13 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  border-bottom: 1.5px dashed var(--theme-border);
+  border-bottom: 2px dashed var(--theme-border);
   padding-bottom: 6px;
 }
 
 .rewards-title-wrapper h3 {
   font-family: var(--theme-title-font);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--theme-primary);
   display: flex;
@@ -583,9 +636,9 @@ body {
 }
 
 .kids-deco {
-  height: 48px;
+  height: 52px;
   object-fit: contain;
-  margin-top: -10px;
+  margin-top: -12px;
 }
 
 .rewards-grid {
@@ -598,13 +651,14 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.78rem;
+  font-family: var(--theme-hand-font);
+  font-size: 0.95rem;
   font-weight: 700;
 }
 
 .reward-pt {
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: 0.8rem;
+  font-weight: 900;
   color: white;
   background-color: var(--theme-primary);
   padding: 2px 6px;
@@ -613,7 +667,7 @@ body {
 }
 
 .reward-val {
-  border-bottom: 1.5px dotted var(--theme-border);
+  border-bottom: 2px dotted var(--theme-border);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -621,8 +675,8 @@ body {
 }
 
 .ledger-points {
-  border: 2.5px solid var(--theme-primary);
-  border-radius: var(--radius-md);
+  border: 3.5px solid var(--theme-primary);
+  border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; /* 手绘边框 */
   padding: 12px;
   text-align: center;
   display: flex;
@@ -634,7 +688,7 @@ body {
 
 .ledger-points h3 {
   font-family: var(--theme-title-font);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--theme-primary);
   margin-bottom: 8px;
@@ -650,15 +704,34 @@ body {
 .points-box {
   aspect-ratio: 1;
   border: 2px dashed var(--theme-border);
-  border-radius: 6px;
+  border-radius: 50%; /* 圆形盖章格子 */
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .theme-space .points-box {
   background: var(--theme-bg);
+}
+
+/* 贴纸徽章 */
+.orange-sticker {
+  position: absolute;
+  background-color: var(--theme-accent);
+  color: white;
+  font-family: var(--theme-title-font);
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transform: rotate(-8deg);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+  top: 15px;
+  right: 15px;
+  z-index: 50;
+  border: 2px solid white;
 }
 
 /* ========== 一键打印适配 (打印预览时生效) ========== */

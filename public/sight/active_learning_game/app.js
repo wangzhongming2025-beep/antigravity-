@@ -3,6 +3,7 @@ const themes = {
   ninja: {
     emoji: "🥷",
     image: "assets/ninja.png",
+    speech: "修炼开始，冲啊！",
     titleSuffix: "的主动学习大冒险",
     nodes: [
       { name: "出发准备", desc: "理清文具,桌面整洁", icon: "🎒" },
@@ -19,6 +20,7 @@ const themes = {
   space: {
     emoji: "🚀",
     image: "assets/space.png",
+    speech: "起航！探索星辰大海！",
     titleSuffix: "的星际自驱航行",
     nodes: [
       { name: "飞船整备", desc: "桌面及文具准备就绪", icon: "🛸" },
@@ -35,6 +37,7 @@ const themes = {
   magic: {
     emoji: "🏰",
     image: "assets/magic.png",
+    speech: "法咒咏唱，拖延退散！",
     titleSuffix: "的魔法自驱修炼",
     nodes: [
       { name: "魔法准备", desc: "文具就位，心境沉静", icon: "🔮" },
@@ -136,7 +139,7 @@ function drawSvgPath() {
       const prevX = (prevCircleRect.left + prevCircleRect.width / 2) - containerRect.left;
       const prevY = (prevCircleRect.top + prevCircleRect.height / 2) - containerRect.top;
       
-      // 控制点计算，形成平滑的S曲线
+      // 控制点计算，形成平滑 S 曲线
       const cpX1 = prevX + (x - prevX) / 2;
       const cpY1 = prevY;
       const cpX2 = prevX + (x - prevX) / 2;
@@ -186,12 +189,13 @@ function bindEvents() {
 
 // ========== 同步控制面板到打印预览区 ==========
 function updateBoard() {
-  // 1. 孩子名字与标题/吉祥物
+  // 1. 孩子名字与标题/吉祥物/气泡
   const name = document.getElementById('child-name').value.trim() || '宝贝';
   const themeInfo = themes[currentTheme];
   
   document.getElementById('meta-child-name').innerText = name;
   document.getElementById('mascot-img').src = themeInfo.image;
+  document.getElementById('mascot-speech-text').innerText = themeInfo.speech;
   document.getElementById('board-title-text').innerText = `${themeInfo.emoji} ${name}${themeInfo.titleSuffix}`;
   
   // 2. 简单任务列表
