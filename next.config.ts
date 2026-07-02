@@ -48,6 +48,14 @@ const nextConfig: NextConfig = {
         source: '/adhd-procrastination-test/',
         destination: '/adhd-procrastination-test/index.html',
       },
+      {
+        source: '/active-learning-game',
+        destination: '/sight/active_learning_game/index.html',
+      },
+      {
+        source: '/active-learning-game/',
+        destination: '/sight/active_learning_game/index.html',
+      },
     ];
   },
 };

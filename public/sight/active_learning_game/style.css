@@ -1,0 +1,605 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+/* ========== 基础变量 & 全局配置 ========== */
+:root {
+  --bg-main: #F4F6F8;
+  --panel-bg: #FFFFFF;
+  --text-main: #2C3E50;
+  --text-light: #7F8C8D;
+  --border-color: #E2E8F0;
+  --primary-color: #4F46E5;
+  --primary-hover: #4338CA;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* 莫兰迪色系 */
+  --color-green: #A3B899;
+  --color-yellow: #E8C547;
+  --color-red: #D88C8C;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ========== 控制面板 (左侧) ========== */
+.control-panel {
+  width: 380px;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.panel-header h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4F46E5, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+
+.panel-header p {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 主题选择 */
+.theme-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.theme-opt {
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: white;
+}
+
+.theme-opt:hover {
+  border-color: #CBD5E1;
+  transform: translateY(-1px);
+}
+
+.theme-opt.active {
+  border-color: var(--primary-color);
+  background: #EEF2FF;
+}
+
+.theme-opt .icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.theme-opt .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* 表单输入 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group label .badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+}
+
+.badge.green { background-color: var(--color-green); }
+.badge.yellow { background-color: var(--color-yellow); color: #7F5F00; }
+.badge.red { background-color: var(--color-red); }
+
+.input-field {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* 按钮 */
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+}
+
+.action-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+/* ========== 预览区域 (右侧) ========== */
+.preview-container {
+  margin-left: 380px;
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+/* A4 比例的图纸容器 */
+.gameboard-paper {
+  width: 210mm;
+  height: 297mm;
+  background: white;
+  box-shadow: var(--shadow-lg);
+  border-radius: 4px;
+  padding: 20mm 15mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ========== 主题样式定制 ========== */
+
+/* 1. 经典/忍者修炼主题 (经典红蓝插画风格) */
+.theme-ninja {
+  --theme-bg: #FFFFFF;
+  --theme-text: #1E293B;
+  --theme-primary: #1E3A8A;   /* 深蓝 */
+  --theme-accent: #EF4444;    /* 亮红 */
+  --theme-accent-light: #FEE2E2;
+  --theme-card-bg: #F8FAFC;
+  --theme-border: #CBD5E1;
+}
+
+.theme-ninja .gameboard-paper {
+  background-color: var(--theme-bg);
+  border: 10px double var(--theme-primary);
+}
+
+/* 2. 星际探索主题 (深邃蓝夜与活力橙) */
+.theme-space {
+  --theme-bg: #0B132B;
+  --theme-text: #FFFFFF;
+  --theme-primary: #3A0CA3;   /* 深紫 */
+  --theme-accent: #F72585;    /* 霓虹粉 */
+  --theme-accent-light: #480CA8;
+  --theme-card-bg: #1C2541;
+  --theme-border: #3A0CA3;
+}
+
+.theme-space .gameboard-paper {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  border: 6px solid var(--theme-accent);
+}
+
+/* 3. 魔法学院主题 (温馨复古绿与金色) */
+.theme-magic {
+  --theme-bg: #FAF9F6;
+  --theme-text: #3E2723;
+  --theme-primary: #2E7D32;   /* 墨绿 */
+  --theme-accent: #D4AF37;    /* 金色 */
+  --theme-accent-light: #E8F5E9;
+  --theme-card-bg: #F1F8E9;
+  --theme-border: #D4AF37;
+}
+
+.theme-magic .gameboard-paper {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  border: 8px solid var(--theme-primary);
+  outline: 2px solid var(--theme-accent);
+  outline-offset: -6px;
+}
+
+/* ========== 游戏图纸内部版面 ========== */
+
+/* 头部 */
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px dashed var(--theme-border);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.board-title h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--theme-primary);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.board-title p {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.board-meta {
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.board-meta .date-line {
+  display: inline-block;
+  width: 100px;
+  border-bottom: 1px solid var(--theme-text);
+  margin-left: 6px;
+}
+
+/* 任务栏 */
+.board-tasks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.task-col {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  min-height: 90px;
+}
+
+.task-col-header {
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--theme-border);
+  padding-bottom: 4px;
+}
+
+.task-item {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  word-break: break-all;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.task-item::before {
+  content: "•";
+  color: var(--theme-accent);
+  font-weight: bold;
+}
+
+/* 游戏化地图路径 */
+.board-map-container {
+  flex: 1;
+  position: relative;
+  margin-bottom: 24px;
+  background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-radius: var(--radius-lg);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.theme-space .board-map-container {
+  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+}
+
+.map-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.map-path {
+  fill: none;
+  stroke: var(--theme-border);
+  stroke-width: 4px;
+  stroke-dasharray: 8 8;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.nodes-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-content: space-around;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+/* 节点样式 */
+.map-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 85px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.node-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid var(--theme-primary);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--theme-primary);
+  position: relative;
+}
+
+.theme-space .node-circle {
+  background: var(--theme-card-bg);
+  border-color: var(--theme-accent);
+  color: var(--theme-accent);
+}
+
+.node-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--theme-text);
+  line-height: 1.2;
+}
+
+.node-desc {
+  font-size: 0.6rem;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-top: 2px;
+  max-width: 80px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 节点特殊修饰 */
+.node-circle .node-bonus {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--theme-accent);
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.node-circle .node-illustration {
+  font-size: 1.2rem;
+}
+
+/* 底部积分与奖励卡 */
+.board-footer {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 20px;
+  border-top: 2px dashed var(--theme-border);
+  padding-top: 16px;
+}
+
+.rewards-ledger {
+  background: var(--theme-card-bg);
+  border: 1.5px solid var(--theme-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.rewards-ledger h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--theme-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+}
+
+.reward-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.reward-pt {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--theme-accent);
+  border: 1px solid var(--theme-accent);
+  padding: 1px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.reward-val {
+  border-bottom: 1.5px dotted var(--theme-border);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ledger-points {
+  border: 2px solid var(--theme-primary);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.ledger-points h3 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.points-grid-draw {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+.points-box {
+  aspect-ratio: 1;
+  border: 1.5px dashed var(--theme-border);
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-space .points-box {
+  background: var(--theme-card-bg);
+}
+
+/* ========== 一键打印适配 (打印预览时生效) ========== */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .control-panel {
+    display: none !important; /* 隐藏控制面板 */
+  }
+  
+  .preview-container {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .gameboard-paper {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 15mm 10mm !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    page-break-after: avoid;
+    page-break-before: avoid;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

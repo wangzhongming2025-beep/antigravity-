@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主动学习游戏本生成器 - 学生自驱力打印教具</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-ninja">
+
+  <!-- ==================== 左侧控制面板 ==================== -->
+  <aside class="control-panel">
+    <div class="panel-header">
+      <h1>主动学习游戏本</h1>
+      <p>定制个性化关卡，一键打印 A4 纸教具</p>
+    </div>
+
+    <!-- 1. 选择主题 -->
+    <section>
+      <div class="section-title">🎨 选择游戏主题</div>
+      <div class="theme-selector">
+        <div class="theme-opt active" data-theme="ninja">
+          <span class="icon">🥷</span>
+          <span class="label">忍者修炼</span>
+        </div>
+        <div class="theme-opt" data-theme="space">
+          <span class="icon">🚀</span>
+          <span class="label">星际探索</span>
+        </div>
+        <div class="theme-opt" data-theme="magic">
+          <span class="icon">🏰</span>
+          <span class="label">魔法城堡</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 基础定制 -->
+    <section>
+      <div class="section-title">👤 基础信息</div>
+      <div class="form-group">
+        <label for="child-name">孩子姓名</label>
+        <input type="text" id="child-name" class="input-field" value="宝贝" placeholder="例如：小明">
+      </div>
+    </section>
+
+    <!-- 3. 今日任务定制 -->
+    <section>
+      <div class="section-title">📋 定制今日学习任务</div>
+      
+      <div class="form-group">
+        <label><span class="badge green">简单任务</span> 任务 1</label>
+        <input type="text" id="task-easy-1" class="input-field" value="整理书包与桌面，摆放好文具" placeholder="如：整理书包">
+      </div>
+      <div class="form-group">
+        <label><span class="badge green">简单任务</span> 任务 2</label>
+        <input type="text" id="task-easy-2" class="input-field" value="课外阅读或背诵英语单词 10 个" placeholder="如：读课外书10分钟">
+      </div>
+      
+      <div class="form-group">
+        <label><span class="badge yellow">中等任务</span> 任务 3</label>
+        <input type="text" id="task-med-1" class="input-field" value="写完数学课后作业并订正" placeholder="如：写完数学课后练习">
+      </div>
+      <div class="form-group">
+        <label><span class="badge yellow">中等任务</span> 任务 4</label>
+        <input type="text" id="task-med-2" class="input-field" value="完成语文阅读理解或生字抄写" placeholder="如：完成语文阅读理解">
+      </div>
+      
+      <div class="form-group">
+        <label><span class="badge red">困难任务</span> 任务 5</label>
+        <input type="text" id="task-hard-1" class="input-field" value="精读英语小短文或背诵必背古诗" placeholder="如：写一篇英语小作文">
+      </div>
+    </section>
+
+    <!-- 4. 积分奖励设定 -->
+    <section>
+      <div class="section-title">🎁 积分兑换卡定制</div>
+      <div class="form-group">
+        <label>100 积分奖励</label>
+        <input type="text" id="reward-100" class="input-field" value="兑换一份精美小零食" placeholder="奖励名称">
+      </div>
+      <div class="form-group">
+        <label>200 积分奖励</label>
+        <input type="text" id="reward-200" class="input-field" value="兑换 30 分钟电子设备使用权" placeholder="奖励名称">
+      </div>
+      <div class="form-group">
+        <label>700 积分奖励</label>
+        <input type="text" id="reward-700" class="input-field" value="周末短途出行一次 / 吃大餐" placeholder="奖励名称">
+      </div>
+      <div class="form-group">
+        <label>1000 积分奖励</label>
+        <input type="text" id="reward-1000" class="input-field" value="获得心仪已久的乐高 / 模型玩具" placeholder="奖励名称">
+      </div>
+    </section>
+
+    <!-- 5. 打印按钮 -->
+    <button class="action-btn" onclick="window.print()">
+      🖨️ 一键打印游戏图纸
+    </button>
+  </aside>
+
+  <!-- ==================== 右侧图纸预览 ==================== -->
+  <main class="preview-container">
+    <div class="gameboard-paper" id="printable-board">
+      
+      <!-- 头部栏 -->
+      <div class="board-header">
+        <div class="board-title">
+          <h2 id="board-title-text">🥷 宝贝的主动学习大冒险</h2>
+          <p>进步的感觉也太爽了吧！让学习变成一场通关游戏</p>
+        </div>
+        <div class="board-meta">
+          <span>日期：</span>
+          <span class="date-line"></span>
+        </div>
+      </div>
+
+      <!-- 任务展示栏 -->
+      <div class="board-tasks">
+        <div class="task-col">
+          <div class="task-col-header">🟢 简单任务 (积分 +1)</div>
+          <div class="task-list-container" id="tasks-easy-list">
+            <!-- 动态填充 -->
+          </div>
+        </div>
+        <div class="task-col">
+          <div class="task-col-header">🟡 中等任务 (积分 +2)</div>
+          <div class="task-list-container" id="tasks-med-list">
+            <!-- 动态填充 -->
+          </div>
+        </div>
+        <div class="task-col">
+          <div class="task-col-header">🔴 困难任务 (积分 +3)</div>
+          <div class="task-list-container" id="tasks-hard-list">
+            <!-- 动态填充 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 游戏化地图路径区 -->
+      <div class="board-map-container" id="board-map">
+        <!-- SVG 连接线 -->
+        <svg class="map-svg" id="map-svg-element">
+          <path class="map-path" id="map-path-line" d=""></path>
+        </svg>
+
+        <!-- 节点容器 -->
+        <div class="nodes-container" id="nodes-container">
+          <!-- 动态填充关卡节点 -->
+        </div>
+      </div>
+
+      <!-- 底部积分与积分框 -->
+      <div class="board-footer">
+        <div class="rewards-ledger">
+          <h3>💡 今日学习积分兑换卡</h3>
+          <div class="rewards-grid">
+            <div class="reward-row">
+              <span class="reward-pt">100pt</span>
+              <span class="reward-val" id="reward-100-text">兑换一份精美小零食</span>
+            </div>
+            <div class="reward-row">
+              <span class="reward-pt">200pt</span>
+              <span class="reward-val" id="reward-200-text">兑换 30 分钟电子设备使用权</span>
+            </div>
+            <div class="reward-row">
+              <span class="reward-pt">700pt</span>
+              <span class="reward-val" id="reward-700-text">周末短途出行一次 / 吃大餐</span>
+            </div>
+            <div class="reward-row">
+              <span class="reward-pt">1000pt</span>
+              <span class="reward-val" id="reward-1000-text">获得心仪已久的乐高 / 模型玩具</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ledger-points">
+          <h3>💯 今日累计积分</h3>
+          <div class="points-grid-draw">
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+            <div class="points-box"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
