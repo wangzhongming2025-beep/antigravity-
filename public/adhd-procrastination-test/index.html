@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD 拖延类型测试 - 你属于哪一种拖延？</title>
+<style>
+/* ========== 基础重置 & 变量 ========== */
+:root {
+  /* Morandi 治愈配色 */
+  --bg: #F5F0EB;
+  --card: #FFFFFF;
+  --primary: #9B8EC4;       /* 莫兰迪紫 */
+  --primary-light: #D6CDEF; /* 浅紫 */
+  --primary-dark: #7A6BA6;   /* 深紫 */
+  --accent1: #E8A87C;        /* 暖橘（完美主义） */
+  --accent2: #85CDCA;        /* 薄荷绿（逃避现实） */
+  --accent3: #E27D60;        /* 珊瑚橙（冲动分心） */
+  --accent4: #A78BFA;        /* 淡紫（焦虑瘫痪） */
+  --text: #4A4040;
+  --text-light: #8A7F7F;
+  --text-secondary: #6B5E5E;
+  --border: #E8E0DA;
+  --shadow: rgba(155, 142, 196, 0.12);
+  --shadow-lg: rgba(155, 142, 196, 0.20);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Noto Sans SC", "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== 页面容器 ========== */
+.page {
+  display: none;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 16px;
+}
+.page.active { display: flex; }
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ========== 通用卡片 ========== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px var(--shadow);
+  padding: 32px 24px;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.card:hover { box-shadow: 0 8px 32px var(--shadow-lg); }
+
+/* ========== 按钮 ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  line-height: 1.4;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(155, 142, 196, 0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(155, 142, 196, 0.45);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+.btn-outline:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ========== 装饰背景元素 ========== */
+.deco-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.08;
+}
+.deco-circle:nth-child(1) {
+  width: 300px; height: 300px;
+  background: var(--primary);
+  top: -80px; right: -60px;
+  animation: float 8s ease-in-out infinite;
+}
+.deco-circle:nth-child(2) {
+  width: 200px; height: 200px;
+  background: var(--accent2);
+  bottom: 10%; left: -40px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+.deco-circle:nth-child(3) {
+  width: 150px; height: 150px;
+  background: var(--accent1);
+  top: 40%; right: -30px;
+  animation: float 12s ease-in-out infinite 2s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* ============================
+   第一屏：着陆页
+   ============================ */
+.landing { position: relative; z-index: 1; padding-top: 0; }
+.landing .container { max-width: 480px; }
+
+.hero-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.hero-title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary-dark), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-light);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.hero-card {
+  margin-bottom: 20px;
+}
+.hero-card p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.type-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 24px 0;
+}
+.type-card {
+  background: #FAFAFA;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+.type-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+  border-color: var(--primary-light);
+}
+.type-card .emoji { font-size: 24px; display: block; margin-bottom: 4px; }
+.type-card .label { font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; }
+
+.start-section { text-align: center; }
+.start-section .hint {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+/* ============================
+   第二屏：答题页
+   ============================ */
+.quiz { position: relative; z-index: 1; }
+
+.progress-area {
+  margin-bottom: 20px;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+.progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 50px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent2), var(--accent1));
+  border-radius: 50px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+.question-card {
+  margin-bottom: 16px;
+}
+.question-number {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+  margin-bottom: 14px;
+}
+.question-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #FAFAFA;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  line-height: 1.5;
+  font-family: inherit;
+}
+.option-btn:hover {
+  border-color: var(--primary-light);
+  background: #F8F4FF;
+  transform: translateX(4px);
+}
+.option-btn:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+.option-btn .letter {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 0.82rem;
+  transition: all var(--transition);
+}
+.option-btn:hover .letter {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* 选项选中动画 */
+.option-btn.selected {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #F0EBFF, #E8F4FD);
+}
+.option-btn.selected .letter {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* 淡入动画 */
+.fade-in {
+  animation: fadeInUp 0.4s ease-out;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-left {
+  animation: slideLeft 0.35s ease-out;
+}
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================
+   第三屏：结果页
+   ============================ */
+.result { position: relative; z-index: 1; }
+.result .container { max-width: 480px; }
+
+.result-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.result-emoji {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 12px;
+  animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.result-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.result-type-label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+.result-score-bar {
+  margin: 20px 0;
+}
+.score-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 0.82rem;
+}
+.score-detail .score-emoji { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+.score-detail .score-label { flex: 1; color: var(--text-secondary); }
+.score-detail .score-track {
+  width: 80px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 50px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.score-detail .score-fill {
+  height: 100%;
+  border-radius: 50px;
+  transition: width 1s ease-out;
+}
+.score-detail .score-value { width: 32px; text-align: right; font-weight: 700; color: var(--text); }
+.score-detail.top-score .score-label { font-weight: 700; color: var(--text); }
+.score-detail.top-score .score-fill { background: linear-gradient(90deg, var(--primary), var(--primary-dark)); }
+
+.result-description {
+  margin: 20px 0;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.trait-list {
+  list-style: none;
+  margin: 16px 0;
+}
+.trait-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid #F0EBEB;
+}
+.trait-list li:last-child { border-bottom: none; }
+.trait-list .check {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.tips-card {
+  background: #FBF8FF;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #EDE5FF;
+}
+.tips-card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tips-card ol {
+  padding-left: 20px;
+}
+.tips-card li {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.tips-card li strong {
+  color: var(--primary-dark);
+}
+
+.cta-section {
+  text-align: center;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px dashed var(--border);
+}
+.cta-section p {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  margin-bottom: 14px;
+}
+.cta-section .btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 1rem;
+}
+
+.retake-btn {
+  display: block;
+  margin: 16px auto 0;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color var(--transition);
+}
+.retake-btn:hover { color: var(--primary); }
+
+/* ========== 响应式 ========== */
+@media (max-width: 360px) {
+  .hero-title { font-size: 1.5rem; }
+  .question-text { font-size: 1rem; }
+  .option-btn { padding: 12px 14px; font-size: 0.88rem; }
+}
+
+@media (min-width: 768px) {
+  .page { padding: 40px 24px; align-items: center; }
+  .card { padding: 48px 36px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 装饰背景 -->
+<div class="deco-bg">
+  <div class="deco-circle"></div>
+  <div class="deco-circle"></div>
+  <div class="deco-circle"></div>
+</div>
+
+<!-- ========================
+     第一屏：着陆页
+     ======================== -->
+<div id="page-landing" class="page active landing">
+  <div class="container">
+    <div class="hero-icon">&#128393;</div>
+    <h1 class="hero-title">你是哪种 ADHD 拖延者？</h1>
+    <p class="hero-subtitle">
+      不是懒，不是没有时间，而是大脑的"执行功能"需要被理解<br>
+      花 <strong>2 分钟</strong>，找到属于你的拖延类型
+    </p>
+
+    <div class="card hero-card">
+      <div class="type-preview">
+        <div class="type-card">
+          <span class="emoji">&#128308;</span>
+          <span class="label">完美主义拖延型</span>
+        </div>
+        <div class="type-card">
+          <span class="emoji">&#127791;</span>
+          <span class="label">逃避现实拖延型</span>
+        </div>
+        <div class="type-card">
+          <span class="emoji">&#128218;</span>
+          <span class="label">冲动分心拖延型</span>
+        </div>
+        <div class="type-card">
+          <span class="emoji">&#9889;</span>
+          <span class="label">焦虑瘫痪拖延型</span>
+        </div>
+      </div>
+      <p>共 15 道选择题，每题四选一，系统自动计分</p>
+    </div>
+
+    <div class="start-section">
+      <p class="hint">&#9989;&#65039; 测试结果仅供自我认知参考，非临床诊断</p>
+      <button class="btn btn-primary" onclick="startQuiz()">
+        开始测试 &#8594;
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================
+     第二屏：答题页
+     ======================== -->
+<div id="page-quiz" class="page quiz">
+  <div class="container">
+    <div class="progress-area">
+      <div class="progress-header">
+        <span id="progress-text">第 1 / 15 题</span>
+        <span id="progress-percent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="card question-card" id="question-card">
+      <span class="question-number" id="question-number">Q1</span>
+      <h2 class="question-text" id="question-text"></h2>
+      <div class="options-list" id="options-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================
+     第三屏：结果页
+     ======================== -->
+<div id="page-result" class="page result">
+  <div class="container">
+    <div class="card" id="result-card">
+      <!-- 由 JS 动态填充 -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 题库数据 — 15 题，每题 4 个选项，分别映射到四种拖延类型
+// types: 0=完美主义, 1=逃避现实, 2=冲动分心, 3=焦虑瘫痪
+// ============================================================
+var QUESTION_TYPES = ['perfect', 'escapist', 'impulsive', 'anxious'];
+var TYPE_CONFIG = {
+  perfect:    { emoji: '💈', label: '完美主义拖延型', color: '#E8A87C' },
+  escapist:   { emoji: '🧘‍♂️', label: '逃避现实拖延型', color: '#85CDCA' },
+  impulsive:  { emoji: '📚', label: '冲动分心拖延型', color: '#E27D60' },
+  anxious:    { emoji: '⚡', label: '焦虑瘫痪拖延型', color: '#A78BFA' }
+};
+
+var QUESTIONS = [
+  {
+    text: '当你面对一个重要任务（比如写方案、做项目）时，你通常会怎样？',
+    options: [
+      { text: '一直在等"最佳状态"和"完美计划"，迟迟不肯动手', type: 0 },
+      { text: '先刷会儿手机，觉得还是短视频比工作有意思', type: 1 },
+      { text: '一会儿想做这个，一会儿想做那个，最后什么都没开始', type: 2 },
+      { text: '越靠近截止日期越害怕，干脆什么都不干，内心很纠结', type: 3 }
+    ]
+  },
+  {
+    text: '你在开始一个新任务之前，最常出现的情况是？',
+    options: [
+      { text: '反复检查准备材料够不够，总觉得还差一点', type: 0 },
+      { text: '找各种理由分散注意力——做饭、整理房间、查无关资料', type: 1 },
+      { text: '被旁边的一件事吸引了，突然就忘了自己要干嘛', type: 2 },
+      { text: '脑海里已经预演了一百个可能会搞砸的场景，越想越不敢开始', type: 3 }
+    ]
+  },
+  {
+    text: '你做事"三分钟热度"的频率大概是？',
+    options: [
+      { text: '不是不开始，而是一开始就想做到满分，做不到就放弃', type: 0 },
+      { text: '经常开个头就跑去干别的了，因为任务太无聊了', type: 1 },
+      { text: '特别频繁！同时开七八个坑，每个都只做了五分钟', type: 2 },
+      { text: '开始时信心满满，但稍微遇到一点困难就焦虑到放弃', type: 3 }
+    ]
+  },
+  {
+    text: '当你有一个重要截止日期将近时，你的状态通常是？',
+    options: [
+      { text: "总觉得之前的版本还不够好，反复修改就是不敢提交", type: 0 },
+      { text: '疯狂刷手机来麻痹自己，明知道要deadline却在打游戏', type: 1 },
+      { text: '手忙脚乱切换了好几个方向，最后发现什么都没做完', type: 2 },
+      { text: '越临近越恐慌，身体发不动，脑子一片空白', type: 3 }
+    ]
+  },
+  {
+    text: '朋友评价你"做事磨蹭"时，你的真实想法是？',
+    options: [
+      { text: '"我不是磨蹭，我只是想把事情做好"', type: 0 },
+      { text: '"我就是不想做那种事，但又不好意思拒绝"', type: 1 },
+      { text: '"我也想让朋友说我效率高啊，可就是控制不住自己"', type: 2 },
+      { text: '"每次听到这种话心里就很难受，觉得自己什么都做不好"', type: 3 }
+    ]
+  },
+  {
+    text: '你做闲事（追剧、购物、刷社交网络）比做家务/工作的频率？',
+    options: [
+      { text: '闲事也在追求"完美体验"——看剧要看完所有攻略才敢点开', type: 0 },
+      { text: '非常频繁，闲事是我逃避压力最有效的方式', type: 1 },
+      { text: '频繁，但我做闲事也是换着花样来，今天追剧明天购物后天逛街', type: 2 },
+      { text: '其实我也不想做闲事，但一想到要做正事就浑身不自在', type: 3 }
+    ]
+  },
+  {
+    text: '你是否有过这样的经历：计划写得特别详细，但一天都没执行？',
+    options: [
+      { text: '经常——计划要改到完美才满意，改了又改就不想执行了', type: 0 },
+      { text: '有过——写完计划就觉得"我已经做过了"，然后去玩手机', type: 1 },
+      { text: '太多回了——计划还没执行呢，又被别的事情吸引走了', type: 2 },
+      { text: '有——写到计划上"万一做不好怎么办"这一行时就卡住了', type: 3 }
+    ]
+  },
+  {
+    text: '你在完成任务时，最困扰你的是？',
+    options: [
+      { text: '总觉得自己做得不够好，反复返工', type: 0 },
+      { text: '任务太无聊/痛苦了，根本无法集中注意力去做', type: 1 },
+      { text: '很难从头到尾专注一件事，总是半途而废', type: 2 },
+      { text: '做的时候浑身焦虑，做完又怕别人不满意，恶性循环', type: 3 }
+    ]
+  },
+  {
+    text: '你对于"失败"的态度更接近哪种？',
+    options: [
+      { text: '绝对不能接受失败，所以宁愿不做', type: 0 },
+      { text: '习惯了，反正做了也不一定能成功，不如不做', type: 1 },
+      { text: '经常会失败，因为我的问题是一辈子都在失败，从来不坚持', type: 2 },
+      { text: '极度恐惧失败，一想到可能失败就会失眠', type: 3 }
+    ]
+  },
+  {
+    text: '你的注意力模式更像是？',
+    options: [
+      { text: '过度关注细节——卡在字体、配色、措辞上半天不动笔', type: 0 },
+      { text: '选择性关注——只对让自己开心的事情感兴趣', type: 1 },
+      { text: '注意力频繁转移——每5分钟就要看一次手机', type: 2 },
+      { text: '注意力被焦虑占据——脑子里全是"完蛋了""不行"的想法', type: 3 }
+    ]
+  },
+  {
+    text: '别人催促你交东西时，你通常怎么回应？',
+    options: [
+      { text: '"给我再多点时间，我一定会做到最好"', type: 0 },
+      { text: '假装没看见消息，能拖就拖', type: 1 },
+      { text: '嘴上答应转头就忘，然后又去搞别的事了', type: 2 },
+      { text: '感到强烈的羞愧和愤怒交织，然后更不想动了', type: 3 }
+    ]
+  },
+  {
+    text: '你对自己的拖延行为，内心最常出现的对话是？',
+    options: [
+      { text: '"这次一定要做到完美"——然后永远停在第一次', type: 0 },
+      { text: '"再玩五分钟就好了"——然后三个小时过去了', type: 1 },
+      { text: '"我先做这个吧"——五分钟后变成"我先做那个吧"', type: 2 },
+      { text: '"我应该可以做好的"——然后陷入"我怎么可能做好"的自我怀疑', type: 3 }
+    ]
+  },
+  {
+    text: '如果现在给你一个完全自由的任务，没有任何人评价你，你会？',
+    options: [
+      { text: '反而更不自在了——没有标准可参考，不知道该怎么做才好', type: 0 },
+      { text: '终于可以好好放松一下了，开心', type: 1 },
+      { text: '会同时做很多件事，但可能一件都做不完', type: 2 },
+      { text: '虽然没人评价但还是会焦虑——因为我对自己要求很高', type: 3 }
+    ]
+  },
+  {
+    text: '以下哪个比喻最符合你当前的状态？',
+    options: [
+      { text: '像一辆永远在加油却从不发动的车', type: 0 },
+      { text: '像在温水里慢慢沉下去的鱼', type: 1 },
+      { text: '像同时抛九个球的花样杂技演员，掉了七个', type: 2 },
+      { text: '像一个站在悬崖边既不敢跳也不敢退的人', type: 3 }
+    ]
+  },
+  {
+    text: '你最希望自己在哪方面有所改变？',
+    options: [
+      { text: '学会"先完成再完美"，接受60分也能出发', type: 0 },
+      { text: '能找到做不喜欢的事的动力和方法', type: 1 },
+      { text: '能把一个想法坚持到底，不再半途而废', type: 2 },
+      { text: '能在做事时不那么焦虑，平和地推进每一件事', type: 3 }
+    ]
+  }
+];
+
+// ============================================================
+// 全局状态
+// ============================================================
+var currentQuestion = 0;
+var scores = [0, 0, 0, 0]; // perfect, escapist, impulsive, anxious
+
+// ============================================================
+// 页面切换
+// ============================================================
+function showPage(id) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].className = 'page';
+  }
+  document.getElementById('page-' + id).className = 'page active';
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// 开始测试
+// ============================================================
+function startQuiz() {
+  currentQuestion = 0;
+  scores = [0, 0, 0, 0];
+  showPage('quiz');
+  renderQuestion();
+}
+
+// ============================================================
+// 渲染题目
+// ============================================================
+function renderQuestion() {
+  var q = QUESTIONS[currentQuestion];
+  var num = currentQuestion + 1;
+  var total = QUESTIONS.length;
+
+  // 进度条
+  var pct = Math.round(((num - 1) / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = '第 ' + num + ' / ' + total + ' 题';
+  document.getElementById('progress-percent').textContent = pct + '%';
+
+  // 题目内容
+  var card = document.getElementById('question-card');
+  card.className = 'card question-card fade-in';
+  document.getElementById('question-number').textContent = 'Q' + num;
+  document.getElementById('question-text').textContent = q.text;
+
+  // 选项
+  var letters = ['A', 'B', 'C', 'D'];
+  var html = '';
+  for (var i = 0; i < q.options.length; i++) {
+    var opt = q.options[i];
+    html += '<button class="option-btn" data-index="' + i + '" onclick="selectOption(' + i + ')">'
+      + '<span class="letter">' + letters[i] + '</span>'
+      + '<span>' + opt.text + '</span>'
+      + '</button>';
+  }
+  document.getElementById('options-list').innerHTML = html;
+}
+
+// ============================================================
+// 选择选项
+// ============================================================
+function selectOption(index) {
+  var q = QUESTIONS[currentQuestion];
+  var typeIdx = q.options[index].type;
+  scores[typeIdx]++;
+
+  // 高亮选中项
+  var btns = document.querySelectorAll('.option-btn');
+  btns[index].classList.add('selected');
+
+  // 延迟跳转到下一题，让用户看到选中效果
+  setTimeout(function() {
+    currentQuestion++;
+    if (currentQuestion < QUESTIONS.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 350);
+}
+
+// ============================================================
+// 展示结果
+// ============================================================
+function showResult() {
+  // 更新进度条到 100%
+  document.getElementById('progress-fill').style.width = '100%';
+
+  // 计算最高分类型
+  var maxScore = 0;
+  var maxTypeIdx = 0;
+  for (var i = 0; i < scores.length; i++) {
+    if (scores[i] > maxScore) {
+      maxScore = scores[i];
+      maxTypeIdx = i;
+    }
+  }
+
+  var total = QUESTIONS.length;
+  var config = TYPE_CONFIG[QUESTION_TYPES[maxTypeIdx]];
+  var maxPercent = Math.round((maxScore / total) * 100);
+
+  // 结果描述
+  var descriptions = {
+    perfect: '你内心住着一个"理想主义者"。你不是不想做，而是太想做好了——好到足以让自己和他人满意。这种对"完美"的追求反而成了最大的障碍。ADHD 大脑的"执行功能"在处理高期待任务时会超载，导致你一直在准备、一直在犹豫，就是不开始。记住：完成比完美更重要，60 分的起步也胜过 100 分的幻想。',
+    escapist: '你是一个天生的"感受型"人格。你的大脑对多巴胺的需求很高，枯燥的任务让你生理性难受。于是你选择了用刷手机、打游戏等方式来逃避——这不是你的错，而是 ADHD 大脑对低刺激任务的自然反应。你的优势在于丰富的想象力和创造力，需要的是给任务增加趣味性、设定即时反馈，让它变得"好玩"起来。',
+    impulsive: '你是一个充满好奇心和创造力的"探索者"。你脑子里总有无数好点子，开始时激情澎湃，但新鲜感一过就失去了动力。ADHD 大脑的多巴胺衰减非常快——"心动"来得快，去得也快。这不代表你不能坚持，只是你需要把大任务拆成多个"新"的小挑战，让新鲜感持续滚动。',
+    anxious: '你承受着巨大的内在张力。你知道自己有能力做好，但"害怕做不好"的恐惧像一只无形的手，把你钉在原地。ADHD 与焦虑的结合会让人陷入"想做事 -> 怕做不好 -> 更想做 -> 不敢做 -> 更焦虑"的死循环。你的问题不在于拖延本身，而在于对自己的苛责。先放过自己，事情才能动起来。'
+  };
+
+  // 特质列表
+  var traits = {
+    perfect: [
+      '做决定困难，总在想"还有更好的方案吗"',
+      '对细节异常敏感，别人看不出的问题你能发现十个',
+      '容易陷入"准备陷阱"——收集了很多资料但就是不行动',
+      '自我要求极高，经常对自己不满意',
+      '擅长规划和设计，但执行力受"完美主义"拖累'
+    ],
+    escapist: [
+      '一面对不喜欢的任务就条件反射般地刷手机',
+      '擅长给自己找各种"合理"的拖延理由',
+      '注意力对低刺激任务几乎为零，但对有趣的事可以通宵',
+      '内心渴望改变但缺乏启动动力',
+      '常常在拖延后有短暂的愧疚感，但很快又会找到新的逃避方式'
+    ],
+    impulsive: [
+      '同时开始的项目比完成的多十倍',
+      '对新事物充满热情，但热情消退得也很快',
+      '经常"三分钟热度"，自己也知道但控制不住',
+      '想法多、创意足，但难以持续深耕',
+      '容易跟风开始某件事，但坚持不下去'
+    ],
+    anxious: [
+      '做事时内心充满紧张和不安，即使没有人催你',
+      '对评价极度敏感，别人的一个眼神就能让你焦虑半天',
+      '常在深夜"自责模式"中循环——后悔白天什么都没做',
+      '身体会出现紧张症状（心跳加速、出汗、头疼）',
+      '明明很想做好，但越在意越做不成'
+    ]
+  };
+
+  // 建议
+  var tips = {
+    perfect: [
+      { title: '练习"50分起步法"', body: '告诉自己：第一版只需要做到 50 分就行。先抛出一个粗糙的版本，然后再迭代。你会发现"完成"比"完美"容易得多。' },
+      { title: '设置"烂作品时间"', body: '专门留出 15 分钟，允许自己做出史上最烂的作品。破除完美主义的第一步，是先拥抱不完美。' },
+      { title: '用"截止时间"代替"质量标准"', body: '不是做得越好就越有价值。设定一个硬性截止线——到时间就交，不管几十分。多次之后你会发现，世界并不会因为你交了 70 分的作品而崩溃。' }
+    ],
+    escapist: [
+      { title: '给任务加上"游戏化"元素', body: '用手机计时器设定"15分钟挑战"——只专注15分钟，然后就可以放心地去玩手机。通常开始后你就不会想停了。' },
+      { title: '找到任务的"多巴胺钩子"', body: '在做的同时听音乐、喝喜欢的饮料、找个舒适的咖啡馆。让任务和多巴胺挂钩，大脑就会逐渐愿意靠近它。' },
+      { title: '环境隔离法', body: '把手机放到另一个房间，或者使用锁机 App。逃避的本质是大脑在寻找更低成本的多巴胺来源，消除这个来源就切断了逃避路径。' }
+    ],
+    impulsive: [
+      { title: '建立"未完成清单"', body: '把正在做的事情全部列出来，放在显眼的位置。每次想开新坑前，先看看有多少旧坑没填。视觉化的未完成感会唤醒你的责任感。' },
+      { title: '寻找"搭档机制"', body: '找一个 accountability partner（责任伙伴），每周互相汇报进度。有人监督会让"三分钟热度"延长到"三周热度"。' },
+      { title: '把大项目切成"新鲜的小块"', body: '每个小块只做 3-7 天，完成后立刻换一个相关但不相同的小块。让新鲜感在子任务间滚动，而不是在项目层面消耗殆尽。' }
+    ],
+    anxious: [
+      { title: '先做5分钟的"焦虑释放"', body: '开始前花5分钟把脑子里所有担心的事情写在纸上——"怕做不好""怕被嘲笑""怕浪费时间"。写完了再开始，你会发现那些焦虑并没有那么可怕。' },
+      { title: '练习"足够好"思维', body: 'ADHD 不是缺陷，你的大脑只是运转方式不同。完成比完美重要，存在比不存要好。每次告诉自己："我已经做得很好了。"' },
+      { title: '建立"小胜记录"', body: '每天记录 3 件你完成的小事（哪怕只是"打开了文档"）。积累正向反馈，大脑会逐渐将"做事"和"成就感"联系起来，而不是和"焦虑"绑定。' }
+    ]
+  };
+
+  // 渲染结果页
+  var html = '';
+
+  // 结果头部
+  html += '<div class="result-header">';
+  html += '<span class="result-emoji">' + config.emoji + '</span>';
+  html += '<h2 class="result-title" style="color:' + config.color + '">你的拖延类型是</h2>';
+  html += '<p class="result-type-label">' + config.label + '</p>';
+  html += '</div>';
+
+  // 各项分数
+  html += '<div class="result-score-bar">';
+  for (var i = 0; i < scores.length; i++) {
+    var t = QUESTION_TYPES[i];
+    var c = TYPE_CONFIG[t];
+    var p = Math.round((scores[i] / total) * 100);
+    var isTop = (i === maxTypeIdx);
+    html += '<div class="score-detail' + (isTop ? ' top-score' : '') + '">';
+    html += '<span class="score-emoji">' + c.emoji + '</span>';
+    html += '<span class="score-label">' + c.label + '</span>';
+    html += '<div class="score-track"><div class="score-fill" style="width:' + p + '%;background:' + c.color + '"></div></div>';
+    html += '<span class="score-value">' + p + '%</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // 描述
+  html += '<div class="result-description">' + descriptions[QUESTION_TYPES[maxTypeIdx]] + '</div>';
+
+  // 特质
+  html += '<h3 style="font-size:0.95rem;margin-bottom:8px;color:' + config.color + '">✨ 你的典型特征</h3>';
+  html += '<ul class="trait-list">';
+  var tList = traits[QUESTION_TYPES[maxTypeIdx]];
+  for (var j = 0; j < tList.length; j++) {
+    html += '<li><span class="check" style="background:' + config.color + '22;color:' + config.color + '">✓</span>' + tList[j] + '</li>';
+  }
+  html += '</ul>';
+
+  // 建议卡片
+  html += '<div class="tips-card">';
+  html += '<h4>💡 给你的专属建议</h4>';
+  html += '<ol>';
+  var tipList = tips[QUESTION_TYPES[maxTypeIdx]];
+  for (var k = 0; k < tipList.length; k++) {
+    html += '<li><strong>' + tipList[k].title + '：</strong>' + tipList[k].body + '</li>';
+  }
+  html += '</ol>';
+  html += '</div>';
+
+  // CTA
+  html += '<div class="cta-section">';
+  html += '<p>🧠 了解自己的拖延类型只是第一步<br>真正的改变从科学的自我认知开始</p>';
+  html += '<a href="#" class="btn btn-primary" onclick="alert('这里可以链接到你的专业报告页面');return false;">📄 获取 ADHD 自我认知专业报告</a>';
+  html += '<p style="font-size:0.78rem;color:#bbb;margin-top:10px;">测试由 ADHD 自我认知团队设计 · 仅供自我参考</p>';
+  html += '<button class="retake-btn" onclick="showPage('landing')">↺ 重新测试</button>';
+  html += '</div>';
+
+  document.getElementById('result-card').innerHTML = html;
+
+  // 显示结果页（带淡入）
+  showPage('result');
+  var card = document.getElementById('result-card');
+  card.className = 'card fade-in';
+}
+</script>
+</body>
+</html>

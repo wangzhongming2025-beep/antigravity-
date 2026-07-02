@@ -40,6 +40,14 @@ const nextConfig: NextConfig = {
         source: '/eye-test/',
         destination: '/eye-test/index.html',
       },
+      {
+        source: '/adhd-procrastination-test',
+        destination: '/adhd-procrastination-test/index.html',
+      },
+      {
+        source: '/adhd-procrastination-test/',
+        destination: '/adhd-procrastination-test/index.html',
+      },
     ];
   },
 };
