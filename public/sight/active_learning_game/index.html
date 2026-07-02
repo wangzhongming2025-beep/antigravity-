@@ -104,32 +104,50 @@
       
       <!-- 头部栏 -->
       <div class="board-header">
+        <div class="header-mascot-box">
+          <img id="mascot-img" src="assets/ninja.png" alt="Mascot">
+        </div>
         <div class="board-title">
-          <h2 id="board-title-text">🥷 宝贝的主动学习大冒险</h2>
-          <p>进步的感觉也太爽了吧！让学习变成一场通关游戏</p>
+          <h2 id="board-title-text">主动学习游戏本</h2>
+          <p class="tagline">进步的感觉也太爽了吧！让学习变成一场通关游戏</p>
         </div>
         <div class="board-meta">
-          <span>日期：</span>
-          <span class="date-line"></span>
+          <div class="meta-item">
+            <span>冒险者: </span>
+            <span class="meta-line" id="meta-child-name">宝贝</span>
+          </div>
+          <div class="meta-item">
+            <span>日期: </span>
+            <span class="meta-line date-line"></span>
+          </div>
         </div>
       </div>
 
       <!-- 任务展示栏 -->
       <div class="board-tasks">
-        <div class="task-col">
-          <div class="task-col-header">🟢 简单任务 (积分 +1)</div>
+        <div class="task-col easy">
+          <div class="task-col-header">
+            <span class="header-icon">🟢</span>
+            <span>简单任务 (积分 +1)</span>
+          </div>
           <div class="task-list-container" id="tasks-easy-list">
             <!-- 动态填充 -->
           </div>
         </div>
-        <div class="task-col">
-          <div class="task-col-header">🟡 中等任务 (积分 +2)</div>
+        <div class="task-col med">
+          <div class="task-col-header">
+            <span class="header-icon">🟡</span>
+            <span>中等任务 (积分 +2)</span>
+          </div>
           <div class="task-list-container" id="tasks-med-list">
             <!-- 动态填充 -->
           </div>
         </div>
-        <div class="task-col">
-          <div class="task-col-header">🔴 困难任务 (积分 +3)</div>
+        <div class="task-col hard">
+          <div class="task-col-header">
+            <span class="header-icon">🔴</span>
+            <span>困难任务 (积分 +3)</span>
+          </div>
           <div class="task-list-container" id="tasks-hard-list">
             <!-- 动态填充 -->
           </div>
@@ -152,7 +170,10 @@
       <!-- 底部积分与积分框 -->
       <div class="board-footer">
         <div class="rewards-ledger">
-          <h3>💡 今日学习积分兑换卡</h3>
+          <div class="rewards-title-wrapper">
+            <h3>💡 今日学习积分兑换卡</h3>
+            <img class="kids-deco" src="assets/kids.png" alt="Kids">
+          </div>
           <div class="rewards-grid">
             <div class="reward-row">
               <span class="reward-pt">100pt</span>
@@ -174,7 +195,7 @@
         </div>
 
         <div class="ledger-points">
-          <h3>💯 今日累计积分</h3>
+          <h3>💯 今日累计积分盖章区</h3>
           <div class="points-grid-draw">
             <div class="points-box"></div>
             <div class="points-box"></div>

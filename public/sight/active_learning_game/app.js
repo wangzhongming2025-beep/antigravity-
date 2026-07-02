@@ -2,6 +2,7 @@
 const themes = {
   ninja: {
     emoji: "🥷",
+    image: "assets/ninja.png",
     titleSuffix: "的主动学习大冒险",
     nodes: [
       { name: "出发准备", desc: "理清文具,桌面整洁", icon: "🎒" },
@@ -10,13 +11,14 @@ const themes = {
       { name: "二连击破", desc: "连续完成两项简单任务", icon: "⚡" },
       { name: "专注挑战", desc: "开启15分钟专注护盾", icon: "🛡️" },
       { name: "中等突破", desc: "搞定中等难度任务", icon: "🔥" },
-      { name: "能量补给", desc: "喝杯水,做两次深呼吸", icon: "🥛" },
+      { name: "能量补给", desc: "伸个懒腰，喝杯温水", icon: "🥛" },
       { name: "困难解决", desc: "最难任务已全部击破", icon: "🏆", bonus: "+2pt" },
       { name: "胜利冲刺", desc: "收拾好桌面，大功告成", icon: "🏁" }
     ]
   },
   space: {
     emoji: "🚀",
+    image: "assets/space.png",
     titleSuffix: "的星际自驱航行",
     nodes: [
       { name: "飞船整备", desc: "桌面及文具准备就绪", icon: "🛸" },
@@ -25,24 +27,25 @@ const themes = {
       { name: "流星加速", desc: "快速消灭两个简单任务", icon: "☄️" },
       { name: "护盾充能", desc: "保持专注，屏蔽噪音", icon: "🔋" },
       { name: "跃迁航行", desc: "搞定中等难度任务", icon: "🌀" },
-      { name: "空间补给", desc: "伸懒腰,喝水休息", icon: "🍎" },
+      { name: "空间补给", desc: "深呼吸，喝水充电", icon: "🍎" },
       { name: "征服黑洞", desc: "终极困难任务全部搞定", icon: "🌌", bonus: "+2pt" },
       { name: "降落母星", desc: "检查收拾，胜利返航", icon: "🌍" }
     ]
   },
   magic: {
     emoji: "🏰",
+    image: "assets/magic.png",
     titleSuffix: "的魔法自驱修炼",
     nodes: [
       { name: "魔法准备", desc: "文具就位，心境沉静", icon: "🔮" },
-      { name: "羊皮纸清单", desc: "列出魔法任务步骤", icon: "📜" },
+      { name: "法术清单", desc: "列出魔法学习步骤", icon: "📜" },
       { name: "挑战魔王", desc: "首先击破高难度魔法", icon: "👹", bonus: "+1pt" },
       { name: "小试身手", desc: "快速搞定两个简单魔法", icon: "✨" },
       { name: "冥想专注", desc: "进入静音魔法力场", icon: "🧘" },
       { name: "高级魔法", desc: "击破中等难度挑战", icon: "💫" },
-      { name: "圣水井补充", desc: "闭眼深呼吸，喝水休息", icon: "🧪" },
-      { name: "魔法大突破", desc: "困难任务已彻底解开", icon: "👑", bonus: "+2pt" },
-      { name: "点亮法阵", desc: "完美收拾，法力充盈", icon: "🌟" }
+      { name: "魔力泉补给", desc: "伸展身体，饮水休整", icon: "🧪" },
+      { name: "终极禁咒", desc: "困难任务已彻底解开", icon: "👑", bonus: "+2pt" },
+      { name: "点亮法阵", desc: "完美收拾，魔法满盈", icon: "🌟" }
     ]
   }
 };
@@ -127,7 +130,7 @@ function drawSvgPath() {
     if (index === 0) {
       pathD += `M ${x} ${y}`;
     } else {
-      // 绘制贝塞尔曲线，使折角更圆润，或者绘制S型平滑线条
+      // 绘制贝塞尔曲线，使折角更圆润
       const prevCircle = nodes[index - 1].querySelector('.node-circle');
       const prevCircleRect = prevCircle.getBoundingClientRect();
       const prevX = (prevCircleRect.left + prevCircleRect.width / 2) - containerRect.left;
@@ -183,10 +186,13 @@ function bindEvents() {
 
 // ========== 同步控制面板到打印预览区 ==========
 function updateBoard() {
-  // 1. 孩子名字与标题
+  // 1. 孩子名字与标题/吉祥物
   const name = document.getElementById('child-name').value.trim() || '宝贝';
   const themeInfo = themes[currentTheme];
-  document.getElementById('board-title-text').innerHTML = `${themeInfo.emoji} ${name}${themeInfo.titleSuffix}`;
+  
+  document.getElementById('meta-child-name').innerText = name;
+  document.getElementById('mascot-img').src = themeInfo.image;
+  document.getElementById('board-title-text').innerText = `${themeInfo.emoji} ${name}${themeInfo.titleSuffix}`;
   
   // 2. 简单任务列表
   const easy1 = document.getElementById('task-easy-1').value.trim();
