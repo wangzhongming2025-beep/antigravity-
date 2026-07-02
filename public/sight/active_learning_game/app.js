@@ -6,15 +6,15 @@ const themes = {
     speech: "修炼开始，冲啊！",
     titleSuffix: "的主动学习大冒险",
     nodes: [
-      { name: "出发准备", desc: "理清文具,桌面整洁", icon: "🎒" },
-      { name: "制定清单", desc: "分类任务,填入板中", icon: "📝" },
-      { name: "攻坚挑战", desc: "挑出最难的任务开写", icon: "⚔️", bonus: "+1pt" },
-      { name: "二连击破", desc: "连续完成两项简单任务", icon: "⚡" },
-      { name: "专注挑战", desc: "开启15分钟专注护盾", icon: "🛡️" },
-      { name: "中等突破", desc: "搞定中等难度任务", icon: "🔥" },
-      { name: "能量补给", desc: "伸个懒腰，喝杯温水", icon: "🥛" },
-      { name: "困难解决", desc: "最难任务已全部击破", icon: "🏆", bonus: "+2pt" },
-      { name: "胜利冲刺", desc: "收拾好桌面，大功告成", icon: "🏁" }
+      { name: "出发准备", desc: "将作业和文具整齐摆放在桌上", icon: "🎒" },
+      { name: "制作任务清单", desc: "将作业分类，填写在清单中", icon: "📝" },
+      { name: "挑战困难任务", desc: "拿出最难的一项作业先攻克", icon: "⚔️", bonus: "+1pt" },
+      { name: "简单任务清零", desc: "解锁小奖励！学习积分+1", icon: "⚡" },
+      { name: "二连击破", desc: "搞定两项简单任务啦！", icon: "🛡️" },
+      { name: "攻坚突破", desc: "你太强了！最难任务已被击破", icon: "🔥" },
+      { name: "困难任务清零", desc: "解锁大奖励！学习积分+2", icon: "🏆", bonus: "+2pt" },
+      { name: "最后冲刺", desc: "只剩中等难度，一鼓作气冲刺", icon: "🥛" },
+      { name: "通关胜利", desc: "收拾好桌面，通关大奖我来啦", icon: "🏁" }
     ]
   },
   space: {
@@ -23,10 +23,10 @@ const themes = {
     speech: "起航！探索星辰大海！",
     titleSuffix: "的星际自驱航行",
     nodes: [
-      { name: "飞船整备", desc: "桌面及文具准备就绪", icon: "🛸" },
+      { name: "飞船整备", desc: "桌面及文具整理就绪", icon: "🛸" },
       { name: "星图规划", desc: "梳理今日学习任务", icon: "🗺️" },
       { name: "突破引力", desc: "首战攻克最难任务", icon: "💥", bonus: "+1pt" },
-      { name: "流星加速", desc: "快速消灭两个简单任务", icon: "☄️" },
+      { name: "流星加速", desc: "快速消灭两项简单任务", icon: "☄️" },
       { name: "护盾充能", desc: "保持专注，屏蔽噪音", icon: "🔋" },
       { name: "跃迁航行", desc: "搞定中等难度任务", icon: "🌀" },
       { name: "空间补给", desc: "深呼吸，喝水充电", icon: "🍎" },
@@ -46,7 +46,7 @@ const themes = {
       { name: "小试身手", desc: "快速搞定两个简单魔法", icon: "✨" },
       { name: "冥想专注", desc: "进入静音魔法力场", icon: "🧘" },
       { name: "高级魔法", desc: "击破中等难度挑战", icon: "💫" },
-      { name: "魔力泉补给", desc: "伸展身体，饮水休整", icon: "🧪" },
+      { name: "魔力泉补给", desc: "伸展身体，饮水修整", icon: "🧪" },
       { name: "终极禁咒", desc: "困难任务已彻底解开", icon: "👑", bonus: "+2pt" },
       { name: "点亮法阵", desc: "完美收拾，魔法满盈", icon: "🌟" }
     ]

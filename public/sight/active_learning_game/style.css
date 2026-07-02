@@ -285,10 +285,10 @@ body {
 /* 头部 */
 .board-header {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 16px;
   border-bottom: 3px dashed var(--theme-primary);
-  padding-bottom: 10px;
+  padding-bottom: 50px; /* 留出心情打卡的高度 */
   position: relative;
 }
 
@@ -307,6 +307,83 @@ body {
   height: 100%;
   object-fit: contain;
   filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.12));
+}
+
+/* 今日心情打卡（ADHD特色功能） */
+.mood-check {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: absolute;
+  bottom: -46px;
+  left: 0;
+  width: 180px;
+  z-index: 30;
+}
+
+.mood-title {
+  font-family: var(--theme-hand-font);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--theme-text);
+}
+
+.theme-space .mood-title {
+  color: #E2E8F0;
+}
+
+.mood-options {
+  display: flex;
+  gap: 8px;
+}
+
+.mood-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.emoji-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--theme-primary);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  box-shadow: 1.5px 1.5px 0 var(--theme-primary);
+  transition: var(--transition);
+}
+
+.theme-space .emoji-circle {
+  background: #1E293B;
+  border-color: var(--theme-accent);
+  box-shadow: 1.5px 1.5px 0 var(--theme-accent);
+}
+
+.mood-label {
+  font-family: var(--theme-hand-font);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--theme-text);
+  transform: scale(0.95);
+  white-space: nowrap;
+}
+
+.theme-space .mood-label {
+  color: #94A3B8;
+}
+
+.board-title-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
 }
 
 .board-title {
@@ -340,6 +417,10 @@ body {
   color: var(--theme-text);
 }
 
+.theme-space .board-meta {
+  color: #FFFFFF;
+}
+
 .board-meta .meta-item {
   display: flex;
   align-items: center;
@@ -364,11 +445,11 @@ body {
   border-radius: 12px;
   padding: 4px 8px;
   font-family: var(--theme-hand-font);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--theme-primary);
   top: -8px;
-  left: 65px;
+  left: 72px;
   white-space: nowrap;
   box-shadow: 2px 2px 0 var(--theme-primary);
   z-index: 20;
@@ -443,7 +524,7 @@ body {
 
 .task-item {
   font-family: var(--theme-hand-font);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 800;
   line-height: 1.35;
   color: var(--theme-text);
@@ -523,7 +604,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90px;
+  width: 95px;
   text-align: center;
   transition: var(--transition);
 }
@@ -553,7 +634,7 @@ body {
 
 .node-label {
   font-family: var(--theme-title-font);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: var(--theme-text);
   line-height: 1.25;
@@ -565,11 +646,11 @@ body {
 
 .node-desc {
   font-family: var(--theme-hand-font);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   opacity: 0.9;
   margin-top: 2px;
-  max-width: 85px;
+  max-width: 90px;
   display: block;
   white-space: nowrap;
   overflow: hidden;
