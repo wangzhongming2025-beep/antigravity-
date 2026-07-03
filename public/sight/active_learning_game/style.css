@@ -677,6 +677,15 @@ body {
 
 .node-circle .node-illustration {
   font-size: 1.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.node-svg-icon {
+  max-width: 100%;
+  max-height: 100%;
+  transition: var(--transition);
 }
 
 /* 底部积分与奖励卡 */
