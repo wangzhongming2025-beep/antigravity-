@@ -3,241 +3,301 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>主动学习游戏本生成器 - 学生自驱力打印教具</title>
+  <title>主动学习AI游戏本 Pro — 一站式学习动力引擎</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-ninja">
 
-  <!-- ==================== 左侧控制面板 ==================== -->
+  <!-- ====== 左侧控制面板 ====== -->
   <aside class="control-panel">
     <div class="panel-header">
-      <h1>主动学习游戏本</h1>
-      <p>定制个性化关卡，一键打印 A4 纸教具</p>
+      <h1>🎮 主动学习AI游戏本 Pro</h1>
+      <p>定制个性化关卡 · 六大主题 · 一键打印</p>
     </div>
 
-    <!-- 1. 选择主题 -->
-    <section>
+    <!-- 1. 主题选择 -->
+    <section class="panel-section">
       <div class="section-title">🎨 选择游戏主题</div>
       <div class="theme-selector">
-        <div class="theme-opt active" data-theme="ninja">
-          <span class="icon">🥷</span>
-          <span class="label">忍者修炼</span>
-        </div>
-        <div class="theme-opt" data-theme="space">
-          <span class="icon">🚀</span>
-          <span class="label">星际探索</span>
-        </div>
-        <div class="theme-opt" data-theme="magic">
-          <span class="icon">🏰</span>
-          <span class="label">魔法城堡</span>
-        </div>
+        <div class="theme-opt active" data-theme="ninja"><span class="icon">🥷</span><span class="label">忍者修炼</span></div>
+        <div class="theme-opt" data-theme="space"><span class="icon">🚀</span><span class="label">星际探索</span></div>
+        <div class="theme-opt" data-theme="magic"><span class="icon">🏰</span><span class="label">魔法城堡</span></div>
+        <div class="theme-opt" data-theme="pirate"><span class="icon">🏴‍☠️</span><span class="label">海盗寻宝</span></div>
+        <div class="theme-opt" data-theme="animal"><span class="icon">🦊</span><span class="label">动物王国</span></div>
+        <div class="theme-opt" data-theme="dino"><span class="icon">🦕</span><span class="label">恐龙世界</span></div>
       </div>
     </section>
 
-    <!-- 2. 基础定制 -->
-    <section>
+    <!-- 2. 基础信息 -->
+    <section class="panel-section">
       <div class="section-title">👤 基础信息</div>
       <div class="form-group">
         <label for="child-name">孩子姓名</label>
         <input type="text" id="child-name" class="input-field" value="宝贝" placeholder="例如：小明">
       </div>
+      <div class="form-group">
+        <label for="parent-name">家长签名</label>
+        <input type="text" id="parent-name" class="input-field" value="" placeholder="家长签名（可选）">
+      </div>
     </section>
 
     <!-- 3. 今日任务定制 -->
-    <section>
+    <section class="panel-section">
       <div class="section-title">📋 定制今日学习任务</div>
-      
+      <details class="task-group" open>
+        <summary class="task-group-header"><span class="badge green">简单任务</span> (+1积分/个)</summary>
+        <div class="task-inputs">
+          <input type="text" id="task-easy-1" class="input-field" value="整理书包与桌面" placeholder="任务1">
+          <input type="text" id="task-easy-2" class="input-field" value="课外阅读10分钟" placeholder="任务2">
+          <input type="text" id="task-easy-3" class="input-field" value="" placeholder="任务3（选填）">
+          <input type="text" id="task-easy-4" class="input-field" value="" placeholder="任务4（选填）">
+        </div>
+      </details>
+      <details class="task-group">
+        <summary class="task-group-header"><span class="badge yellow">中等任务</span> (+2积分/个)</summary>
+        <div class="task-inputs">
+          <input type="text" id="task-med-1" class="input-field" value="写完数学课后作业" placeholder="任务1">
+          <input type="text" id="task-med-2" class="input-field" value="完成语文阅读理解" placeholder="任务2">
+          <input type="text" id="task-med-3" class="input-field" value="" placeholder="任务3（选填）">
+        </div>
+      </details>
+      <details class="task-group">
+        <summary class="task-group-header"><span class="badge red">困难任务</span> (+3积分/个)</summary>
+        <div class="task-inputs">
+          <input type="text" id="task-hard-1" class="input-field" value="精读英语短文并背诵" placeholder="任务1">
+          <input type="text" id="task-hard-2" class="input-field" value="" placeholder="任务2（选填）">
+        </div>
+      </details>
+    </section>
+
+    <!-- 4. 番茄钟设置 -->
+    <section class="panel-section">
+      <div class="section-title">⏱️ 番茄钟设置</div>
       <div class="form-group">
-        <label><span class="badge green">简单任务</span> 任务 1</label>
-        <input type="text" id="task-easy-1" class="input-field" value="整理书包与桌面，摆放好文具" placeholder="如：整理书包">
+        <label>专注时长（分钟）</label>
+        <input type="number" id="tomato-duration" class="input-field" value="25" min="5" max="60">
       </div>
       <div class="form-group">
-        <label><span class="badge green">简单任务</span> 任务 2</label>
-        <input type="text" id="task-easy-2" class="input-field" value="课外阅读或背诵英语单词 10 个" placeholder="如：读课外书10分钟">
-      </div>
-      
-      <div class="form-group">
-        <label><span class="badge yellow">中等任务</span> 任务 3</label>
-        <input type="text" id="task-med-1" class="input-field" value="写完数学课后作业并订正" placeholder="如：写完数学课后练习">
+        <label>休息时长（分钟）</label>
+        <input type="number" id="tomato-rest" class="input-field" value="5" min="1" max="30">
       </div>
       <div class="form-group">
-        <label><span class="badge yellow">中等任务</span> 任务 4</label>
-        <input type="text" id="task-med-2" class="input-field" value="完成语文阅读理解或生字抄写" placeholder="如：完成语文阅读理解">
-      </div>
-      
-      <div class="form-group">
-        <label><span class="badge red">困难任务</span> 任务 5</label>
-        <input type="text" id="task-hard-1" class="input-field" value="精读英语小短文或背诵必背古诗" placeholder="如：写一篇英语小作文">
+        <label>今日目标轮数</label>
+        <input type="number" id="tomato-target" class="input-field" value="4" min="1" max="10">
       </div>
     </section>
 
-    <!-- 4. 积分奖励设定 -->
-    <section>
-      <div class="section-title">🎁 积分兑换卡定制</div>
+    <!-- 5. 积分奖励设定 -->
+    <section class="panel-section">
+      <div class="section-title">🎁 积分兑换卡</div>
+      <div class="form-group">
+        <label>50 积分奖励</label>
+        <input type="text" id="reward-50" class="input-field" value="一颗小糖果 / 贴纸" placeholder="奖励名称">
+      </div>
       <div class="form-group">
         <label>100 积分奖励</label>
         <input type="text" id="reward-100" class="input-field" value="兑换一份精美小零食" placeholder="奖励名称">
       </div>
       <div class="form-group">
         <label>200 积分奖励</label>
-        <input type="text" id="reward-200" class="input-field" value="兑换 30 分钟电子设备使用权" placeholder="奖励名称">
+        <input type="text" id="reward-200" class="input-field" value="兑换30分钟电子设备" placeholder="奖励名称">
       </div>
       <div class="form-group">
-        <label>700 积分奖励</label>
-        <input type="text" id="reward-700" class="input-field" value="周末短途出行一次 / 吃大餐" placeholder="奖励名称">
+        <label>500 积分奖励</label>
+        <input type="text" id="reward-500" class="input-field" value="周末家庭电影之夜" placeholder="奖励名称">
       </div>
       <div class="form-group">
         <label>1000 积分奖励</label>
-        <input type="text" id="reward-1000" class="input-field" value="获得心仪已久的乐高 / 模型玩具" placeholder="奖励名称">
+        <input type="text" id="reward-1000" class="input-field" value="获得心仪已久的玩具" placeholder="奖励名称">
       </div>
     </section>
 
-    <!-- 5. 打印按钮 -->
+    <!-- 6. 周挑战设置 -->
+    <section class="panel-section">
+      <div class="section-title">🏆 周挑战目标</div>
+      <div class="form-group">
+        <label>周一挑战</label>
+        <input type="text" id="week-mon" class="input-field" value="按时完成所有作业" placeholder="挑战内容">
+      </div>
+      <div class="form-group">
+        <label>周二挑战</label>
+        <input type="text" id="week-tue" class="input-field" value="阅读20分钟以上" placeholder="挑战内容">
+      </div>
+      <div class="form-group">
+        <label>周三挑战</label>
+        <input type="text" id="week-wed" class="input-field" value="主动复习当天课程" placeholder="挑战内容">
+      </div>
+      <div class="form-group">
+        <label>周四挑战</label>
+        <input type="text" id="week-thu" class="input-field" value="独立完成一项难题" placeholder="挑战内容">
+      </div>
+      <div class="form-group">
+        <label>周五挑战</label>
+        <input type="text" id="week-fri" class="input-field" value="整理一周学习内容" placeholder="挑战内容">
+      </div>
+      <div class="form-group">
+        <label>周六挑战</label>
+        <input type="text" id="week-sat" class="input-field" value="预习下周新课内容" placeholder="挑战内容">
+      </div>
+      <div class="form-group">
+        <label>周日挑战</label>
+        <input type="text" id="week-sun" class="input-field" value="自由发挥：做一件学习related的事" placeholder="挑战内容">
+      </div>
+    </section>
+
+    <!-- 7. 学期成就树 -->
+    <section class="panel-section">
+      <div class="section-title">🌳 学期成就树（自定义）</div>
+      <div class="form-group">
+        <label>成就1名称</label>
+        <input type="text" id="achieve-1" class="input-field" value="小试牛刀" placeholder="成就名">
+      </div>
+      <div class="form-group">
+        <label>成就2名称</label>
+        <input type="text" id="achieve-2" class="input-field" value="阅读达人" placeholder="成就名">
+      </div>
+      <div class="form-group">
+        <label>成就3名称</label>
+        <input type="text" id="achieve-3" class="input-field" value="数学之星" placeholder="成就名">
+      </div>
+      <div class="form-group">
+        <label>成就4名称</label>
+        <input type="text" id="achieve-4" class="input-field" value="英语先锋" placeholder="成就名">
+      </div>
+      <div class="form-group">
+        <label>成就5名称</label>
+        <input type="text" id="achieve-5" class="input-field" value="自律王者" placeholder="成就名">
+      </div>
+    </section>
+
+    <!-- 8. 家长寄语 -->
+    <section class="panel-section">
+      <div class="section-title">💌 家长寄语</div>
+      <div class="form-group">
+        <label for="parent-msg">给孩子的一句话</label>
+        <textarea id="parent-msg" class="input-field textarea-field" rows="3" placeholder="例如：每天进步一点点，你就是最棒的！">每天进步一点点，你就是最棒的！</textarea>
+      </div>
+    </section>
+
+    <!-- 9. 打印按钮 -->
     <button class="action-btn" onclick="window.print()">
       🖨️ 一键打印游戏图纸
     </button>
   </aside>
 
-  <!-- ==================== 右侧图纸预览 ==================== -->
+  <!-- ====== 右侧图纸预览 ====== -->
   <main class="preview-container">
     <div class="gameboard-paper" id="printable-board">
-      
-      <!-- 背景星星装饰 -->
-      <div class="bg-decorations" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:0.12;">
-        <span style="position:absolute; top:8%; left:28%; font-size:1.5rem; color:var(--theme-accent);">★</span>
-        <span style="position:absolute; top:15%; left:65%; font-size:1.2rem; color:var(--theme-primary);">✦</span>
-        <span style="position:absolute; top:42%; left:30%; font-size:1.3rem; color:var(--theme-accent);">★</span>
-        <span style="position:absolute; top:58%; left:75%; font-size:1.6rem; color:var(--theme-primary);">✦</span>
-        <span style="position:absolute; top:75%; left:20%; font-size:1.2rem; color:var(--theme-accent);">★</span>
-        <span style="position:absolute; top:85%; left:65%; font-size:1.4rem; color:var(--theme-primary);">✦</span>
-      </div>
 
-      <!-- 橙色贴纸徽章 -->
-      <div class="orange-sticker">
-        <span>附赠印章</span>
-      </div>
-
-      <!-- 头部栏 -->
+      <!-- 顶部标题区 -->
       <div class="board-header">
-        <div class="header-mascot-box">
-          <img id="mascot-img" src="assets/ninja.png" alt="Mascot">
+        <div class="header-left">
+          <img id="mascot-img" src="assets/ninja.png" alt="Mascot" class="mascot-img">
           <div class="mascot-speech" id="mascot-speech-text">修炼开始，冲啊！</div>
-          
-          <!-- 今日心情打卡（ADHD特色功能） -->
-          <div class="mood-check">
-            <span class="mood-title">🔋 起跑状态:</span>
-            <div class="mood-options">
-              <div class="mood-item"><span class="emoji-circle">☹️</span><span class="mood-label">懒得动</span></div>
-              <div class="mood-item"><span class="emoji-circle">😐</span><span class="mood-label">有点慌</span></div>
-              <div class="mood-item"><span class="emoji-circle">🙂</span><span class="mood-label">没问题</span></div>
-              <div class="mood-item"><span class="emoji-circle">🤩</span><span class="mood-label">小期待</span></div>
-            </div>
+        </div>
+        <div class="header-center">
+          <h2 id="board-title-text">🥷 主动学习AI游戏本 Pro</h2>
+          <p class="tagline">进步的感觉也太爽了吧！让学习变成一场通关游戏</p>
+        </div>
+        <div class="header-right">
+          <div class="meta-row">
+            <span>冒险者：</span><span class="meta-line" id="meta-child-name">宝贝</span>
+          </div>
+          <div class="meta-row">
+            <span>日期：</span><span class="meta-line date-line"></span>
           </div>
         </div>
-        
-        <div class="board-title-wrapper">
-          <div class="board-title">
-            <h2 id="board-title-text">主动学习游戏本</h2>
-            <p class="tagline">进步的感觉也太爽了吧！让学习变成一场通关游戏</p>
-          </div>
-          <div class="board-meta">
-            <div class="meta-item">
-              <span>冒险者: </span>
-              <span class="meta-line" id="meta-child-name">宝贝</span>
-            </div>
-            <div class="meta-item">
-              <span>日期: </span>
-              <span class="meta-line date-line"></span>
-            </div>
-          </div>
+      </div>
+
+      <!-- 心情打卡 -->
+      <div class="mood-bar">
+        <span class="mood-label">🔋 起跑状态：</span>
+        <div class="mood-options">
+          <div class="mood-item"><span class="emoji-circle">😫</span><span>懒得动</span></div>
+          <div class="mood-item"><span class="emoji-circle">😰</span><span>有点慌</span></div>
+          <div class="mood-item"><span class="emoji-circle">🙂</span><span>没问题</span></div>
+          <div class="mood-item"><span class="emoji-circle">🤩</span><span>小期待</span></div>
         </div>
       </div>
 
       <!-- 任务展示栏 -->
       <div class="board-tasks">
         <div class="task-col easy">
-          <div class="task-col-header">
-            <span class="header-icon">🟢</span>
-            <span>简单任务 (积分 +1)</span>
-          </div>
-          <div class="task-list-container" id="tasks-easy-list">
-            <!-- 动态填充 -->
-          </div>
+          <div class="task-col-header"><span class="header-icon">🟢</span><span>简单任务</span></div>
+          <div class="task-list-container" id="tasks-easy-list"></div>
         </div>
         <div class="task-col med">
-          <div class="task-col-header">
-            <span class="header-icon">🟡</span>
-            <span>中等任务 (积分 +2)</span>
-          </div>
-          <div class="task-list-container" id="tasks-med-list">
-            <!-- 动态填充 -->
-          </div>
+          <div class="task-col-header"><span class="header-icon">🟡</span><span>中等任务</span></div>
+          <div class="task-list-container" id="tasks-med-list"></div>
         </div>
         <div class="task-col hard">
-          <div class="task-col-header">
-            <span class="header-icon">🔴</span>
-            <span>困难任务 (积分 +3)</span>
-          </div>
-          <div class="task-list-container" id="tasks-hard-list">
-            <!-- 动态填充 -->
-          </div>
+          <div class="task-col-header"><span class="header-icon">🔴</span><span>困难任务</span></div>
+          <div class="task-list-container" id="tasks-hard-list"></div>
         </div>
       </div>
 
       <!-- 游戏化地图路径区 -->
       <div class="board-map-container" id="board-map">
-        <!-- SVG 连接线 -->
         <svg class="map-svg" id="map-svg-element">
           <path class="map-path" id="map-path-line" d=""></path>
         </svg>
+        <div class="nodes-container" id="nodes-container"></div>
+      </div>
 
-        <!-- 节点容器 -->
-        <div class="nodes-container" id="nodes-container">
-          <!-- 动态填充关卡节点 -->
+      <!-- 番茄钟区域 -->
+      <div class="tomato-section">
+        <h3>⏱️ 今日番茄钟挑战</h3>
+        <div class="tomato-display">
+          <span class="tomato-current" id="tomato-current">0</span>
+          <span class="tomato-target" id="tomato-target-display">/ 4</span>
+        </div>
+        <div class="tomato-progress" id="tomato-progress">
+          <!-- 动态填充番茄格子 -->
         </div>
       </div>
 
-      <!-- 底部积分与积分框 -->
+      <!-- 底部区域：积分兑换 + 周挑战 + 成就树 -->
       <div class="board-footer">
-        <div class="rewards-ledger">
-          <div class="rewards-title-wrapper">
-            <h3>💡 今日学习积分兑换卡</h3>
-            <img class="kids-deco" src="assets/kids.png" alt="Kids">
+        <!-- 左侧：积分兑换卡 -->
+        <div class="footer-left">
+          <div class="rewards-ledger">
+            <div class="rewards-title-wrapper">
+              <h3>💯 积分兑换卡</h3>
+              <img class="kids-deco" src="assets/kids.png" alt="Kids">
+            </div>
+            <div class="rewards-grid">
+              <div class="reward-row"><span class="reward-pt">50</span><span class="reward-val" id="reward-50-text"></span></div>
+              <div class="reward-row"><span class="reward-pt">100</span><span class="reward-val" id="reward-100-text"></span></div>
+              <div class="reward-row"><span class="reward-pt">200</span><span class="reward-val" id="reward-200-text"></span></div>
+              <div class="reward-row"><span class="reward-pt">500</span><span class="reward-val" id="reward-500-text"></span></div>
+              <div class="reward-row"><span class="reward-pt">1000</span><span class="reward-val" id="reward-1000-text"></span></div>
+            </div>
           </div>
-          <div class="rewards-grid">
-            <div class="reward-row">
-              <span class="reward-pt">100pt</span>
-              <span class="reward-val" id="reward-100-text">兑换一份精美小零食</span>
-            </div>
-            <div class="reward-row">
-              <span class="reward-pt">200pt</span>
-              <span class="reward-val" id="reward-200-text">兑换 30 分钟电子设备使用权</span>
-            </div>
-            <div class="reward-row">
-              <span class="reward-pt">700pt</span>
-              <span class="reward-val" id="reward-700-text">周末短途出行一次 / 吃大餐</span>
-            </div>
-            <div class="reward-row">
-              <span class="reward-pt">1000pt</span>
-              <span class="reward-val" id="reward-1000-text">获得心仪已久的乐高 / 模型玩具</span>
-            </div>
+          <div class="ledger-points">
+            <h3>🔖 积分盖章区</h3>
+            <div class="points-grid-draw" id="points-grid-draw"></div>
           </div>
         </div>
 
-        <div class="ledger-points">
-          <h3>💯 积分盖章区</h3>
-          <div class="points-grid-draw">
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
-            <div class="points-box"></div>
+        <!-- 右侧：周挑战 -->
+        <div class="footer-right">
+          <div class="weekly-challenge">
+            <h3>🏆 周挑战</h3>
+            <div class="week-grid" id="week-grid"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- 第三行：成就树 + 家长寄语 -->
+      <div class="board-third-row">
+        <div class="achievement-tree">
+          <h3>🌳 学期成就树</h3>
+          <div class="tree-grid" id="tree-grid"></div>
+        </div>
+        <div class="parent-message">
+          <h3>💌 家长寄语</h3>
+          <div class="message-content" id="parent-msg-display"></div>
+          <div class="signature-line" id="parent-signature"></div>
         </div>
       </div>
 
