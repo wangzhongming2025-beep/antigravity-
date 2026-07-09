@@ -64,6 +64,14 @@ const nextConfig: NextConfig = {
         source: '/astigmatism-test/',
         destination: '/astigmatism-test/index.html',
       },
+      {
+        source: '/dashboard',
+        destination: '/sight/dashboard.html',
+      },
+      {
+        source: '/dashboard/',
+        destination: '/sight/dashboard.html',
+      },
     ];
   },
 };
