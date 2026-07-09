@@ -5,9 +5,9 @@
     <link rel="alternate" hreflang="en" href="https://sighthealthpro.com/" />
     <link rel="alternate" hreflang="zh-CN" href="https://sighthealthpro.com/cn/" />
     <link rel="alternate" hreflang="x-default" href="https://sighthealthpro.com/" />
-    <title>VisionGuard AI Tool: Monitor Eye Health - sighthealthpro.com</title>
+    <title>VisionGuard AI: Free Online Astigmatism Test</title>
     <meta name="description"
-        content="VisionGuard AI - Professional eye health tools. Monitor distance, posture, and perform astigmatism tests or color vision tests. sighthealthpro.com">
+        content="Take a free online astigmatism test in 30 seconds. Check your vision at home with VisionGuard AI's medical-grade eye health tool. No signup required.">
     <meta name="keywords"
         content="eye health monitor, vision guard ai, eye strain prevention, screen distance alert, sighthealthpro.com">
     <link rel="canonical" href="https://sighthealthpro.com/sight/index.html" />
@@ -185,6 +185,11 @@
                         class="btn-shadcn-secondary px-8 py-4 rounded-full text-base font-bold">
                         查看原理
                     </button>
+                </div>
+                <div class="mt-6">
+                    <a href="/astigmatism-test" id="astigmatism-link-home" class="text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors inline-flex items-center gap-1">
+                        免费散光测试入口 (Astigmatism Test) →
+                    </a>
                 </div>
             </div>
 
@@ -508,8 +513,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             const isEn = urlParams.get('lang') === 'en' || navigator.language.startsWith('en');
             if (isEn) {
-                document.title = "VisionGuard AI Tool: Monitor Eye Health";
+                document.title = "VisionGuard AI: Free Online Astigmatism Test";
                 
+                const astigmatismLink = document.getElementById('astigmatism-link-home');
+                if (astigmatismLink) {
+                    astigmatismLink.setAttribute('href', '/astigmatism-test?lang=en');
+                    astigmatismLink.innerText = "Take the free astigmatism test →";
+                }
+
                 const navLinks = document.querySelectorAll('nav a');
                 if (navLinks[0]) navLinks[0].innerText = "Features";
                 if (navLinks[1]) navLinks[1].innerText = "Science";
