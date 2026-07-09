@@ -503,7 +503,65 @@
             });
         }
 
-        // Modal already handled in head
+        // --- I18N ENGLISH TRANSLATION ---
+        function checkLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEn = urlParams.get('lang') === 'en' || navigator.language.startsWith('en');
+            if (isEn) {
+                document.title = "VisionGuard AI Tool: Monitor Eye Health";
+                
+                const navLinks = document.querySelectorAll('nav a');
+                if (navLinks[0]) navLinks[0].innerText = "Features";
+                if (navLinks[1]) navLinks[1].innerText = "Science";
+                if (navLinks[2]) navLinks[2].innerText = "Academy";
+                if (navLinks[3]) navLinks[3].innerText = "NeuroFlow";
+                
+                const loginBtn = document.querySelector('nav button[onclick="showWeChat()"]');
+                if (loginBtn) loginBtn.innerText = "Login";
+                
+                const tryFreeBtn = document.querySelector('nav a[href="dashboard.html"]');
+                if (tryFreeBtn) {
+                    tryFreeBtn.setAttribute('href', 'dashboard.html?lang=en');
+                    tryFreeBtn.innerText = "Free Trial";
+                }
+                
+                const badges = document.querySelectorAll('main div.inline-flex');
+                if (badges[0]) {
+                    badges[0].innerHTML = badges[0].innerHTML.replace('AI 驱动的视力保护系统', 'AI-Powered Vision Protection');
+                }
+                
+                const h1 = document.querySelector('main h1');
+                if (h1) h1.innerHTML = 'Your AI Vision<br><span class="text-gradient">Health Guard.</span>';
+                
+                const heroDesc = document.querySelector('main p.text-zinc-400');
+                if (heroDesc) heroDesc.innerText = "Take action before vision damage. VisionGuard uses the camera to monitor screen distance and enforce 20-20-20 rule in real-time.";
+                
+                const startBtn = document.querySelector('main button[onclick*="dashboard.html"]');
+                if (startBtn) {
+                    startBtn.setAttribute('onclick', "window.location.href='dashboard.html?lang=en'");
+                    startBtn.innerHTML = startBtn.innerHTML.replace('立即开始 (国内极速版)', 'Get Started Now');
+                }
+                
+                const checkTheoryBtn = document.querySelector('main button[onclick*="comparison"]');
+                if (checkTheoryBtn) checkTheoryBtn.innerText = "How it works";
+                
+                const startCamBtn = document.getElementById('start-camera-btn');
+                if (startCamBtn) startCamBtn.innerHTML = startCamBtn.innerHTML.replace('启动 AI 距离监测', 'Start AI Distance Monitor');
+                
+                const localHint = document.querySelector('#start-cam-overlay p.text-zinc-400');
+                if (localHint) localHint.innerText = "Runs entirely locally to protect your privacy";
+                
+                const statusDotText = document.getElementById('status-text');
+                if (statusDotText) statusDotText.innerText = "AI Active";
+                
+                const distanceReadout = document.getElementById('distance-readout');
+                if (distanceReadout) distanceReadout.innerText = "Connecting...";
+                
+                const footerText = document.querySelector('footer p');
+                if (footerText) footerText.innerText = "© 2024 VisionGuard AI. Guarding your sight.";
+            }
+        }
+        checkLanguage();
     </script>
     <script src="ai-monitor.js"></script>
 </body>

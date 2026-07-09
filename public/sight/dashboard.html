@@ -188,8 +188,10 @@
                 if (navLinks[0]) {
                     navLinks[0].innerHTML = navLinks[0].innerHTML.replace('概览', 'Overview');
                 }
-                if (navLinks[1]) {
-                    navLinks[1].innerHTML = navLinks[1].innerHTML.replace('AI 侦探', 'AI Camera');
+                const cameraLink = document.querySelector('nav a[href="index.html"]');
+                if (cameraLink) {
+                    cameraLink.setAttribute('href', 'index.html?lang=en');
+                    cameraLink.innerHTML = cameraLink.innerHTML.replace('AI 侦探', 'AI Camera');
                 }
                 if (navLinks[2]) {
                     navLinks[2].innerHTML = navLinks[2].innerHTML.replace('会员中心', 'Membership');
@@ -227,6 +229,10 @@
                 if (toolboxes[0]) toolboxes[0].innerText = "Toolbox";
                 if (toolboxes[1]) toolboxes[1].innerText = "Data Analytics";
                 
+                const cameraTextDiv = document.querySelector('div[onclick*="index.html"]');
+                if (cameraTextDiv) {
+                    cameraTextDiv.setAttribute('onclick', "window.location.href='index.html?lang=en'");
+                }
                 const cameraText = document.querySelector('div[onclick*="index.html"] p.font-bold');
                 if (cameraText) cameraText.innerText = "Start AI Monitor";
                 const cameraSubtext = document.querySelector('div[onclick*="index.html"] p.text-xs');
