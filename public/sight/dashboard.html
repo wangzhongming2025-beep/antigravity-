@@ -172,9 +172,86 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xd3Fscm1xYmxndWlpa3JzbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzcwMDUsImV4cCI6MjA4MzcxMzAwNX0.JlVesN-orDXZa5skq_WmKcVTlLP_HKMq2GKWwfuMoTA';
 
         function init() {
+            checkLanguage();
             if (CURRENT_ID) {
                 renderUser(CURRENT_ID);
                 fetchStats(CURRENT_ID);
+            }
+        }
+
+        function checkLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEn = urlParams.get('lang') === 'en' || navigator.language.startsWith('en');
+            if (isEn) {
+                document.title = "VisionGuard AI Dashboard - sighthealthpro.com";
+                const navLinks = document.querySelectorAll('nav a');
+                if (navLinks[0]) {
+                    navLinks[0].innerHTML = navLinks[0].innerHTML.replace('概览', 'Overview');
+                }
+                if (navLinks[1]) {
+                    navLinks[1].innerHTML = navLinks[1].innerHTML.replace('AI 侦探', 'AI Camera');
+                }
+                if (navLinks[2]) {
+                    navLinks[2].innerHTML = navLinks[2].innerHTML.replace('会员中心', 'Membership');
+                }
+                
+                const logoutBtn = document.querySelector('button[onclick="logout()"]');
+                if (logoutBtn) logoutBtn.innerText = "Reset Account";
+                
+                const userPlan = document.getElementById('user-plan');
+                if (userPlan) userPlan.innerText = 'Trial Plan';
+                
+                const emailEl = document.getElementById('user-email');
+                if (emailEl && emailEl.innerText.includes('点击生成 ID')) {
+                    emailEl.innerText = 'Click to Generate ID';
+                }
+                
+                const headers = document.querySelectorAll('main h1');
+                if (headers[0]) headers[0].innerText = "Welcome Back";
+                
+                const subtitle = document.querySelector('main header p');
+                if (subtitle) subtitle.innerText = "Your vision health stats for today.";
+                
+                const creditsLabel = document.querySelector('header span.text-zinc-500');
+                if (creditsLabel) creditsLabel.innerText = "Credits";
+                
+                const upgradeBtn = document.querySelector('header button[onclick="upgradeToPro()"]');
+                if (upgradeBtn) upgradeBtn.innerText = "Upgrade";
+                
+                const statLabels = document.querySelectorAll('.stat-card p');
+                if (statLabels[0]) statLabels[0].innerText = "Health Score";
+                if (statLabels[1]) statLabels[1].innerText = "Avg Distance";
+                if (statLabels[2]) statLabels[2].innerText = "Break Count";
+                
+                const toolboxes = document.querySelectorAll('main h2');
+                if (toolboxes[0]) toolboxes[0].innerText = "Toolbox";
+                if (toolboxes[1]) toolboxes[1].innerText = "Data Analytics";
+                
+                const cameraText = document.querySelector('div[onclick*="index.html"] p.font-bold');
+                if (cameraText) cameraText.innerText = "Start AI Monitor";
+                const cameraSubtext = document.querySelector('div[onclick*="index.html"] p.text-xs');
+                if (cameraSubtext) cameraSubtext.innerText = "Real-time distance and posture tracking";
+                
+                const gridButtons = document.querySelectorAll('div[onclick*="color_test.html"], div[onclick*="vision_chart.html"], div[onclick*="astigmatism_test.html"], div[onclick*="eye-care-assessment.html"]');
+                if (gridButtons[0]) gridButtons[0].innerText = "🎨 Color Test";
+                if (gridButtons[1]) gridButtons[1].innerText = "📏 Acuity";
+                if (gridButtons[2]) gridButtons[2].innerText = "👁️ Astigmatism";
+                if (gridButtons[3]) gridButtons[3].innerText = "📋 Assessment";
+                
+                const lockedText = document.querySelector('main p.text-zinc-500');
+                if (lockedText) lockedText.innerText = "🔒 Requires PRO Membership";
+                
+                const modalTitle = document.querySelector('#wechat-modal h3');
+                if (modalTitle) modalTitle.innerText = "Upgrade to PRO Plan";
+                
+                const modalDesc = document.querySelector('#wechat-modal p');
+                if (modalDesc) modalDesc.innerText = "Copy your ID below and send to support at lwdz2026 on WeChat.";
+                
+                const modalCopyText = document.querySelector('#wechat-modal div[onclick*="lwdz2026"] p.text-zinc-500');
+                if (modalCopyText) modalCopyText.innerText = "Click to copy WeChat ID";
+                
+                const modalCloseBtn = document.querySelector('#wechat-modal button');
+                if (modalCloseBtn) modalCloseBtn.innerText = "Close";
             }
         }
 
@@ -184,7 +261,12 @@
             localStorage.setItem('vision_id', newId);
             CURRENT_ID = newId;
             renderUser(newId);
-            alert('账号已生成！\n请复制 ID 发给客服进行充值。');
+            const isEn = new URLSearchParams(window.location.search).get('lang') === 'en' || navigator.language.startsWith('en');
+            if (isEn) {
+                alert('Account generated!\nPlease copy the ID and send it to support to upgrade.');
+            } else {
+                alert('账号已生成！\n请复制 ID 发给客服进行充值。');
+            }
         }
 
         function renderUser(id) {
@@ -201,16 +283,22 @@
 
         async function copyUserId() {
             if (!CURRENT_ID) return;
+            const isEn = new URLSearchParams(window.location.search).get('lang') === 'en' || navigator.language.startsWith('en');
             try {
                 await navigator.clipboard.writeText(CURRENT_ID);
-                alert('完整 ID 已复制: \n' + CURRENT_ID);
+                if (isEn) {
+                    alert('Full ID copied: \n' + CURRENT_ID);
+                } else {
+                    alert('完整 ID 已复制: \n' + CURRENT_ID);
+                }
             } catch (e) {
-                prompt('请手动复制:', CURRENT_ID);
+                prompt(isEn ? 'Please copy manually:' : '请手动复制:', CURRENT_ID);
             }
         }
 
         function logout() {
-            if (confirm('清除本地账号？')) {
+            const isEn = new URLSearchParams(window.location.search).get('lang') === 'en' || navigator.language.startsWith('en');
+            if (confirm(isEn ? 'Clear local account?' : '清除本地账号？')) {
                 localStorage.removeItem('vision_id');
                 location.reload();
             }
@@ -223,9 +311,6 @@
         // Try to fetch credits via simple REST (No Auth)
         async function fetchStats(id) {
             try {
-                // We use 'select' on profiles. 
-                // Note: Unless RLS allows public select, this might need an update in Supabase later.
-                // For now, we assume Admin Console created the record, so it might exist.
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${id}&select=credits,is_pro`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
                 });
@@ -236,7 +321,8 @@
                         const profile = data[0];
                         document.getElementById('credit-balance').innerText = profile.credits;
                         if (profile.is_pro) {
-                            document.getElementById('user-plan').innerText = '💎 PRO 会员';
+                            const isEn = new URLSearchParams(window.location.search).get('lang') === 'en' || navigator.language.startsWith('en');
+                            document.getElementById('user-plan').innerText = isEn ? '💎 PRO Member' : '💎 PRO 会员';
                             document.getElementById('user-plan').className = 'text-xs text-purple-400 font-bold mt-1';
                         }
                     }
