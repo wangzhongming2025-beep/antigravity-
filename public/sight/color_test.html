@@ -323,10 +323,11 @@
             const container = document.getElementById('options-grid');
             container.innerHTML = '';
 
+            const isEn = new URLSearchParams(window.location.search).get('lang') === 'en' || navigator.language.startsWith('en');
             opts.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = 'bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-xl text-xl option-btn border border-zinc-700';
-                btn.innerText = (opt === "Nothing") ? "什么也看不见" : opt;
+                btn.innerText = (opt === "Nothing") ? (isEn ? "Nothing" : "什么也看不见") : opt;
                 btn.onclick = () => handleAnswer(opt);
                 container.appendChild(btn);
             });
@@ -359,25 +360,64 @@
             const iconEl = document.getElementById('result-icon');
             const resultText = document.getElementById('result-text');
 
+            const isEn = new URLSearchParams(window.location.search).get('lang') === 'en' || navigator.language.startsWith('en');
+
             if (score === 100) {
-                resultText.innerText = "色觉完全正常";
-                detailEl.innerText = "您正确识别了所有图谱。未发现红绿色弱迹象。";
+                resultText.innerText = isEn ? "Normal Color Vision" : "色觉完全正常";
+                detailEl.innerText = isEn ? "You correctly identified all color plates. No signs of red-green color deficiency detected." : "您正确识别了所有图谱。未发现红绿色弱迹象。";
                 iconEl.innerText = "✅";
                 iconEl.className = "w-20 h-20 bg-green-500/20 text-green-500 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl";
             } else if (score >= 60) {
-                resultText.innerText = "可能存在轻微色弱";
-                detailEl.innerText = "您在部分图谱上出现了识别困难。这可能是光线原因，也可能是轻微的红绿色弱。建议在不同光线下重试。";
+                resultText.innerText = isEn ? "Mild Deficiency Possible" : "可能存在轻微色弱";
+                detailEl.innerText = isEn ? "You struggled with some plates. This could be due to screen glare or mild red-green color deficiency. Retake in better lighting." : "您在部分图谱上出现了识别困难。这可能是光线原因，也可能是轻微的红绿色弱。建议在不同光线下重试。";
                 iconEl.innerText = "⚠️";
                 iconEl.className = "w-20 h-20 bg-yellow-500/20 text-yellow-500 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl";
                 document.getElementById('score-bar').className = "bg-yellow-500 h-2 rounded-full";
             } else {
-                resultText.innerText = "建议咨询眼科医生";
-                detailEl.innerText = "您的测试结果显示识别率较低，这通常是色觉障碍的迹象（如红绿色盲）。为了准确诊断，请务必咨询专业医生。";
+                resultText.innerText = isEn ? "Consult Eye Doctor" : "建议咨询眼科医生";
+                detailEl.innerText = isEn ? "Your score indicates potential color vision deficiency (e.g., red-green color blindness). For accurate diagnosis, consult a professional." : "您的测试结果显示识别率较低，这通常是色觉障碍的迹象（如红绿色盲）。为了准确诊断，请务必咨询专业医生。";
                 iconEl.innerText = "🩺";
                 iconEl.className = "w-20 h-20 bg-red-500/20 text-red-500 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl";
                 document.getElementById('score-bar').className = "bg-red-500 h-2 rounded-full";
             }
         }
+
+        function checkLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEn = urlParams.get('lang') === 'en' || navigator.language.startsWith('en');
+            if (isEn) {
+                document.title = "Color Blindness Test: Online Ishihara Test";
+                
+                // Nav
+                const backLink = document.querySelector('nav a[href="index.html"]');
+                if (backLink) {
+                    backLink.setAttribute('href', 'index.html?lang=en');
+                    backLink.innerHTML = backLink.innerHTML.replace('返回', 'Back');
+                }
+                const exitBtn = document.querySelector('nav button[onclick*="dashboard.html"]');
+                if (exitBtn) {
+                    exitBtn.setAttribute('onclick', "window.location.href='dashboard.html?lang=en'");
+                }
+                
+                // Intro Card
+                document.querySelector('#intro-card h1').innerText = "Ishihara Color Test";
+                document.querySelector('#intro-card p.text-zinc-400').innerText = "This test consists of 5 plates to detect Red-Green color blindness. Please ensure your screen brightness is set to high and you are not using any 'Night Mode' filters.";
+                document.querySelector('#intro-card button').innerText = "Start Assessment";
+                document.querySelector('#intro-card p.text-zinc-600').innerText = "Disclaimer: This is for screening purposes only. Please consult an optometrist for medical diagnosis.";
+                
+                // Quiz Card
+                document.querySelector('#quiz-card h3').innerText = "What number do you see?";
+                document.querySelector('#quiz-card button[onclick*="Nothing"]').innerText = "Cannot see anything";
+                
+                // Result Card
+                document.querySelector('#result-card h2').innerText = "Assessment Complete";
+                document.querySelector('#result-card p#result-text').innerText = "Analyzing...";
+                document.querySelector('#result-card span.text-zinc-400').innerText = "Accuracy";
+                document.querySelector('button[onclick*="dashboard.html"]').innerText = "Back to Workspace";
+                document.querySelector('button[onclick="location.reload()"]').innerText = "Retry";
+            }
+        }
+        checkLanguage();
     </script>
 </body>
 

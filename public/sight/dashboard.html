@@ -239,10 +239,22 @@
                 if (cameraSubtext) cameraSubtext.innerText = "Real-time distance and posture tracking";
                 
                 const gridButtons = document.querySelectorAll('div[onclick*="color_test.html"], div[onclick*="vision_chart.html"], div[onclick*="astigmatism_test.html"], div[onclick*="eye-care-assessment.html"]');
-                if (gridButtons[0]) gridButtons[0].innerText = "🎨 Color Test";
-                if (gridButtons[1]) gridButtons[1].innerText = "📏 Acuity";
-                if (gridButtons[2]) gridButtons[2].innerText = "👁️ Astigmatism";
-                if (gridButtons[3]) gridButtons[3].innerText = "📋 Assessment";
+                if (gridButtons[0]) {
+                    gridButtons[0].setAttribute('onclick', "window.location.href='color_test.html?lang=en'");
+                    gridButtons[0].innerText = "🎨 Color Test";
+                }
+                if (gridButtons[1]) {
+                    gridButtons[1].setAttribute('onclick', "window.location.href='vision_chart.html?lang=en'");
+                    gridButtons[1].innerText = "📏 Acuity";
+                }
+                if (gridButtons[2]) {
+                    gridButtons[2].setAttribute('onclick', "window.location.href='/astigmatism-test?lang=en'");
+                    gridButtons[2].innerText = "👁️ Astigmatism";
+                }
+                if (gridButtons[3]) {
+                    gridButtons[3].setAttribute('onclick', "window.location.href='eye-care-assessment.html?lang=en'");
+                    gridButtons[3].innerText = "📋 Assessment";
+                }
                 
                 const lockedText = document.querySelector('main p.text-zinc-500');
                 if (lockedText) lockedText.innerText = "🔒 Requires PRO Membership";

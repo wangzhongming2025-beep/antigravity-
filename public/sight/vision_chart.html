@@ -137,9 +137,9 @@
         </div>
 
         <div class="text-center pb-20">
-            <p class="font-bold text-white mb-4">结果解读：</p>
+             <p class="font-bold text-white mb-4" id="interpret-title">结果解读：</p>
             <div
-                class="inline-block text-left bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-sm text-zinc-400">
+                class="inline-block text-left bg-zinc-900 p-6 rounded-2xl border border-zinc-800 text-sm text-zinc-400" id="interpret-desc">
                 <p class="mb-2">第1行看不清: 视力极差 (需立即就医)</p>
                 <p class="mb-2">能看清第4行: 20/50 (约为 0.4 视力，美国驾照最低标准)</p>
                 <p class="mb-2">能看清第8行: 20/20 (约为 1.0 正常视力)</p>
@@ -157,6 +157,47 @@
         gtag('js', new Date());
         gtag('config', 'G-QV10K6WLK7');
     </script>
+    
+    <script>
+        function checkLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEn = urlParams.get('lang') === 'en' || navigator.language.startsWith('en');
+            if (isEn) {
+                document.title = "Online Vision Chart: Snellen Eye Exam";
+                
+                // Nav
+                const backLink = document.querySelector('nav a[href="index.html"]');
+                if (backLink) {
+                    backLink.setAttribute('href', 'index.html?lang=en');
+                    backLink.innerHTML = backLink.innerHTML.replace('返回', 'Back');
+                }
+                const workLink = document.querySelector('nav a[href="dashboard.html"]');
+                if (workLink) {
+                    workLink.setAttribute('href', 'dashboard.html?lang=en');
+                    workLink.innerText = "Workspace";
+                }
+                
+                // Header
+                document.querySelector('main h1').innerText = "Online Standard Vision Chart";
+                document.querySelector('main p.text-zinc-400').innerHTML = "Please sit <strong>3 meters (approx. 10 feet)</strong> away from the screen.<br>Cover one eye, read the smallest line you can see clearly.";
+                
+                // Calibration
+                document.querySelector('.chart-paper div.text-xs').innerText = "Standard Scale (Calibrated for 1080p Desktop Monitors)";
+                
+                // Interpretation
+                document.getElementById('interpret-title').innerText = "Interpretation of Results:";
+                document.getElementById('interpret-desc').innerHTML = `
+                    <p class="mb-2">Cannot see Row 1: Extremely poor vision (consult a doctor immediately)</p>
+                    <p class="mb-2">Can read Row 4: 20/50 (Approx. 0.4 acuity, standard driving minimum)</p>
+                    <p class="mb-2">Can read Row 8: 20/20 (Approx. 1.0 normal vision)</p>
+                    <p class="mt-4 text-cyan-400">If you cannot read Row 5 and below, we recommend a professional eye check.</p>
+                `;
+            }
+        }
+        checkLanguage();
+    </script>
 </body>
+
+</html>
 
 </html>

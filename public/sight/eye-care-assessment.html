@@ -738,6 +738,11 @@ const state = {
   currentQ: null
 };
 
+function isEnglish() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('lang') === 'en' || navigator.language.startsWith('en');
+}
+
 // ===== Navigation =====
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -750,6 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('totalUsers').textContent = n.toLocaleString();
   const m = Math.floor(Math.random() * 200) + 200;
   document.getElementById('leadCount').textContent = m;
+  checkLanguage();
 });
 
 // ===== Question Logic =====
@@ -774,8 +780,9 @@ function selectOption(el, val) {
 function toggleOption(el) {
   el.classList.toggle('selected');
   const parent = el.closest('.options');
-  const hasNoIssue = parent.querySelector('.option:last-child');
-  if (el.textContent.includes('无明显不适')) {
+  const isEn = isEnglish();
+  const hasNoIssueText = isEn ? 'No noticeable discomfort' : '无明显不适';
+  if (el.textContent.includes(hasNoIssueText)) {
     parent.querySelectorAll('.option').forEach(o => {
       if (o !== el) o.classList.remove('selected');
     });
@@ -809,7 +816,17 @@ function startQuiz() {
 // ===== Report Generation =====
 function generateReport() {
   showPage('page-loading');
-  const tips = [
+  const isEn = isEnglish();
+  const tips = isEn ? [
+    'Reading screen usage data...',
+    'Analyzing visual fatigue levels...',
+    'JCC check: evaluating focus accommodation...',
+    'Fogging relaxation: testing actual refractive state...',
+    'Red-green balance check: verifying prescription accuracy...',
+    'Binocular balance check: coordinating eye adjustments...',
+    'Calculating blue light exposure risk...',
+    'Generating personalized eye care report...'
+  ] : [
     '正在读取你的用眼数据...',
     '进行视疲劳程度分析...',
     '交叉柱镜检测：评估调节能力...',
@@ -828,7 +845,7 @@ function generateReport() {
 
   setTimeout(() => {
     clearInterval(tipInterval);
-    tipEl.textContent = '报告生成完毕！';
+    tipEl.textContent = isEn ? 'Report generated!' : '报告生成完毕！';
     calcScores();
     renderReport();
     showPage('page-report');
@@ -845,11 +862,11 @@ function calcScores() {
   s.blueLight += (screenTime - 1) * 2.5;
 
   // Q2: Symptoms
-  const hasDry = q2Vals.some(v => v.includes('干涩') || v.includes('疲劳'));
-  const hasBlur = q2Vals.some(v => v.includes('模糊') || v.includes('重影'));
-  const hasRed = q2Vals.some(v => v.includes('红'));
-  const hasLight = q2Vals.some(v => v.includes('畏光') || v.includes('流泪'));
-  const hasHead = q2Vals.some(v => v.includes('头痛') || v.includes('胀'));
+  const hasDry = q2Vals.some(v => v.includes('干涩') || v.includes('疲劳') || v.includes('Dryness'));
+  const hasBlur = q2Vals.some(v => v.includes('模糊') || v.includes('重影') || v.includes('Blurry'));
+  const hasRed = q2Vals.some(v => v.includes('红') || v.includes('Redness'));
+  const hasLight = q2Vals.some(v => v.includes('畏光') || v.includes('流泪') || v.includes('Sensitivity'));
+  const hasHead = q2Vals.some(v => v.includes('头痛') || v.includes('胀') || v.includes('Headache'));
   const hasNone = q2Vals.includes('none');
 
   if (hasNone) {
@@ -894,63 +911,119 @@ function calcScores() {
 }
 
 function getDiagnosis(total, scores) {
-  const dryText = scores.dryEye >= 6 ? '干眼倾向明显，泪膜稳定性下降。' : '泪膜状态尚可，建议加强保湿。';
-  const adjText = scores.accommodation >= 6 ? '调节能力下降，近距离用眼负荷过重。' : '调节能力尚在正常范围。';
+  const isEn = isEnglish();
+  const dryText = scores.dryEye >= 6 
+    ? (isEn ? 'High dry eye tendency, decreased tear film stability.' : '干眼倾向明显，泪膜稳定性下降。') 
+    : (isEn ? 'Normal tear film state, moisture care suggested.' : '泪膜状态尚可，建议加强保湿。');
+  const adjText = scores.accommodation >= 6 
+    ? (isEn ? 'Reduced accommodation, high near-vision workload.' : '调节能力下降，近距离用眼负荷过重。') 
+    : (isEn ? 'Normal eye accommodation ability.' : '调节能力尚在正常范围。');
 
   if (total >= 7.5) {
     return {
-      tag: '重度视疲劳 (Grade III)',
-      desc: `你的视疲劳指数处于高位。${dryText}${adjText}建议进行系统性眼部调理，并减少每日屏幕使用时间。`,
+      tag: isEn ? 'Severe Fatigue (Grade III)' : '重度视疲劳 (Grade III)',
+      desc: isEn 
+        ? `High visual fatigue level. ${dryText} ${adjText} Professional eye relaxation and screen reduction recommended.`
+        : `你的视疲劳指数处于高位。${dryText}${adjText}建议进行系统性眼部调理，并减少每日屏幕使用时间。`,
       color: '#ff6b6b'
     };
   }
   if (total >= 5.5) {
     return {
-      tag: '中度视疲劳 (Grade II)',
-      desc: `你的眼睛已经出现明显的疲劳积累。${dryText}${adjText}建议尽快采取护眼措施。`,
+      tag: isEn ? 'Moderate Fatigue (Grade II)' : '中度视疲劳 (Grade II)',
+      desc: isEn 
+        ? `Obvious fatigue accumulation detected. ${dryText} ${adjText} Active eye protection suggested.`
+        : `你的眼睛已经出现明显的疲劳积累。${dryText}${adjText}建议尽快采取护眼措施。`,
       color: '#ffc107'
     };
   }
   if (total >= 3.5) {
     return {
-      tag: '轻度视疲劳 (Grade I)',
-      desc: `你的眼睛状态尚可，但已有疲劳积累。${dryText}建议提前预防，养成良好用眼习惯。`,
+      tag: isEn ? 'Mild Fatigue (Grade I)' : '轻度视疲劳 (Grade I)',
+      desc: isEn 
+        ? `Acceptable eye state with minor fatigue. ${dryText} Practice good eye habits.`
+        : `你的眼睛状态尚可，但已有疲劳积累。${dryText}建议提前预防，养成良好用眼习惯。`,
       color: '#00d4aa'
     };
   }
   return {
-    tag: '状态良好',
-    desc: '你的眼睛状态不错！继续保持良好的用眼习惯，定期做护眼保养。',
+    tag: isEn ? 'Healthy State' : '状态良好',
+    desc: isEn 
+      ? 'Great eye health! Keep maintaining your positive eye care habits and routines.'
+      : '你的眼睛状态不错！继续保持良好的用眼习惯，定期做护眼保养。',
     color: '#00d4aa'
   };
 }
 
 function getAdvice(scores, total) {
+  const isEn = isEnglish();
   const list = [];
 
-  // 20-20-20 rule for everyone
-  list.push({ icon: '⏰', text: '遵守 20-20-20 法则：每近距离用眼20分钟，向20英尺（约6米）外远眺至少20秒，放松睫状肌' });
+  list.push({
+    icon: '⏰',
+    text: isEn 
+      ? 'Follow the 20-20-20 rule: Every 20 minutes of screen work, look at something 20 feet away for 20 seconds.' 
+      : '遵守 20-20-20 法则：每近距离用眼20分钟，向20英尺（约6米）外远眺至少20秒，放松睫状肌'
+  });
 
-  // Dry eye specific
-  if (scores.dryEye > 5) list.push({ icon: '🩹', text: '建议使用草本护眼贴缓解眼干涩，每天1-2次，每次贴敷15分钟。热敷促进睑板腺分泌，改善泪膜质量' });
+  if (scores.dryEye > 5) {
+    list.push({
+      icon: '🩹',
+      text: isEn 
+        ? 'Use warm compresses (40°C, 10 min) daily to stimulate tear gland secretion and improve tear film stability.' 
+        : '建议使用草本护眼贴缓解眼干涩，每天1-2次，每次贴敷15分钟。热敷促进睑板腺分泌，改善泪膜质量'
+    });
+  }
 
-  // Blue light specific
-  if (scores.blueLight > 5) list.push({ icon: '💊', text: '补充叶黄素酯或蓝莓提取物（建议每日10mg叶黄素），帮助过滤蓝光损伤，保护视网膜黄斑区' });
+  if (scores.blueLight > 5) {
+    list.push({
+      icon: '💊',
+      text: isEn 
+        ? 'Supplement Lutein or Blueberry extract (10mg Lutein daily) to filter blue light and protect the retina.' 
+        : '补充叶黄素酯或蓝莓提取物（建议每日10mg叶黄素），帮助过滤蓝光损伤，保护视网膜黄斑区'
+    });
+  }
 
-  // Fatigue specific
-  if (scores.fatigue > 5) list.push({ icon: '🧘', text: '做眼保健操：每天3次，每次5分钟。重点按揉睛明穴、攒竹穴、太阳穴，促进眼周血液循环' });
+  if (scores.fatigue > 5) {
+    list.push({
+      icon: '🧘',
+      text: isEn 
+        ? 'Eye exercises: massage temples and eye-surrounding pressure points to boost ocular blood circulation.' 
+        : '做眼保健操：每天3次，每次5分钟。重点按揉睛明穴、攒竹穴、太阳穴，促进眼周血液循环'
+    });
+  }
 
-  // Basic care
-  list.push({ icon: '💧', text: '保持室内湿度在40%-60%，避免空调/暖气直吹。可使用加湿器或热毛巾敷眼（40℃，每次10分钟）' });
+  list.push({
+    icon: '💧',
+    text: isEn 
+      ? 'Keep indoor humidity between 40%-60% and avoid direct AC airflow to prevent screen eye dryness.' 
+      : '保持室内湿度在40%-60%，避免空调/暖气直吹。可使用加湿器或热毛巾敷眼（40℃，每次10分钟）'
+  });
 
-  // Check-up
-  if (total > 5) list.push({ icon: '🏥', text: '建议每半年做一次专业眼科检查（裂隙灯检查+眼底照相），排查器质性病变，跟踪眼部健康变化' });
+  if (total > 5) {
+    list.push({
+      icon: '🏥',
+      text: isEn 
+        ? 'Schedule a professional comprehensive eye exam (visual acuity + fundus photography) every 6 months.' 
+        : '建议每半年做一次专业眼科检查（裂隙灯检查+眼底照相），排查器质性病变，跟踪眼部健康变化'
+    });
+  }
 
-  // Night use
-  list.push({ icon: '🌙', text: '睡前1小时关闭电子产品，保证7-8小时睡眠。夜间使用手机建议开启深色模式+降低亮度至40%以下' });
+  list.push({
+    icon: '🌙',
+    text: isEn 
+      ? 'Turn off screens 1 hour before bedtime, ensure 7-8 hours sleep, and lower display brightness below 40%.' 
+      : '睡前1小时关闭电子产品，保证7-8小时睡眠。夜间使用手机建议开启深色模式+降低亮度至40%以下'
+  });
 
-  // Accommodation specific
-  if (scores.accommodation > 5) list.push({ icon: '👀', text: '调节力训练：每日做远近交替聚焦训练（看近处拇指5秒→看远处5秒，重复10次），锻炼睫状肌弹性' });
+  if (scores.accommodation > 5) {
+    list.push({
+      icon: '👀',
+      text: isEn 
+        ? 'Accommodation exercise: focus near (thumb) for 5s then far for 5s, repeat 10 times to train eye muscles.' 
+        : '调节力训练：每日做远近交替聚焦训练（看近处拇指5秒→看远处5秒，重复10次），锻炼睫状肌弹性'
+    });
+  }
 
   return list.slice(0, 5);
 }
@@ -961,7 +1034,8 @@ function getDimensionColor(idx) {
 }
 
 function getDimensionLabel(idx) {
-  const labels = ['疲劳度', '干眼风险', '调节能力', '蓝光风险'];
+  const isEn = isEnglish();
+  const labels = isEn ? ['Fatigue', 'Dry Eye', 'Accommodation', 'Blue Light'] : ['疲劳度', '干眼风险', '调节能力', '蓝光风险'];
   return labels[idx % labels.length];
 }
 
@@ -972,7 +1046,8 @@ function renderReport() {
   const now = new Date();
   const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   const reportNum = 'EYE-' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + String(Math.floor(Math.random()*9000)+1000);
-  document.getElementById('reportMeta').textContent = '报告编号：' + reportNum + ' ｜ 评估日期：' + dateStr;
+  const isEn = isEnglish();
+  document.getElementById('reportMeta').textContent = (isEn ? 'Report ID: ' : '报告编号：') + reportNum + ' ｜ ' + (isEn ? 'Date: ' : '评估日期：') + dateStr;
 
   document.getElementById('totalScore').textContent = totalScore;
   document.getElementById('scoreDesc').textContent = diag.desc;
@@ -1128,14 +1203,15 @@ function renderRadar() {
 // ===== Product & Lead =====
 function submitLead() {
   const val = document.getElementById('leadInput').value.trim();
+  const isEn = isEnglish();
   if (!val) {
     document.getElementById('leadInput').style.borderColor = '#ff6b6b';
-    document.getElementById('leadInput').placeholder = '请填写你的微信号';
+    document.getElementById('leadInput').placeholder = isEn ? 'Please fill in your WeChat ID' : '请填写你的微信号';
     return;
   }
   document.getElementById('leadInput').style.borderColor = '#00d4aa';
   const btn = document.querySelector('#page-lead .btn-primary');
-  btn.textContent = '✅ 提交成功！护眼教练将尽快添加你';
+  btn.textContent = isEn ? '✅ Submitted! Eye coach will add you shortly' : '✅ 提交成功！护眼教练将尽快添加你';
   btn.disabled = true;
 
   // Show success message
@@ -1145,18 +1221,21 @@ function submitLead() {
     const msg = document.createElement('div');
     msg.id = 'leadSuccessMsg';
     msg.style.cssText = 'margin-top:20px;padding:16px;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);border-radius:14px;font-size:15px;color:#00d4aa;text-align:center;line-height:1.6;';
-    msg.innerHTML = '✅ 已收到你的申请<br>请主动添加护眼教练微信：<br><strong style="font-size:20px;letter-spacing:2px;">lwdz2026</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.3);">添加时备注"护眼测评"快速通过</span>';
+    msg.innerHTML = isEn 
+      ? '✅ Application Received<br>Please add coach on WeChat:<br><strong style="font-size:20px;letter-spacing:2px;">lwdz2026</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.3);">Note "Eye Check" for fast approval</span>'
+      : '✅ 已收到你的申请<br>请主动添加护眼教练微信：<br><strong style="font-size:20px;letter-spacing:2px;">lwdz2026</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.3);">添加时备注"护眼测评"快速通过</span>';
     leadContent.appendChild(msg);
   }
 }
 
 // ===== Restart =====
 function restart() {
+  const isEn = isEnglish();
   document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
   document.querySelectorAll('.btn[disabled]').forEach(b => b.disabled = true);
   q1Val = null; q2Vals = []; q3Val = null; q4Val = null; q5Val = null;
   document.getElementById('leadInput').value = '';
-  document.querySelector('#page-lead .btn-primary').textContent = '立即领取';
+  document.querySelector('#page-lead .btn-primary').textContent = isEn ? 'Add Eye Coach Now' : '立即领取';
   document.querySelector('#page-lead .btn-primary').disabled = false;
   showPage('page-welcome');
 }
@@ -1176,6 +1255,144 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+function checkLanguage() {
+  const isEn = isEnglish();
+  if (isEn) {
+    document.title = "Eye Care Assessment | AI Eye Health Check";
+    
+    // Welcome Page
+    document.querySelector('#page-welcome .welcome-title').innerText = "Eye Care Assessment";
+    document.querySelector('#page-welcome .welcome-sub').innerText = "AI Professional Eye Health Check";
+    document.querySelector('#page-welcome .welcome-badge').innerText = "📋 8 Checks · 3 Min Report";
+    document.querySelector('#page-welcome button').innerText = "Start Assessment";
+    document.querySelector('#page-welcome .welcome-count').innerHTML = 'Over <span id="totalUsers">12,846</span> users completed evaluation';
+    
+    // Q1
+    document.querySelector('#page-q1 .question-text').innerText = "How long do you stare at screens daily?";
+    const q1Opts = document.querySelectorAll('#page-q1 .option');
+    q1Opts[0].innerText = "Under 2 hours";
+    q1Opts[1].innerText = "2-4 hours";
+    q1Opts[2].innerText = "4-8 hours";
+    q1Opts[3].innerText = "Over 8 hours";
+    document.getElementById('btn-next1').innerText = "Next Step";
+    
+    // Q2
+    document.querySelector('#page-q2 .question-text').innerHTML = 'What eye discomforts do you currently have?<br><span style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.35)">(Select all that apply)</span>';
+    const q2Opts = document.querySelectorAll('#page-q2 .option');
+    q2Opts[0].innerText = "Dryness / Fatigue"; q2Opts[0].setAttribute('data-val', '干涩、疲劳');
+    q2Opts[1].innerText = "Blurry / Double Vision"; q2Opts[1].setAttribute('data-val', '视力模糊、重影');
+    q2Opts[2].innerText = "Redness / Bloodshot"; q2Opts[2].setAttribute('data-val', '眼红、血丝');
+    q2Opts[3].innerText = "Light Sensitivity / Tearing"; q2Opts[3].setAttribute('data-val', '畏光、流泪');
+    q2Opts[4].innerText = "Headache / Eye Pressure"; q2Opts[4].setAttribute('data-val', '头痛、眼胀');
+    q2Opts[5].innerText = "No noticeable discomfort"; q2Opts[5].setAttribute('data-val', 'none');
+    document.getElementById('btn-next2').innerText = "Next Step";
+    
+    // Q3
+    document.querySelector('#page-q3 .question-text').innerText = "What is your age range?";
+    const q3Opts = document.querySelectorAll('#page-q3 .option');
+    q3Opts[0].innerText = "Under 18";
+    q3Opts[1].innerText = "18-30";
+    q3Opts[2].innerText = "30-45";
+    q3Opts[3].innerText = "Over 45";
+    document.getElementById('btn-next3').innerText = "Next Step";
+    
+    // Q4
+    document.querySelector('#page-q4 .question-text').innerText = "Do you regularly practice eye care routines?";
+    const q4Opts = document.querySelectorAll('#page-q4 .option');
+    q4Opts[0].innerText = "Frequently (Exercises, hot compress, etc.)";
+    q4Opts[1].innerText = "Occasionally";
+    q4Opts[2].innerText = "Rarely";
+    q4Opts[3].innerText = "Never";
+    document.getElementById('btn-next4').innerText = "Next Step";
+    
+    // Q5
+    document.querySelector('#page-q5 .question-text').innerText = "Do you wear glasses or contact lenses?";
+    const q5Opts = document.querySelectorAll('#page-q5 .option');
+    q5Opts[0].innerText = "None";
+    q5Opts[1].innerText = "Glasses";
+    q5Opts[2].innerText = "Contacts";
+    q5Opts[3].innerText = "Both";
+    document.getElementById('btn-next5').innerText = "View Report";
+    
+    // Loading
+    document.querySelector('#page-loading .loading-text').innerText = "AI is analyzing your vision health...";
+    document.getElementById('loadingTip').innerText = "Reading screen usage data...";
+    
+    // Report
+    document.querySelector('#page-report .report-header .title').innerText = "Eye Health Assessment Report";
+    document.querySelector('#page-report .score-info .score-label').innerText = "Eye Fatigue Index";
+    document.querySelector('#page-report .score-info .score-desc').innerText = "Analyzing...";
+    document.querySelector('#page-report .report-section .section-title').innerText = "🔍 Diagnostic Result";
+    document.querySelector('#page-report .report-section:nth-of-type(2) .section-title').innerText = "📋 Professional Check Items";
+    
+    // Checklist
+    const listItems = document.querySelectorAll('#checklistItems .check-item');
+    listItems[0].querySelector('.label').innerText = "Consultation: screen habits & symptom logging";
+    listItems[0].querySelector('.baodao-tag').innerText = "Query Standard";
+    listItems[1].querySelector('.label').innerText = "Acuity: uncorrected vision screening";
+    listItems[1].querySelector('.baodao-tag').innerText = "Acuity Standard";
+    listItems[2].querySelector('.label').innerText = "Refraction: objective refractive screening";
+    listItems[2].querySelector('.baodao-tag').innerText = "Refraction Standard";
+    listItems[3].querySelector('.label').innerText = "Fogging: muscle accommodation check";
+    listItems[3].querySelector('.baodao-tag').innerText = "Fogging Standard";
+    listItems[4].querySelector('.label').innerText = "Astigmatism: cross-cylinder fine tuning";
+    listItems[4].querySelector('.baodao-tag').innerText = "JCC Standard";
+    listItems[5].querySelector('.label').innerText = "Red-Green check: focal length verification";
+    listItems[5].querySelector('.baodao-tag').innerText = "Duochrome Standard";
+    listItems[6].querySelector('.label').innerText = "Binocular Balance: coordination analysis";
+    listItems[6].querySelector('.baodao-tag').innerText = "Binocular Standard";
+    listItems[7].querySelector('.label').innerText = "Tear Film: dry eye risk check";
+    listItems[7].querySelector('.baodao-tag').innerText = "Tear Film Standard";
+    document.querySelectorAll('#checklistItems .status').forEach(st => st.innerText = "✅ Done");
+    
+    document.querySelector('#page-report .report-section:nth-of-type(3) .section-title').innerText = "📊 Dimension Ratings";
+    document.querySelector('#page-report .professional-tag').innerHTML = "🏥 <span>Based on optometry standards</span> · For screening only";
+    
+    document.querySelector('#page-report .report-section:nth-of-type(4) .section-title').innerText = "👨‍⚕️ Eye Coach Review";
+    document.querySelector('#page-report .expert-info .name').innerText = "Eye Coach · Capt. Wang";
+    document.querySelector('#page-report .expert-info .title').innerText = "Strained vision relief specialist ｜ 3000+ helped";
+    document.querySelector('#page-report .expert-info .wechat').innerText = "📱 WeChat ID: lwdz2026";
+    
+    document.querySelector('#page-report .report-section:nth-of-type(5) .section-title').innerText = "💡 Improvement Advice";
+    document.querySelector('#page-report #trialSection .section-title').innerText = "🔄 Trial Confirmation";
+    document.querySelector('#page-report #trialSection .text').innerText = "The plan has been customized to your data. Try it for 7 days and track changes under coach supervision.";
+    
+    const reportBtns = document.querySelectorAll('.report-actions button');
+    reportBtns[0].innerText = "View Recommended Plan";
+    reportBtns[1].innerText = "Restart Assessment";
+    
+    // Product Page
+    document.querySelector('#page-product .report-header .title').innerText = "Recommended Products";
+    const pCards = document.querySelectorAll('#page-product .product-card');
+    pCards[0].querySelector('.best-tag').innerText = "⭐ Highly Recommended";
+    pCards[0].querySelector('.name').innerText = "Herbal Eye Patches";
+    pCards[0].querySelector('.reason').innerText = "Relieves dryness and strain";
+    pCards[0].querySelector('.price').innerText = "$5.90";
+    
+    pCards[1].querySelector('.name').innerText = "Blueberry Lutein Esters";
+    pCards[1].querySelector('.reason').innerText = "Blue light filter protection";
+    pCards[1].querySelector('.price').innerText = "$8.90";
+    
+    pCards[2].querySelector('.name').innerText = "Super Value Care Bundle";
+    pCards[2].querySelector('.reason').innerText = "Eye patches + Lutein package";
+    pCards[2].querySelector('.price').innerText = "$12.90";
+    
+    const prodActions = document.querySelectorAll('#page-product .report-actions button');
+    prodActions[0].innerText = "Claim Full Care Plan";
+    prodActions[1].innerText = "Restart Assessment";
+    
+    // Lead Page
+    document.querySelector('#page-lead .lead-title').innerText = "Get Your Full Eye Care Plan";
+    document.querySelector('#page-lead .lead-sub').innerHTML = "Get detailed report + 7-day care plan<br>1-on-1 coach guidance";
+    document.querySelector('#page-lead div[style*="background"] div:nth-child(2) div:nth-child(1)').innerText = "Your dedicated Coach: Capt. Wang";
+    document.querySelector('#page-lead div[style*="background"] div:nth-child(2) div:nth-child(2)').innerText = "Add on WeChat for 1-on-1 support";
+    document.querySelector('#page-lead div[style*="background"] div:nth-child(2) div:nth-child(3)').innerText = "📱 WeChat ID: lwdz2026";
+    document.getElementById('leadInput').placeholder = "Enter your WeChat ID";
+    document.querySelector('#page-lead .btn-primary').innerText = "Add Eye Coach Now";
+    document.querySelector('#page-lead .lead-count').innerHTML = 'Over <span id="leadCount">386</span> users claimed their plans';
+  }
+}
 </script>
 </body>
 </html>
