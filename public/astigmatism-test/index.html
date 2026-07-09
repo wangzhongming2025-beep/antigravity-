@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Astigmatism Test - Free Eye Check</title>
+    <meta name="description"
+        content="Take a free online astigmatism test in seconds. Use our professional astigmatism fan chart to screen for astigmatism, blurry vision, and check if you need toric contacts or astigmatism glasses.">
+    <meta name="keywords"
+        content="online astigmatism test, free eye check, astigmatism lights, astigmatism glasses, astigmatism vs normal, colored contacts for astigmatism, contact lenses for astigmatism, what causes astigmatism, can lasik fix astigmatism, stigmatism vs astigmatism">
+    <link rel="canonical" href="https://sighthealthpro.com/astigmatism-test" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Schema.org Markup for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "How does this online astigmatism test work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This test uses a standard astigmatism fan chart (radiating lines). If you have astigmatism, the irregular curvature of your cornea causes light to focus unevenly, making some lines appear darker, thicker, or blurrier than others."
+        }
+      }, {
+        "@type": "Question",
+        "name": "What causes astigmatism?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Astigmatism is typically caused by an irregularly shaped cornea or lens. Instead of being perfectly round like a basketball, it is shaped more like an oval football, causing light rays to bend unevenly."
+        }
+      }, {
+        "@type": "Question",
+        "name": "Can LASIK fix astigmatism?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, LASIK eye surgery is highly effective at correcting astigmatism. The laser reshapes the cornea to make it more spherical, allowing light to focus directly onto the retina."
+        }
+      }]
+    }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #e4e4e7;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 50%;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                width: 420px;
+                height: 420px;
+            }
+        }
+
+        .line {
+            position: absolute;
+            width: 3.5px;
+            height: 100%;
+            background: #18181b;
+        }
+
+        .nav-link:hover {
+            color: #22d3ee;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Home
+                </a>
+                <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
+                <div class="flex items-center gap-2 font-bold text-white text-xl cursor-pointer"
+                    onclick="location.href='/'">
+                    <span class="text-cyan-400">V</span>isionGuard
+                </div>
+            </div>
+            <div class="flex gap-6 text-sm">
+                <a href="/dashboard" class="nav-link transition-colors text-zinc-400 hover:text-white">Workspace</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-32 px-6 flex flex-col items-center">
+        <div class="max-w-4xl w-full text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight leading-none">
+                Online Astigmatism Test
+            </h1>
+            <p class="text-lg md:text-xl text-cyan-400 font-semibold mb-6">
+                Free Eye Check - Test for Astigmatism in 60 Seconds
+            </p>
+            <p class="text-zinc-400 mb-12 max-w-2xl mx-auto text-sm md:text-base">
+                Follow the instructions below to check if your vision is affected by astigmatism. This online screening uses a professional radiating chart to detect refractive irregularities.
+            </p>
+        </div>
+
+        <!-- Instructions Card -->
+        <div class="max-w-xl w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-10 text-sm text-zinc-300">
+            <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                📋 How to Take the Test:
+            </h3>
+            <ol class="list-decimal pl-5 space-y-2">
+                <li>Position yourself about 1 meter (3 feet) away from the screen.</li>
+                <li>Cover one eye gently with your hand (do not press on the eyeball).</li>
+                <li>Focus on the center of the radiating fan chart below.</li>
+                <li>Observe the lines: Do all lines look equally dark and sharp, or do some lines look darker, thicker, or blurrier?</li>
+                <li>Repeat the test with your other eye.</li>
+            </ol>
+        </div>
+
+        <!-- The Astigmatism Fan Chart -->
+        <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 mb-10 shadow-2xl relative">
+            <div class="chart-container" id="fan-chart">
+                <!-- Lines generated by JS -->
+            </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-8 w-full max-w-md">
+            <button onclick="showResult(false)"
+                class="flex-1 px-6 py-3.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/50 hover:bg-emerald-500/20 transition-all font-bold text-center">
+                All lines look identical
+            </button>
+            <button onclick="showResult(true)"
+                class="flex-1 px-6 py-3.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/50 hover:bg-red-500/20 transition-all font-bold text-center">
+                Some lines look darker / blurry
+            </button>
+        </div>
+
+        <!-- Result Card -->
+        <div id="result-area" class="hidden max-w-xl w-full p-6 rounded-2xl border mb-16 transition-all duration-500">
+            <h3 id="result-title" class="text-xl font-bold mb-2"></h3>
+            <p id="result-desc" class="text-sm text-zinc-300"></p>
+        </div>
+
+        <!-- Deep-dive SEO Section targeting demand keywords -->
+        <section class="max-w-4xl w-full border-t border-zinc-800 pt-16 pb-24 space-y-12">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Astigmatism vs Normal Vision</h2>
+                    <p class="text-zinc-400 text-sm md:text-base leading-relaxed">
+                        To understand how astigmatism affects your sight, it is helpful to compare <strong>astigmatism vs normal</strong> eyes. In a normal eye, the cornea and lens are spherical—curved equally in all directions, like a basketball. This allows light to bend evenly and focus on a single point on the retina. 
+                    </p>
+                    <p class="text-zinc-400 text-sm md:text-base leading-relaxed mt-4">
+                        With astigmatism, the surface of your cornea is oval or football-shaped. This mismatch causes light to focus on multiple points in your eye, resulting in blurry, distorted, or double vision at any distance.
+                    </p>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                    <h3 class="font-bold text-white mb-2">What Causes Astigmatism?</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        So, <strong>what causes astigmatism</strong>? It is usually a genetic condition present from birth. It can also develop after an eye injury, surgery, or due to a rare condition called keratoconus, which thins the cornea. Crucially, reading in low light or sitting too close to the TV does not cause or worsen astigmatism.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 space-y-6">
+                <h2 class="text-2xl font-bold text-white">Why Do Astigmatism Lights Look Blurry at Night?</h2>
+                <p class="text-zinc-400 text-sm md:text-base leading-relaxed">
+                    If you drive at night and notice halo effects or starbursts spreading out from streetlamps and headlights, you are seeing typical <strong>astigmatism lights</strong>. Because the cornea cannot bend light uniformly, bright points of light stretch out into lines or smears. This headlight glare makes night driving particularly challenging for those with uncorrected refractive errors.
+                </p>
+                <div class="p-4 bg-zinc-800/40 rounded-xl border border-zinc-700/50 text-xs md:text-sm text-zinc-400">
+                    💡 <strong>Stigmatism vs Astigmatism:</strong> You might hear people refer to this condition as "stigmatism." However, <strong>stigmatism vs astigmatism</strong> is not a debate between two different disorders. "Stigmatism" is simply a common mispronunciation. The correct medical term is astigmatism (derived from the Greek root "a-", meaning without, and "stigma", meaning a point).
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white">Corrective Options: Glasses vs Toric Contacts</h2>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Correcting astigmatism is simple. Most people start with custom prescription <strong>astigmatism glasses</strong>. These lenses have a cylindrical corrective power that offsets the irregular curve of the cornea.
+                    </p>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        If you prefer contacts, standard spherical contacts will not work well because they do not stay in one orientation. Instead, you need specialized <strong>contact lenses for astigmatism</strong>, known as toric lenses. These are weighted at the bottom to prevent them from rotating when you blink.
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-white">Can You Wear Colored Contacts for Astigmatism?</h2>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Yes! In the past, cosmetic options were limited, but you can now easily buy custom <strong>colored contacts for astigmatism</strong>. These lenses provide the precise toric correction you need to see clearly while allowing you to change your eye color safely.
+                    </p>
+                    <h3 class="font-bold text-white">Can LASIK Fix Astigmatism Permanently?</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        If you are looking for a permanent solution, you might wonder: <strong>can lasik fix astigmatism</strong>? Yes, modern LASIK surgery reshapes the cornea, making it rounder so light focuses directly on the retina. A consultation with an ophthalmologist can confirm if you are a candidate.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black/40 border-t border-white/5 py-8 text-center text-xs text-zinc-500">
+        <p>&copy; 2026 VisionGuard. All rights reserved. For informational purposes only. Do not replace professional medical advice.</p>
+    </footer>
+
+    <script>
+        // Draw the Astigmatism Fan Chart
+        const chart = document.getElementById('fan-chart');
+        for (let i = 0; i < 180; i += 10) {
+            const line = document.createElement('div');
+            line.className = 'line';
+            line.style.transform = `rotate(${i}deg)`;
+            chart.appendChild(line);
+        }
+        // Center white circle for visual structure
+        const center = document.createElement('div');
+        center.style.cssText = 'position:absolute; width: 45px; height: 45px; background: white; border-radius: 50%; z-index: 10; border: 4px solid #18181b;';
+        chart.appendChild(center);
+
+        function showResult(hasAstigmatism) {
+            const resultArea = document.getElementById('result-area');
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+
+            resultArea.classList.remove('hidden', 'bg-emerald-950/20', 'border-emerald-500/30', 'bg-red-950/20', 'border-red-500/30');
+
+            if (hasAstigmatism) {
+                resultArea.classList.add('bg-red-950/20', 'border-red-500/30');
+                title.innerText = "⚠️ Signs of Astigmatism Detected";
+                title.className = "text-xl font-bold mb-2 text-red-400";
+                desc.innerText = "If some lines appear darker or blurrier, you may have uncorrected astigmatism. We recommend booking a comprehensive eye check with an optometrist to get a professional evaluation for astigmatism glasses or toric contact lenses.";
+            } else {
+                resultArea.classList.add('bg-emerald-950/20', 'border-emerald-500/30');
+                title.innerText = "✅ Normal Result";
+                title.className = "text-xl font-bold mb-2 text-emerald-400";
+                desc.innerText = "If all lines appear equally dark and sharp, you likely do not have significant uncorrected astigmatism. Continue monitoring your visual fatigue and take regular breaks.";
+            }
+
+            resultArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV10K6WLK7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-QV10K6WLK7');
+    </script>
+
+</body>
+
+</html>

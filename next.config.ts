@@ -56,6 +56,14 @@ const nextConfig: NextConfig = {
         source: '/active-learning-game/',
         destination: '/sight/active_learning_game/index.html',
       },
+      {
+        source: '/astigmatism-test',
+        destination: '/astigmatism-test/index.html',
+      },
+      {
+        source: '/astigmatism-test/',
+        destination: '/astigmatism-test/index.html',
+      },
     ];
   },
 };
