@@ -6,18 +6,33 @@
 <title>100天专注力训练 · 日更卡片生成器</title>
 <script src="./html2canvas.min.js"></script>
 <style>
+  /* ============ 风格变量（默认：清新自然） ============ */
   :root{
     --bg:#f6f2ea;
-    --card:#fffdf7;
+    --card:#fffdf7;            /* 纸面 */
+    --cardbg:#8fae7c;          /* 卡片外框 */
     --accent:#e8541e;
     --gold:#f5a623;
     --ink:#2b2620;
     --sub:#8a8378;
   }
+  body[data-style="2"]{        /* 甜美粉樱 */
+    --bg:#fdeef2;--cardbg:#f4a9bf;--accent:#e8607f;--gold:#f7c948;
+    --ink:#3a2c30;--sub:#a98a92;
+  }
+  body[data-style="3"]{        /* 清爽海洋 */
+    --bg:#eaf4f4;--cardbg:#5fc0d2;--accent:#1f9bb3;--gold:#f5c542;
+    --ink:#1f3a3f;--sub:#6f9aa1;
+  }
+  body[data-style="4"]{        /* 温柔莫兰迪 */
+    --bg:#efeaf3;--cardbg:#ab9cc6;--accent:#7a6aa8;--gold:#d4b483;
+    --ink:#332b40;--sub:#9286a3;
+  }
+
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);padding:20px 12px 80px}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);padding:20px 12px 80px;transition:background .3s}
   .topbar{
-    max-width:720px;margin:0 auto 24px;background:#fff;border-radius:18px;padding:18px;
+    max-width:760px;margin:0 auto 24px;background:#fff;border-radius:18px;padding:18px;
     box-shadow:0 6px 20px rgba(0,0,0,.07);display:flex;flex-wrap:wrap;gap:12px;align-items:center;
   }
   .topbar h1{font-size:17px;width:100%;color:var(--accent)}
@@ -27,6 +42,7 @@
   }
   .field input[type=number]{width:90px}
   .field input[type=text]{width:170px}
+  .field.styleSel select{padding:8px 10px}
   button{
     border:none;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;
   }
@@ -46,14 +62,14 @@
 
   /* ===== 卡片本体：621 x 828 (3:4) ===== */
   .card{
-    width:621px;height:828px;background:#8fae7c;border-radius:8px;overflow:hidden;
-    display:flex;flex-direction:column;padding:26px;position:relative;
+    width:621px;height:828px;background:var(--cardbg);border-radius:8px;overflow:hidden;
+    display:flex;flex-direction:column;padding:26px;position:relative;transition:background .3s;
   }
   .card .paper{
     background:var(--card);border-radius:26px;flex:1;display:flex;flex-direction:column;
     align-items:center;padding:30px 34px 20px;position:relative;overflow:hidden;
   }
-  .brand{position:absolute;top:14px;left:0;width:100%;text-align:center;font-size:13px;color:#b9b2a4;letter-spacing:2px}
+  .brand{position:absolute;top:14px;left:0;width:100%;text-align:center;font-size:13px;color:var(--sub);letter-spacing:2px}
   .cover .paper{justify-content:center;gap:0}
   .coverTitle{font-size:52px;font-weight:900;letter-spacing:2px;margin-top:40px}
   .coverSub{font-size:20px;letter-spacing:6px;margin-top:22px;padding:6px 18px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
@@ -67,35 +83,37 @@
     padding:5px 22px;border-radius:22px;
   }
   .req{
-    margin-top:20px;font-size:16.5px;line-height:1.75;color:#e8541e;font-weight:600;
+    margin-top:20px;font-size:16.5px;line-height:1.75;color:var(--accent);font-weight:600;
     padding:0 4px;
   }
   .content{flex:1;width:100%;display:flex;flex-direction:column;justify-content:center;gap:18px}
-  .groupLabel{font-size:22px;font-weight:800}
+  .groupLabel{font-size:20px;font-weight:800}
+  .groupLabel .cat{color:var(--accent);font-size:16px;font-weight:700;margin-left:6px}
   .numRow{font-size:30px;font-weight:800;letter-spacing:2px;display:flex;gap:34px;flex-wrap:wrap}
   .wordRow{font-size:30px;font-weight:800;letter-spacing:4px;display:flex;gap:18px;flex-wrap:wrap}
   .qa{font-size:17px;color:#555;line-height:2}
   .qa b{color:var(--accent)}
-  .cmdGrid{display:flex;flex-wrap:wrap;gap:16px 30px;font-size:28px;font-weight:800;align-content:center}
+  .cmdGrid{display:flex;flex-wrap:wrap;gap:16px 30px;font-size:27px;font-weight:800;align-content:center}
   .cmdGrid span{white-space:nowrap}
-  .sentList{display:flex;flex-direction:column;gap:16px;font-size:27px;font-weight:800}
+  .sentList{display:flex;flex-direction:column;gap:15px;font-size:26px;font-weight:800}
   .schulte{display:grid;gap:8px;width:400px;margin:0 auto}
   .schulte div{
     background:#fff;border:2px solid var(--ink);border-radius:6px;display:flex;align-items:center;justify-content:center;
     font-size:30px;font-weight:800;aspect-ratio:1;
   }
+  .tag{font-size:14px;color:var(--sub);font-weight:700;letter-spacing:1px}
   .foot{
     margin-top:16px;width:100%;text-align:center;font-size:15px;color:var(--accent);
     display:flex;align-items:center;gap:12px;justify-content:center;
   }
-  .foot::before,.foot::after{content:"";height:1px;background:#dccfb8;flex:0 0 90px}
+  .foot::before,.foot::after{content:"";height:1px;background:var(--sub);opacity:.5;flex:0 0 90px}
 
   @media (max-width:700px){
     .stage{transform:scale(.52);transform-origin:top center;margin-bottom:-380px}
   }
 </style>
 </head>
-<body>
+<body data-style="1">
 
 <div class="topbar">
   <h1>🎯 100天专注力训练 · 日更卡片生成器</h1>
@@ -107,53 +125,122 @@
     </select>
   </div>
   <div class="field">账号名 <input type="text" id="brandInput" value="全维认知训练中心"></div>
+  <div class="field styleSel">风格
+    <select id="styleSel">
+      <option value="1">🌿 清新自然</option>
+      <option value="2">🌸 甜美粉樱</option>
+      <option value="3">🌊 清爽海洋</option>
+      <option value="4">🪐 温柔莫兰迪</option>
+    </select>
+  </div>
   <button class="btn-main" onclick="downloadAll()">📸 下载全部 6 张图</button>
   <button class="btn-sub" onclick="copyPost()">📋 复制发布文案</button>
   <button class="btn-sub" onclick="regen()">🎲 换一批内容</button>
-  <div class="tip">说明：每天改一下"天数"→内容自动随机生成（也可点"换一批"）→下载 6 张图直接发小红书。卡片比例 3:4，导出 1242×1656，符合小红书最佳尺寸。</div>
+  <div class="tip">说明：每天改一下"天数"→内容按天数自动生成（不同天不重复，可复现）；也可点"换一批"换一套。切换"风格"整套卡片换配色与吉祥物。卡片比例 3:4，导出 1242×1656，符合小红书最佳尺寸。</div>
 </div>
 
 <div class="stage" id="stage"></div>
 
 <script>
-/* ================= 内容生成 ================= */
-const rnd=n=>Math.floor(Math.random()*n);
+/* ================= 按天播种的随机（保证每天稳定且不撞） ================= */
+let SEED=1, BATCH=0;
+function srand(s){SEED=(s>>>0)||1;}
+function rnd(n){SEED=(SEED*1664525+1013904223)>>>0;return Math.floor((SEED/4294967296)*n);}
 const pick=a=>a[rnd(a.length)];
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 
-const CMDS=["抬右脚","抬左脚","起立","坐下","举右手","举左手","向左转","向右转","左手摸鼻子","右手摸鼻子","右手摸左耳","左手摸右耳","左手拍右腿","右手拍左腿","摸头","拍手","蹲下","原地踏步"];
-const FRUIT=["苹果","香蕉","桂圆","枇杷","橄榄","橙子","葡萄","西瓜","草莓","桃子"];
-const VEG=["包菜","地瓜","茼蒿","白菜","茄子","萝卜","冬瓜","豆角","南瓜","辣椒"];
+/* ================= 内容题库（大库，减少重复） ================= */
+// 听觉指令
+const CMDS=[
+  "抬右脚","抬左脚","起立","坐下","举右手","举左手","向左转","向右转",
+  "左手摸鼻子","右手摸鼻子","右手摸左耳","左手摸右耳","左手拍右腿","右手拍左腿",
+  "摸头","拍手","蹲下","原地踏步","闭左眼","闭右眼","点头","摇头","叉腰","踮脚尖"
+];
+const CMDS_HARD=["抬右脚并拍手","左手摸右耳同时蹲下","向右转并举左手","闭眼摸左耳","原地踏步并拍手"];
+
+// 词语听觉记忆：8 大类
+const WORD_POOLS={
+  "水果":["苹果","香蕉","葡萄","橙子","草莓","西瓜","桃子","荔枝","芒果","梨子"],
+  "蔬菜":["白菜","萝卜","茄子","南瓜","冬瓜","辣椒","土豆","番茄","黄瓜","菠菜"],
+  "动物":["小猫","小狗","兔子","老虎","大象","猴子","熊猫","狮子","狐狸","长颈鹿"],
+  "食物":["面包","蛋糕","饼干","米饭","面条","饺子","包子","汤圆","鸡蛋","酸奶"],
+  "交通工具":["汽车","火车","飞机","轮船","自行车","公交车","地铁","摩托车","滑板","热气球"],
+  "颜色":["红色","黄色","蓝色","绿色","紫色","橙色","粉色","白色","黑色","灰色"],
+  "文具":["铅笔","橡皮","尺子","书本","书包","本子","彩笔","剪刀","胶水","卷笔刀"],
+  "自然":["太阳","月亮","星星","云朵","小雨","彩虹","大海","大山","雪花","闪电"]
+};
+
+// 句子复述：14 个主题（a形容词 b谓语 c地点 d限定 e副词 f谓语）
 const SENT_SETS=[
   {w:"苹果",a:"红红的",b:"很甜",c:"桌上",d:"那个",e:"一定",f:"很甜"},
   {w:"小狗",a:"毛茸茸的",b:"很乖",c:"院子里",d:"那只",e:"特别",f:"很乖"},
   {w:"气球",a:"圆圆的",b:"会飞",c:"天空中",d:"那只",e:"慢慢",f:"会飞"},
   {w:"花儿",a:"香香的",b:"好看",c:"花园里",d:"那朵",e:"特别",f:"好看"},
+  {w:"小猫",a:"软软的",b:"爱睡",c:"沙发上",d:"那只",e:"整天",f:"爱睡"},
+  {w:"汽车",a:"跑得快的",b:"很酷",c:"马路上",d:"那辆",e:"飞快",f:"跑得快"},
+  {w:"星星",a:"亮亮的",b:"会眨",c:"夜空中",d:"那颗",e:"悄悄",f:"会眨"},
+  {w:"书本",a:"厚厚的",b:"有用",c:"书包里",d:"那本",e:"天天",f:"有用"},
+  {w:"小船",a:"小小的",b:"会漂",c:"水面上",d:"那只",e:"慢慢",f:"会漂"},
+  {w:"太阳",a:"暖暖的",b:"明亮",c:"天空中",d:"那个",e:"总是",f:"明亮"},
+  {w:"蛋糕",a:"甜甜的",b:"好吃",c:"盘子里",d:"那块",e:"特别",f:"好吃"},
+  {w:"雨伞",a:"花花的",b:"挡雨",c:"手里",d:"那把",e:"稳稳",f:"挡雨"},
+  {w:"风筝",a:"长长的",b:"会飞",c:"风里",d:"那只",e:"高高",f:"会飞"},
+  {w:"大象",a:"大大的",b:"力气足",c:"动物园",d:"那头",e:"特别",f:"力气足"}
 ];
 
+// 舒尔特三种类型
+const SCH_CHARS={
+  "汉字":["大","小","中","月","日","水","火","山","石","田","土","木","人","口","手","上","下","风","云","雨"],
+  "字母":null // 用 A..
+};
+const SCH_TYPES=["数字","汉字","字母"];
+
+const MASCOTS={1:"🦆",2:"🐰",3:"🐱",4:"🐻"};
+
+/* ================= 生成函数 ================= */
+function genCmds(){
+  const base=shuffle(CMDS).slice(0,8);
+  const hard=shuffle(CMDS_HARD).slice(0, rnd(2)); // 0~1 条进阶
+  return shuffle(base.concat(hard));
+}
+function genNums(age){
+  const lenBase=age==="3-6"?3:4;
+  return Array.from({length:3},()=>{
+    const len=lenBase+rnd(3);            // 3-6岁:3~5位; 6-12岁:4~6位
+    const min=Math.pow(10,len-1);
+    return {len,row:Array.from({length:4},()=>String(min+rnd(Math.pow(10,len)-min)))};
+  });
+}
 function genWords(){
-  // 生成两组词，每组5个（含重复），返回 {groups:[{words,question,count}...]}
-  return [VEG,FRUIT].map(pool=>{
+  const keys=shuffle(Object.keys(WORD_POOLS));
+  const groupCount=2+rnd(1);             // 2~3 组，来自不同类别
+  return Array.from({length:groupCount},(_,gi)=>{
+    const cat=keys[gi%keys.length];
+    const pool=WORD_POOLS[cat];
     const q=pick(pool);
-    const k=2+rnd(2); // 重复2~3次
+    const k=2+rnd(2);                     // 重复 2~3 次
     const others=shuffle(pool.filter(w=>w!==q));
-    const arr=Array(5).fill(0).map((_,i)=>i);
-    const pos=shuffle([0,1,2,3,4]).slice(0,k);
+    const len=5+rnd(2);                   // 5~6 个词
+    const pos=shuffle(Array.from({length:len},(_,i)=>i)).slice(0,k);
     let oi=0;
-    const words=Array.from({length:5},(_,i)=>pos.includes(i)?q:others[oi++%others.length]);
-    return {words,question:q,count:k};
+    const words=Array.from({length:len},(_,i)=>pos.includes(i)?q:others[oi++%others.length]);
+    return {cat,words,question:q,count:k};
   });
 }
 function genSchulte(n){
-  const arr=shuffle(Array.from({length:n*n},(_,i)=>i+1));
-  return {n,cells:arr};
+  const type=pick(SCH_TYPES);
+  let cells;
+  if(type==="数字"){cells=shuffle(Array.from({length:n*n},(_,i)=>i+1));}
+  else if(type==="字母"){cells=shuffle(Array.from({length:n*n},(_,i)=>String.fromCharCode(65+i)));}
+  else{cells=shuffle(SCH_CHARS["汉字"].slice(0,n*n));}
+  return {n,type,cells};
 }
 function genAll(){
   const age=document.getElementById('ageSel').value;
   const n=age==="3-6"?3:4;
   return {
-    cmds:shuffle(CMDS).slice(0,9),
-    nums:Array.from({length:3},()=>Array.from({length:4},()=>String(100000+rnd(900000)))),
+    cmds:genCmds(),
+    nums:genNums(age),
     words:genWords(),
     sent:pick(SENT_SETS),
     schulte:genSchulte(n),
@@ -161,7 +248,7 @@ function genAll(){
 }
 
 /* ================= 渲染 ================= */
-let DATA=null;
+let DATA=null, STYLE=1;
 function dayPill(d){return `<div class="cday">第${d}天</div>`;}
 function foot(){return `<div class="foot">每日一练，提升学习效率</div>`;}
 
@@ -169,7 +256,14 @@ function render(){
   const d=+document.getElementById('dayInput').value||1;
   const age=document.getElementById('ageSel').value;
   const brand=document.getElementById('brandInput').value||"全维认知训练中心";
+  STYLE=+(document.getElementById('styleSel').value||1);
+  document.body.setAttribute('data-style',STYLE);
+
+  // 按天数播种：同一天内容稳定；不同天不撞；换一批(batch)再变
+  srand(d*1009 + BATCH*7919 + 17);
   DATA=genAll();
+  const mascot=MASCOTS[STYLE];
+
   const s=document.getElementById('stage');
   const head=(t)=>`
     <div class="brand">${brand}</div>
@@ -182,36 +276,40 @@ function render(){
     <div class="brand">${brand}</div>
     <div class="coverTitle">100个专注力游戏</div>
     <div class="coverSub">适合${age}岁小朋友</div>
-    <div class="mascot">🦆</div>
+    <div class="mascot">${mascot}</div>
     <div class="dayPillBig">第<b>${d}</b>天</div>
   </div></div>`;
 
   // 2 听觉指令
+  const hardCount=DATA.cmds.filter(c=>CMDS_HARD.includes(c)).length;
   const c2=`
   <div class="card" id="card2"><div class="paper">
     ${head("100天专注力训练")}
+    <div class="tag">训练① · 听觉指令反应${hardCount?"（含进阶指令）":""}</div>
     <div class="req">要求：请家长和孩子面对面坐下，朗读下列指令，每个指令间隔五秒，当孩子听到指令后做出相应的动作，做完一个动作后恢复原样，直至完成全部动作。</div>
     <div class="content"><div class="cmdGrid">${DATA.cmds.map(c=>`<span>${c}</span>`).join("")}</div></div>
     ${foot()}
   </div></div>`;
 
   // 3 数字听觉记忆
-  const g=DATA.nums.map((row,i)=>`<div class="groupLabel">第${["一","二","三"][i]}组：</div><div class="numRow">${row.map(x=>`<span>${x}</span>`).join("")}</div>`).join("");
+  const g=DATA.nums.map((o,i)=>`<div class="groupLabel">第${["一","二","三"][i]}组 <span class="cat">${o.len}位数</span></div><div class="numRow">${o.row.map(x=>`<span>${x}</span>`).join("")}</div>`).join("");
   const c3=`
   <div class="card" id="card3"><div class="paper">
     ${head("100天专注力训练")}
+    <div class="tag">训练② · 数字听觉记忆</div>
     <div class="req">要求：家长读数列，学生每听一组数列在纸上记录一组；接着听第二组，记录第二组，直到全部完成。注意：不能边听边记。</div>
     <div class="content">${g}</div>
     ${foot()}
   </div></div>`;
 
   // 4 词语听觉记忆
-  const qa=DATA.words.map((w,i)=>`第${["一","二"][i]}组问题：问了几次${w.question}？　答案：<b>${w.count}次</b>`).join("<br>");
-  const wg=DATA.words.map((w,i)=>`<div class="groupLabel">第${["一","二"][i]}组：</div><div class="wordRow">${w.words.map(x=>`<span>${x}</span>`).join("")}</div>`).join("");
+  const qa=DATA.words.map((w,i)=>`第${["一","二","三"][i]}组问题：听到了几次「${w.question}」？　答案：<b>${w.count}次</b>`).join("<br>");
+  const wg=DATA.words.map((w,i)=>`<div class="groupLabel">第${["一","二","三"][i]}组<span class="cat">${w.cat}</span></div><div class="wordRow">${w.words.map(x=>`<span>${x}</span>`).join("")}</div>`).join("");
   const c4=`
   <div class="card" id="card4"><div class="paper">
     ${head("100天专注力训练")}
-    <div class="req">要求：请家长先提出问题，然后分组朗读下列词语，读完后让孩子回答问题。</div>
+    <div class="tag">训练③ · 词语听觉记忆</div>
+    <div class="req">要求：请家长先提出问题，然后分组朗读下列词语，读完后让孩子回答问题（训练听觉辨别与抗干扰）。</div>
     <div class="content">${wg}<div class="qa">${qa}</div></div>
     ${foot()}
   </div></div>`;
@@ -228,18 +326,20 @@ function render(){
   const c5=`
   <div class="card" id="card5"><div class="paper">
     ${head("100天专注力训练")}
-    <div class="req">要求：请家长以行为单位，让孩子在家长朗读结束后，将听到的文字信息复述出来。</div>
+    <div class="tag">训练④ · 句子复述（难度递增）</div>
+    <div class="req">要求：请家长以行为单位朗读，让孩子在家长朗读结束后，将听到的文字信息逐行复述出来（从短到长，循序渐进）。</div>
     <div class="content"><div class="sentList">${lines.map(l=>`<div>${l}</div>`).join("")}</div></div>
     ${foot()}
   </div></div>`;
 
   // 6 舒尔特
-  const n=DATA.schulte.n;
+  const n=DATA.schulte.n, typeName=DATA.schulte.type;
   const sg=`<div class="schulte" style="grid-template-columns:repeat(${n},1fr);${n===3?"width:300px;":""}">${DATA.schulte.cells.map(x=>`<div>${x}</div>`).join("")}</div>`;
   const c6=`
   <div class="card" id="card6"><div class="paper">
     ${head("100天专注力训练")}
-    <div class="req">要求：请仔细观察表格中的数字，将数字按顺序指读出来。每表练习三次，记录最快的一次。</div>
+    <div class="tag">训练⑤ · 舒尔特方格（${typeName}）</div>
+    <div class="req">要求：请仔细观察表格中的${typeName}，按顺序指读出来。每表练习三次，记录最快的一次（提升视觉搜索与专注广度）。</div>
     <div class="content">${sg}</div>
     ${foot()}
   </div></div>`;
@@ -252,7 +352,8 @@ function render(){
 /* ================= 导出 ================= */
 async function saveCard(i){
   const el=document.getElementById('card'+i);
-  const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:"#8fae7c"});
+  const cbg=getComputedStyle(document.body).getPropertyValue('--cardbg').trim()||'#8fae7c';
+  const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:cbg});
   canvas.toBlob(b=>{
     const a=document.createElement('a');
     a.href=URL.createObjectURL(b);
@@ -266,25 +367,32 @@ async function downloadAll(){
 function copyPost(){
   const d=document.getElementById('dayInput').value||1;
   const age=document.getElementById('ageSel').value;
+  const schType=DATA?DATA.schulte.type:"数字";
+  const wordCats=DATA?DATA.words.map(w=>w.cat).join("、"):"";
   const txt=`100天专注力训练第${d}天（${age}岁适用）
 
-今天是第${d}天！今日训练：听觉指令反应＋数字听觉记忆＋词语听觉记忆＋句子复述＋舒尔特方格。
+今天是第${d}天！今日训练：听觉指令反应＋数字听觉记忆＋词语听觉记忆（${wordCats}）＋句子复述＋舒尔特方格（${schType}）。
 家长每天陪练5分钟，坚持打卡，孩子的专注力看得见地变强💪
 打卡扣1，我陪你走完100天！
 
 #专注力练习 #思维专注力 #专注力游戏 #专注力 #注意力训练 #培养孩子注意力 #提升儿童专注力 #学习专注力 #视觉注意力`;
   navigator.clipboard.writeText(txt).then(()=>alert("发布文案已复制✓"));
 }
-function regen(){render();}
+function regen(){BATCH++;render();}
 
-/* 记住天数 & 自动+1 建议 */
+/* ================= 交互 ================= */
 const saved=localStorage.getItem('focus_day');
 if(saved)document.getElementById('dayInput').value=saved;
+const savedStyle=localStorage.getItem('focus_style');
+if(savedStyle)document.getElementById('styleSel').value=savedStyle;
 document.getElementById('dayInput').addEventListener('change',e=>{
-  localStorage.setItem('focus_day',e.target.value);render();
+  localStorage.setItem('focus_day',e.target.value);BATCH=0;render();
 });
-document.getElementById('ageSel').addEventListener('change',render);
+document.getElementById('ageSel').addEventListener('change',()=>{BATCH=0;render();});
 document.getElementById('brandInput').addEventListener('change',render);
+document.getElementById('styleSel').addEventListener('change',e=>{
+  localStorage.setItem('focus_style',e.target.value);render();
+});
 
 render();
 </script>
