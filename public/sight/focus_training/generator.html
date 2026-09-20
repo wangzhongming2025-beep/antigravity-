@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100天专注力训练 · 日更卡片生成器</title>
+<script src="./html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f2ea;
+    --card:#fffdf7;
+    --accent:#e8541e;
+    --gold:#f5a623;
+    --ink:#2b2620;
+    --sub:#8a8378;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);padding:20px 12px 80px}
+  .topbar{
+    max-width:720px;margin:0 auto 24px;background:#fff;border-radius:18px;padding:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,.07);display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+  }
+  .topbar h1{font-size:17px;width:100%;color:var(--accent)}
+  .field{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub)}
+  .field input,.field select{
+    border:1px solid #e5ddd0;border-radius:10px;padding:8px 10px;font-size:14px;color:var(--ink);background:#fbf8f2;outline:none;
+  }
+  .field input[type=number]{width:90px}
+  .field input[type=text]{width:170px}
+  button{
+    border:none;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;
+  }
+  .btn-main{background:var(--accent);color:#fff}
+  .btn-main:hover{filter:brightness(1.08)}
+  .btn-sub{background:#f0e9dc;color:var(--ink)}
+  .btn-sub:hover{background:#e7ddca}
+  .tip{font-size:12px;color:var(--sub);width:100%}
+
+  .stage{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:28px;align-items:center}
+  .cardWrap{position:relative}
+  .cardWrap .saveBtn{
+    position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;border:none;
+    border-radius:16px;font-size:12px;padding:6px 12px;cursor:pointer;display:none;
+  }
+  .cardWrap:hover .saveBtn{display:block}
+
+  /* ===== 卡片本体：621 x 828 (3:4) ===== */
+  .card{
+    width:621px;height:828px;background:#8fae7c;border-radius:8px;overflow:hidden;
+    display:flex;flex-direction:column;padding:26px;position:relative;
+  }
+  .card .paper{
+    background:var(--card);border-radius:26px;flex:1;display:flex;flex-direction:column;
+    align-items:center;padding:30px 34px 20px;position:relative;overflow:hidden;
+  }
+  .brand{position:absolute;top:14px;left:0;width:100%;text-align:center;font-size:13px;color:#b9b2a4;letter-spacing:2px}
+  .cover .paper{justify-content:center;gap:0}
+  .coverTitle{font-size:52px;font-weight:900;letter-spacing:2px;margin-top:40px}
+  .coverSub{font-size:20px;letter-spacing:6px;margin-top:22px;padding:6px 18px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+  .mascot{font-size:120px;line-height:1;margin:30px 0 10px}
+  .dayPillBig{font-size:30px;font-weight:800;margin-top:16px}
+  .dayPillBig b{color:var(--accent);font-size:44px;margin:0 6px}
+
+  .ctitle{font-size:38px;font-weight:900;margin-top:34px;letter-spacing:1px}
+  .cday{
+    margin-top:12px;background:var(--gold);color:#fff;font-size:18px;font-weight:800;
+    padding:5px 22px;border-radius:22px;
+  }
+  .req{
+    margin-top:20px;font-size:16.5px;line-height:1.75;color:#e8541e;font-weight:600;
+    padding:0 4px;
+  }
+  .content{flex:1;width:100%;display:flex;flex-direction:column;justify-content:center;gap:18px}
+  .groupLabel{font-size:22px;font-weight:800}
+  .numRow{font-size:30px;font-weight:800;letter-spacing:2px;display:flex;gap:34px;flex-wrap:wrap}
+  .wordRow{font-size:30px;font-weight:800;letter-spacing:4px;display:flex;gap:18px;flex-wrap:wrap}
+  .qa{font-size:17px;color:#555;line-height:2}
+  .qa b{color:var(--accent)}
+  .cmdGrid{display:flex;flex-wrap:wrap;gap:16px 30px;font-size:28px;font-weight:800;align-content:center}
+  .cmdGrid span{white-space:nowrap}
+  .sentList{display:flex;flex-direction:column;gap:16px;font-size:27px;font-weight:800}
+  .schulte{display:grid;gap:8px;width:400px;margin:0 auto}
+  .schulte div{
+    background:#fff;border:2px solid var(--ink);border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;aspect-ratio:1;
+  }
+  .foot{
+    margin-top:16px;width:100%;text-align:center;font-size:15px;color:var(--accent);
+    display:flex;align-items:center;gap:12px;justify-content:center;
+  }
+  .foot::before,.foot::after{content:"";height:1px;background:#dccfb8;flex:0 0 90px}
+
+  @media (max-width:700px){
+    .stage{transform:scale(.52);transform-origin:top center;margin-bottom:-380px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🎯 100天专注力训练 · 日更卡片生成器</h1>
+  <div class="field">第 <input type="number" id="dayInput" min="1" max="100" value="1"> 天</div>
+  <div class="field">
+    <select id="ageSel">
+      <option value="6-12">6-12岁</option>
+      <option value="3-6">3-6岁</option>
+    </select>
+  </div>
+  <div class="field">账号名 <input type="text" id="brandInput" value="全维认知训练中心"></div>
+  <button class="btn-main" onclick="downloadAll()">📸 下载全部 6 张图</button>
+  <button class="btn-sub" onclick="copyPost()">📋 复制发布文案</button>
+  <button class="btn-sub" onclick="regen()">🎲 换一批内容</button>
+  <div class="tip">说明：每天改一下"天数"→内容自动随机生成（也可点"换一批"）→下载 6 张图直接发小红书。卡片比例 3:4，导出 1242×1656，符合小红书最佳尺寸。</div>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<script>
+/* ================= 内容生成 ================= */
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+const CMDS=["抬右脚","抬左脚","起立","坐下","举右手","举左手","向左转","向右转","左手摸鼻子","右手摸鼻子","右手摸左耳","左手摸右耳","左手拍右腿","右手拍左腿","摸头","拍手","蹲下","原地踏步"];
+const FRUIT=["苹果","香蕉","桂圆","枇杷","橄榄","橙子","葡萄","西瓜","草莓","桃子"];
+const VEG=["包菜","地瓜","茼蒿","白菜","茄子","萝卜","冬瓜","豆角","南瓜","辣椒"];
+const SENT_SETS=[
+  {w:"苹果",a:"红红的",b:"很甜",c:"桌上",d:"那个",e:"一定",f:"很甜"},
+  {w:"小狗",a:"毛茸茸的",b:"很乖",c:"院子里",d:"那只",e:"特别",f:"很乖"},
+  {w:"气球",a:"圆圆的",b:"会飞",c:"天空中",d:"那只",e:"慢慢",f:"会飞"},
+  {w:"花儿",a:"香香的",b:"好看",c:"花园里",d:"那朵",e:"特别",f:"好看"},
+];
+
+function genWords(){
+  // 生成两组词，每组5个（含重复），返回 {groups:[{words,question,count}...]}
+  return [VEG,FRUIT].map(pool=>{
+    const q=pick(pool);
+    const k=2+rnd(2); // 重复2~3次
+    const others=shuffle(pool.filter(w=>w!==q));
+    const arr=Array(5).fill(0).map((_,i)=>i);
+    const pos=shuffle([0,1,2,3,4]).slice(0,k);
+    let oi=0;
+    const words=Array.from({length:5},(_,i)=>pos.includes(i)?q:others[oi++%others.length]);
+    return {words,question:q,count:k};
+  });
+}
+function genSchulte(n){
+  const arr=shuffle(Array.from({length:n*n},(_,i)=>i+1));
+  return {n,cells:arr};
+}
+function genAll(){
+  const age=document.getElementById('ageSel').value;
+  const n=age==="3-6"?3:4;
+  return {
+    cmds:shuffle(CMDS).slice(0,9),
+    nums:Array.from({length:3},()=>Array.from({length:4},()=>String(100000+rnd(900000)))),
+    words:genWords(),
+    sent:pick(SENT_SETS),
+    schulte:genSchulte(n),
+  };
+}
+
+/* ================= 渲染 ================= */
+let DATA=null;
+function dayPill(d){return `<div class="cday">第${d}天</div>`;}
+function foot(){return `<div class="foot">每日一练，提升学习效率</div>`;}
+
+function render(){
+  const d=+document.getElementById('dayInput').value||1;
+  const age=document.getElementById('ageSel').value;
+  const brand=document.getElementById('brandInput').value||"全维认知训练中心";
+  DATA=genAll();
+  const s=document.getElementById('stage');
+  const head=(t)=>`
+    <div class="brand">${brand}</div>
+    <div class="ctitle">${t}</div>
+    ${dayPill(d)}`;
+
+  // 1 封面
+  const c1=`
+  <div class="card cover" id="card1"><div class="paper">
+    <div class="brand">${brand}</div>
+    <div class="coverTitle">100个专注力游戏</div>
+    <div class="coverSub">适合${age}岁小朋友</div>
+    <div class="mascot">🦆</div>
+    <div class="dayPillBig">第<b>${d}</b>天</div>
+  </div></div>`;
+
+  // 2 听觉指令
+  const c2=`
+  <div class="card" id="card2"><div class="paper">
+    ${head("100天专注力训练")}
+    <div class="req">要求：请家长和孩子面对面坐下，朗读下列指令，每个指令间隔五秒，当孩子听到指令后做出相应的动作，做完一个动作后恢复原样，直至完成全部动作。</div>
+    <div class="content"><div class="cmdGrid">${DATA.cmds.map(c=>`<span>${c}</span>`).join("")}</div></div>
+    ${foot()}
+  </div></div>`;
+
+  // 3 数字听觉记忆
+  const g=DATA.nums.map((row,i)=>`<div class="groupLabel">第${["一","二","三"][i]}组：</div><div class="numRow">${row.map(x=>`<span>${x}</span>`).join("")}</div>`).join("");
+  const c3=`
+  <div class="card" id="card3"><div class="paper">
+    ${head("100天专注力训练")}
+    <div class="req">要求：家长读数列，学生每听一组数列在纸上记录一组；接着听第二组，记录第二组，直到全部完成。注意：不能边听边记。</div>
+    <div class="content">${g}</div>
+    ${foot()}
+  </div></div>`;
+
+  // 4 词语听觉记忆
+  const qa=DATA.words.map((w,i)=>`第${["一","二"][i]}组问题：问了几次${w.question}？　答案：<b>${w.count}次</b>`).join("<br>");
+  const wg=DATA.words.map((w,i)=>`<div class="groupLabel">第${["一","二"][i]}组：</div><div class="wordRow">${w.words.map(x=>`<span>${x}</span>`).join("")}</div>`).join("");
+  const c4=`
+  <div class="card" id="card4"><div class="paper">
+    ${head("100天专注力训练")}
+    <div class="req">要求：请家长先提出问题，然后分组朗读下列词语，读完后让孩子回答问题。</div>
+    <div class="content">${wg}<div class="qa">${qa}</div></div>
+    ${foot()}
+  </div></div>`;
+
+  // 5 句子复述
+  const S=DATA.sent;
+  const lines=[
+    `${S.w}。`,
+    `${S.w}${S.a}。`,
+    `${S.w}${S.a}，${S.b}。`,
+    `${S.c}的${S.w}${S.a}，${S.b}。`,
+    `${S.c}的${S.d}${S.w}${S.a}，${S.e}${S.f}。`,
+  ];
+  const c5=`
+  <div class="card" id="card5"><div class="paper">
+    ${head("100天专注力训练")}
+    <div class="req">要求：请家长以行为单位，让孩子在家长朗读结束后，将听到的文字信息复述出来。</div>
+    <div class="content"><div class="sentList">${lines.map(l=>`<div>${l}</div>`).join("")}</div></div>
+    ${foot()}
+  </div></div>`;
+
+  // 6 舒尔特
+  const n=DATA.schulte.n;
+  const sg=`<div class="schulte" style="grid-template-columns:repeat(${n},1fr);${n===3?"width:300px;":""}">${DATA.schulte.cells.map(x=>`<div>${x}</div>`).join("")}</div>`;
+  const c6=`
+  <div class="card" id="card6"><div class="paper">
+    ${head("100天专注力训练")}
+    <div class="req">要求：请仔细观察表格中的数字，将数字按顺序指读出来。每表练习三次，记录最快的一次。</div>
+    <div class="content">${sg}</div>
+    ${foot()}
+  </div></div>`;
+
+  s.innerHTML=[c1,c2,c3,c4,c5,c6].map((h,i)=>
+    `<div class="cardWrap"><button class="saveBtn" onclick="saveCard(${i+1})">存图</button>${h}</div>`
+  ).join("");
+}
+
+/* ================= 导出 ================= */
+async function saveCard(i){
+  const el=document.getElementById('card'+i);
+  const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:"#8fae7c"});
+  canvas.toBlob(b=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);
+    a.download=`第${document.getElementById('dayInput').value||1}天-${i===1?"封面":i}.png`;
+    a.click();URL.revokeObjectURL(a.href);
+  });
+}
+async function downloadAll(){
+  for(let i=1;i<=6;i++){await saveCard(i);await new Promise(r=>setTimeout(r,400));}
+}
+function copyPost(){
+  const d=document.getElementById('dayInput').value||1;
+  const age=document.getElementById('ageSel').value;
+  const txt=`100天专注力训练第${d}天（${age}岁适用）
+
+今天是第${d}天！今日训练：听觉指令反应＋数字听觉记忆＋词语听觉记忆＋句子复述＋舒尔特方格。
+家长每天陪练5分钟，坚持打卡，孩子的专注力看得见地变强💪
+打卡扣1，我陪你走完100天！
+
+#专注力练习 #思维专注力 #专注力游戏 #专注力 #注意力训练 #培养孩子注意力 #提升儿童专注力 #学习专注力 #视觉注意力`;
+  navigator.clipboard.writeText(txt).then(()=>alert("发布文案已复制✓"));
+}
+function regen(){render();}
+
+/* 记住天数 & 自动+1 建议 */
+const saved=localStorage.getItem('focus_day');
+if(saved)document.getElementById('dayInput').value=saved;
+document.getElementById('dayInput').addEventListener('change',e=>{
+  localStorage.setItem('focus_day',e.target.value);render();
+});
+document.getElementById('ageSel').addEventListener('change',render);
+document.getElementById('brandInput').addEventListener('change',render);
+
+render();
+</script>
+</body>
+</html>
