@@ -120,8 +120,10 @@
   <div class="field">第 <input type="number" id="dayInput" min="1" max="100" value="1"> 天</div>
   <div class="field">
     <select id="ageSel">
-      <option value="6-12">6-12岁</option>
+      <option value="6-12" selected>6-12岁</option>
       <option value="3-6">3-6岁</option>
+      <option value="12+">12岁以上</option>
+      <option value="18+">18岁以上</option>
     </select>
   </div>
   <div class="field">账号名 <input type="text" id="brandInput" value="全维认知训练中心"></div>
@@ -195,6 +197,47 @@ const SCH_CHARS={
 };
 const SCH_TYPES=["数字","汉字","字母"];
 
+/* ============ 大龄段（12+/18+）专用题库 ============ */
+const TEEN_POOLS={
+  "成语":["画蛇添足","守株待兔","亡羊补牢","井底之蛙","对牛弹琴","杯弓蛇影","刻舟求剑","掩耳盗铃","狐假虎威","叶公好龙"],
+  "学科":["物理","化学","生物","历史","地理","政治","数学","英语","语文","美术"],
+  "城市":["北京","上海","广州","深圳","成都","杭州","武汉","西安","南京","重庆"],
+  "职业":["医生","教师","律师","工程师","设计师","程序员","护士","警察","会计","记者"],
+  "国家":["中国","日本","韩国","法国","德国","英国","美国","巴西","印度","俄罗斯"]
+};
+const SENT_TEEN=[
+  {w:"专注力",a:"像肌肉一样",b:"需要每天锻炼",c:"学习时",d:"我们的",e:"其实可以",f:"越练越强"},
+  {w:"阅读",a:"能让人安静",b:"拓宽眼界",c:"睡前",d:"每天",e:"最好坚持",f:"读半小时"},
+  {w:"计划",a:"把任务拆小",b:"更容易完成",c:"工作里",d:"好的",e:"往往",f:"事半功倍"},
+  {w:"睡眠",a:"是大脑的整理",b:"巩固记忆",c:"深夜",d:"充足的",e:"直接",f:"影响第二天状态"},
+  {w:"运动",a:"能释放压力",b:"提升状态",c:"课间",d:"十分钟的",e:"就能",f:"让人清醒"},
+  {w:"笔记",a:"逼自己提炼",b:"加深理解",c:"听课中",d:"边听边写",e:"帮助",f:"抓住重点"},
+  {w:"番茄钟",a:"用短冲刺",b:"对抗拖延",c:"写作业时",d:"一个",e:"比硬熬",f:"有效率"},
+  {w:"深呼吸",a:"能拉回注意力",b:"平复情绪",c:"烦躁时",d:"三次",e:"立刻",f:"见效"},
+  {w:"复盘",a:"回头看错处",b:"避免再犯",c:"考试后",d:"及时",e:"特别",f:"有用"}
+];
+const CMDS_EXEC=[
+  "听到动物名拍手，其他词不拍",
+  "我说“左”请你指右，我说“右”请你指左",
+  "倒着复述这串数字：3-7-1-9",
+  "听到红色举左手，听到蓝色举右手",
+  "按顺序念出：周一、周三、周五",
+  "边心算 7+5 边说出答案",
+  "我说“起立”你坐下，我说“坐下”你起立",
+  "听到水果名闭眼，其他不闭",
+  "按相反顺序完成：摸鼻、拍肩、叉腰",
+  "听到“大”往前一步，听到“小”退后一步"
+];
+function ageTier(age){
+  if(age==="3-6")return 0;
+  if(age==="6-12")return 1;
+  if(age==="12+")return 2;
+  return 3; // 18+
+}
+function genExec(){
+  return shuffle(CMDS_EXEC).slice(0,6+rnd(2)); // 6~7 条执行功能指令
+}
+
 const MASCOTS={1:"🦆",2:"🐰",3:"🐱",4:"🐻"};
 
 /* ================= 生成函数 ================= */
@@ -203,24 +246,25 @@ function genCmds(){
   const hard=shuffle(CMDS_HARD).slice(0, rnd(2)); // 0~1 条进阶
   return shuffle(base.concat(hard));
 }
-function genNums(age){
-  const lenBase=age==="3-6"?3:4;
+function genNums(tier){
+  const base=[3,4,6,7][tier];           // 3-6:3~5位 / 6-12:4~6位 / 12+:6~8位 / 18+:7~9位
   return Array.from({length:3},()=>{
-    const len=lenBase+rnd(3);            // 3-6岁:3~5位; 6-12岁:4~6位
+    const len=base+rnd(3);
     const min=Math.pow(10,len-1);
     return {len,row:Array.from({length:4},()=>String(min+rnd(Math.pow(10,len)-min)))};
   });
 }
-function genWords(){
-  const keys=shuffle(Object.keys(WORD_POOLS));
+function genWords(tier){
+  const poolSet=tier<=1?WORD_POOLS:TEEN_POOLS;
+  const keys=shuffle(Object.keys(poolSet));
   const groupCount=2+rnd(1);             // 2~3 组，来自不同类别
   return Array.from({length:groupCount},(_,gi)=>{
     const cat=keys[gi%keys.length];
-    const pool=WORD_POOLS[cat];
+    const pool=poolSet[cat];
     const q=pick(pool);
     const k=2+rnd(2);                     // 重复 2~3 次
     const others=shuffle(pool.filter(w=>w!==q));
-    const len=5+rnd(2);                   // 5~6 个词
+    const len=tier<=1?5+rnd(2):4+rnd(2);  // 低龄5~6词；大龄用4字成语/词4~5个
     const pos=shuffle(Array.from({length:len},(_,i)=>i)).slice(0,k);
     let oi=0;
     const words=Array.from({length:len},(_,i)=>pos.includes(i)?q:others[oi++%others.length]);
@@ -237,12 +281,16 @@ function genSchulte(n){
 }
 function genAll(){
   const age=document.getElementById('ageSel').value;
-  const n=age==="3-6"?3:4;
+  const tier=ageTier(age);
+  const n=[3,4,5,5][tier];               // 舒尔特阶数：3-6→3×3 / 6-12→4×4 / 12+→5×5 / 18+→5×5
+  const isExec=tier>=2;                   // 12+/18+ 用执行功能指令代替幼儿动作指令
   return {
-    cmds:genCmds(),
-    nums:genNums(age),
-    words:genWords(),
-    sent:pick(SENT_SETS),
+    tier,
+    exec:isExec,
+    cmds:isExec?genExec():genCmds(),
+    nums:genNums(tier),
+    words:genWords(tier),
+    sent:tier<=1?pick(SENT_SETS):pick(SENT_TEEN),
     schulte:genSchulte(n),
   };
 }
@@ -271,22 +319,28 @@ function render(){
     ${dayPill(d)}`;
 
   // 1 封面
+  const coverSubText = DATA.tier<=1
+    ? `适合${age}岁小朋友`
+    : (age==="12+" ? `适合${age}岁青少年` : `适合${age}岁成年人 · 自我提升`);
   const c1=`
   <div class="card cover" id="card1"><div class="paper">
     <div class="brand">${brand}</div>
     <div class="coverTitle">100个专注力游戏</div>
-    <div class="coverSub">适合${age}岁小朋友</div>
+    <div class="coverSub">${coverSubText}</div>
     <div class="mascot">${mascot}</div>
     <div class="dayPillBig">第<b>${d}</b>天</div>
   </div></div>`;
 
-  // 2 听觉指令
+  // 2 听觉指令 / 执行功能指令
+  const isExec=DATA.exec;
   const hardCount=DATA.cmds.filter(c=>CMDS_HARD.includes(c)).length;
   const c2=`
   <div class="card" id="card2"><div class="paper">
     ${head("100天专注力训练")}
-    <div class="tag">训练① · 听觉指令反应${hardCount?"（含进阶指令）":""}</div>
-    <div class="req">要求：请家长和孩子面对面坐下，朗读下列指令，每个指令间隔五秒，当孩子听到指令后做出相应的动作，做完一个动作后恢复原样，直至完成全部动作。</div>
+    <div class="tag">训练① · ${isExec?"执行功能指令":"听觉指令反应"}${!isExec&&hardCount?"（含进阶指令）":""}</div>
+    <div class="req">${isExec
+      ? "要求：请自我朗读下列规则，或请同伴随机念出，你在听到后按对应规则做出反应（训练执行功能、反应抑制与抗干扰，适合青少年/成人自我训练）。"
+      : "要求：请家长和孩子面对面坐下，朗读下列指令，每个指令间隔五秒，当孩子听到指令后做出相应的动作，做完一个动作后恢复原样，直至完成全部动作。"}</div>
     <div class="content"><div class="cmdGrid">${DATA.cmds.map(c=>`<span>${c}</span>`).join("")}</div></div>
     ${foot()}
   </div></div>`;
@@ -428,6 +482,69 @@ const POST_TPLS=[
 
 #专注力 #互动话题 #育儿经验 #舒尔特 #听觉训练 #儿童发育 #陪娃`
 ];
+const KNOW_POOL_ADULT=[
+  "成年人的分心，多半是大脑默认模式网络太活跃，靠训练能把它按下。",
+  "舒尔特不只练孩子，成年人练也能明显提升阅读速度与信息检索效率。",
+  "多任务处理是专注力杀手，一次只做一件事实测更高。",
+  "睡眠是记忆的整理时间，熬夜后第二天专注力会断崖式下跌。",
+  "有氧运动会提升脑源性神经营养因子，专注力随之水涨船高。",
+  "番茄工作法本质是给大脑设短冲刺，比硬熬两小时更抗拖延。",
+  "正念呼吸能激活前额叶，3次深呼吸就能把飘走的注意力拉回。",
+  "专注力有带宽，焦虑和压力会占用带宽，先减负再谈训练。",
+  "信息碎片会缩短注意力跨度，每天留一段无手机时间很有必要。",
+  "听数字倒背（N-back）是被研究证实的工作记忆训练，成人同样有效。",
+  "咖啡因能提神却治不了专注缺失，规律作息才是底层基建。",
+  "把大任务拆成25分钟小块，大脑更容易进入心流而非一直抗拒。"
+];
+const PAIN_POOL_ADULT=[
+  "开工5分钟就忍不住摸手机？",
+  "开会走神，回过神来不知道讲到哪了？",
+  "看书两页，脑子已经飘到晚饭吃什么？",
+  "明明重要的事，却一直拖到最后一晚才动？",
+  "学不进去，不是笨，是注意力被短视频切碎了。"
+];
+const POST_TPLS_ADULT=[
+  // 0 打卡记录
+  ({d,age,schType,wordCats})=>`100天专注力训练 · 第${d}天（${age}·自我提升）
+
+今天练了：执行功能指令＋数字听觉记忆＋词语听觉记忆（${wordCats}）＋句子复述＋舒尔特方格（${schType}）。
+每天给自己10分钟，比刷手机有用，比焦虑管用。专注力是练出来的，成年人也一样💪
+打卡扣1，一起走完100天！
+
+#成年人专注力 #自我提升 #职场效率 #舒尔特 #抗干扰 #备考 #认知训练`,
+  // 1 干货
+  ({d,age,schType,wordCats,know})=>`专注力小知识｜${know}
+
+落到今天的练习（第${d}天·${age}）：执行功能指令＋数字听觉记忆＋词语听觉记忆（${wordCats}）＋句子复述＋舒尔特方格（${schType}）。
+成年人分心多是默认模式太活跃，靠训练能把开关按回来。
+收藏，每天照着练👉
+
+#成年人专注力 #脑科学 #效率 #舒尔特 #听觉记忆 #自我提升 #备考`,
+  // 2 痛点
+  ({d,age,schType,wordCats,pain})=>`${pain}
+
+别急着怪自己自控差，先练第${d}天（${age}）：执行功能指令＋数字听觉记忆＋词语听觉记忆（${wordCats}）＋句子复述＋舒尔特方格（${schType}）。
+每天10分钟，坚持比自责有用💡
+你中了几条？评论区聊聊
+
+#成年人专注力 #拖延 #分心 #职场 #训练方法 #舒尔特 #效率干货`,
+  // 3 成果
+  ({d,age,schType,wordCats})=>`第${d}天打卡达成✅（${age}·自我提升）
+
+今天训练：执行功能指令＋数字听觉记忆＋词语听觉记忆（${wordCats}）＋句子复述＋舒尔特方格（${schType}）。
+100天很长，但每天10分钟很短。把刷手机换成练大脑，状态会吓你一跳🌟
+明天见，记得来打卡扣1
+
+#100天打卡 #成年人专注力 #坚持 #自我提升 #舒尔特 #职场效率`,
+  // 4 互动
+  ({d,age,schType,wordCats})=>`你能连续专注多久不被打断？🤔
+
+第${d}天（${age}）我们练这5项：执行功能指令＋数字听觉记忆＋词语听觉记忆（${wordCats}）＋句子复述＋舒尔特方格（${schType}）。
+从一开工就走神到坐得住，靠的就是每天这一小步。
+评论区扣分钟数，说说你能扛几分钟👇
+
+#成年人专注力 #互动话题 #职场 #备考 #舒尔特 #听觉训练 #自我管理`
+];
 function copyPost(){
   const d=document.getElementById('dayInput').value||1;
   const age=document.getElementById('ageSel').value;
@@ -435,11 +552,13 @@ function copyPost(){
   const wordCats=DATA?DATA.words.map(w=>w.cat).join("、"):"";
   // 按天播种：第N天文案稳定可复现，不同天自动轮换模板/知识/痛点，避免雷同
   srand(d*7919 + 41);
-  const know=pick(KNOW_POOL);
-  const pain=pick(PAIN_POOL);
-  const idx=d % POST_TPLS.length;
-  const txt=POST_TPLS[idx]({d,age,schType,wordCats,know,pain});
-  navigator.clipboard.writeText(txt).then(()=>alert("发布文案已复制✓（模板"+(idx+1)+"/"+POST_TPLS.length+"）"));
+  const adult=DATA&&DATA.tier>=2;
+  const know=pick(adult?KNOW_POOL_ADULT:KNOW_POOL);
+  const pain=pick(adult?PAIN_POOL_ADULT:PAIN_POOL);
+  const tp=adult?POST_TPLS_ADULT:POST_TPLS;
+  const idx=d % tp.length;
+  const txt=tp[idx]({d,age,schType,wordCats,know,pain});
+  navigator.clipboard.writeText(txt).then(()=>alert("发布文案已复制✓（模板"+(idx+1)+"/"+tp.length+"）"));
 }
 function regen(){BATCH++;render();}
 
