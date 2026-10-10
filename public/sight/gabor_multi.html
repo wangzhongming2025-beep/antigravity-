@@ -300,7 +300,7 @@
         let motionRAF = null;
 
         function drawGaborTo(c, angle, contrast, frequency, sigma, radius) {
-            const S = c.width;
+            const S = c.canvas.width;
             const imageData = c.createImageData(S, S);
             const data = imageData.data;
             const mid = S / 2;
@@ -329,7 +329,7 @@
         }
 
         function drawGaborMotion(c, mx, my, contrast, frequency, sigma, t) {
-            const S = c.width;
+            const S = c.canvas.width;
             const imageData = c.createImageData(S, S);
             const data = imageData.data;
             const mid = S / 2;
