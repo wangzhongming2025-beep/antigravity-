@@ -515,7 +515,7 @@
             isProcessing = true;
             const correct = (side === gs.fDenser);
             if (correct) {
-                gs.fDiff = Math.max(0.004, gs.fDiff * 0.85);
+                gs.fDiff = Math.max(0.015, gs.fDiff * 0.85);
                 gs.level++;
                 flash('success', '判断准确');
             } else {
@@ -526,6 +526,7 @@
         }
 
         function renderSearchGrid() {
+            isProcessing = false; // 复位：pickSearch 点完后会 setTimeout 调本函数，必须重新放行点击
             const grid = document.getElementById('search-grid');
             grid.innerHTML = '';
             const n = gs.searchGrid;
