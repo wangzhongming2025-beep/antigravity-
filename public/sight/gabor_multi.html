@@ -532,19 +532,32 @@
             grid.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
             const total = n * n;
             const targetIdx = Math.floor(Math.random() * total);
-            const baseR = 26;
+            // 关键修复：尺寸差异必须同时缩放「Gabor 包络(sigma)」和「剪裁半径」，
+            // 否则纹理斑本身大小不变，只有一圈灰色底在变，肉眼几乎看不出大小。
+            const baseSigma = 8;     // 基准包络，决定可见斑大小
+            const baseClip = 15;     // 基准圆形半径
             const bigger = Math.random() < 0.5;
-            const targetR = bigger ? baseR * gs.searchRatio : baseR / gs.searchRatio;
-            const angle = 45, freq = 0.10, sig = 11, contrast = 0.85;
+            const ratio = gs.searchRatio;
+            const targetScale = bigger ? ratio : (1 / ratio);
+            const angle = 45, freq = 0.10, contrast = 0.9;
             for (let i = 0; i < total; i++) {
-                const r = (i === targetIdx) ? targetR : baseR;
+                const scale = (i === targetIdx) ? targetScale : 1;
                 const cv = document.createElement('canvas');
                 cv.width = 72; cv.height = 72;
                 cv.className = 'rounded-xl bg-zinc-800 cursor-pointer transition-transform hover:scale-105';
                 cv.style.width = '100%';
                 cv.style.aspectRatio = '1 / 1';
                 cv.onclick = ((idx) => () => pickSearch(idx))(i);
-                drawGaborTo(cv.getContext('2d'), angle, contrast, freq, sig, r);
+                const cx = cv.getContext('2d');
+                const sigma = baseSigma * scale;
+                const clip = baseClip * scale;
+                drawGaborTo(cx, angle, contrast, freq, sigma, clip);
+                // 描出清晰边界，让「更大 / 更小」一眼可辨
+                cx.strokeStyle = 'rgba(255,255,255,0.30)';
+                cx.lineWidth = 1.5;
+                cx.beginPath();
+                cx.arc(36, 36, clip, 0, Math.PI * 2);
+                cx.stroke();
                 grid.appendChild(cv);
             }
             gs.searchTarget = targetIdx;
