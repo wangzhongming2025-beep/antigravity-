@@ -11,10 +11,14 @@
         .btn { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-primary { background: #007bff; color: #fff; }
         .btn-secondary { background: #6c757d; color: #fff; }
-        .page { max-width: 850px; margin: 0 auto; border: 1px solid #eee; padding: 40px; background: #fff; min-height: 1100px; position: relative; }
-        h1, h2, h3 { color: #000; margin-top: 0; }
-        .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .info-row { display: flex; gap: 40px; margin-bottom: 20px; font-weight: 500; }
+        /* 每张训练单独立成页：屏幕堆叠预览，打印时每页一个完整内容 */
+        .sheet { max-width: 850px; margin: 0 auto 24px; border: 1px solid #eee; padding: 34px 40px; background: #fff; box-sizing: border-box; }
+        .sheet-title { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sheet-title h1, .sheet-title h2 { color: #000; margin: 0; }
+        .sheet-title h1 { font-size: 1.7rem; }
+        .sheet-title h2 { font-size: 1.35rem; }
+        .tag { font-size: 0.9rem; color: #555; background: #f0f0f5; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+        .info-row { display: flex; gap: 40px; font-weight: 500; }
         .underline { border-bottom: 1px solid #000; padding: 0 40px; }
         .schulte-grid { display: grid; border: 2px solid #000; width: 100%; max-width: 450px; margin: 20px auto; }
         .schulte-cell { border: 1px solid #000; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; }
@@ -31,85 +35,126 @@
         /* Discrim */
         .discrim-container { display: flex; gap: 30px; align-items: flex-start; margin-top: 20px; }
         .discrim-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; flex: 3; }
-        @media print { .no-print { display: none; } body { padding: 0; } .page { border: none; padding: 0; width: 100%; max-width: none; margin: 0; } .page-break { page-break-before: always; } }
+        p.tip { color: #555; font-size: 0.95rem; line-height: 1.6; }
+        .use-line { text-align: right; margin-top: 18px; font-weight: 500; }
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; background: #fff; }
+            .sheet { border: none; padding: 0; margin: 0; width: 100%; max-width: none; box-sizing: border-box;
+                     page-break-before: always; page-break-inside: avoid; break-before: page; break-inside: avoid; }
+            .cover { page-break-before: auto; break-before: auto; }
+            .cover ol { margin-top: 14px; }
+        }
     </style>
+      <!-- VG-SEO -->
+  <link rel="canonical" href="https://sighthealthpro.com/sight/focus_training/printable.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="VisionGuard AI" />
+  <meta property="og:title" content="专注力训练纸质工作单生成器 | Phase 8" />
+  <meta property="og:description" content="" />
+  <meta property="og:url" content="https://sighthealthpro.com/sight/focus_training/printable.html" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="专注力训练纸质工作单生成器 | Phase 8" />
+  <meta name="twitter:description" content="" />
+  <script type="application/ld+json">[{"@context": "https://schema.org", "@type": "WebPage", "@id": "https://sighthealthpro.com/sight/focus_training/printable.html#webpage", "url": "https://sighthealthpro.com/sight/focus_training/printable.html", "name": "专注力训练纸质工作单生成器 | Phase 8", "description": "专注力训练纸质工作单生成器 | Phase 8", "inLanguage": "zh-CN", "isPartOf": {"@id": "https://sighthealthpro.com/#website"}, "publisher": {"@id": "https://sighthealthpro.com/#organization"}}]</script>
 </head>
 <body>
     <div class="no-print">
         <button class="btn btn-primary" onclick="window.print()">🖨️ 打印工作单 (PDF)</button>
         <button class="btn btn-secondary" onclick="regenerateAll()">🔄 刷新题目内容</button>
-        <span style="color: #666; font-size: 0.9rem;">提示：建议使用彩色打印以获得最佳 Stroop 效果。</span>
+        <span style="color: #666; font-size: 0.9rem;">提示：建议使用彩色打印以获得最佳 Stroop 效果；每项训练独立一页，可直接撕下使用。</span>
     </div>
 
-    <!-- PAGE 1 -->
-    <div class="page">
-        <div class="header">
-            <div><h1>专注力综合训练单</h1><p>Phase 8: Advanced Cognitive Training</p></div>
+    <!-- COVER 封面 -->
+    <div class="sheet cover">
+        <div class="sheet-title">
+            <div><h1>专注力综合训练单</h1><p style="margin:4px 0 0;">Phase 8: Advanced Cognitive Training · 共 8 项训练</p></div>
             <div class="info-row"><span>姓名: <span class="underline"></span></span><span>日期: <span class="underline"></span></span></div>
         </div>
-
-        <div class="section">
-            <h2>一、译码运算训练 (提升视觉加工速度)</h2>
-            <p>说明：参照密码本，将符号转换为数字并计算结果。</p>
-            <div id="decoding-legend" class="decoding-legend"></div>
-            <div id="decoding-questions" class="decoding-questions"></div>
-        </div>
-
-        <div class="section" style="margin-top: 40px;">
-            <h2>二、走迷宫训练 (空间规划)</h2>
-            <div style="text-align: center;"><canvas id="maze-canvas" width="450" height="450" style="border: 2px solid #000;"></canvas></div>
-        </div>
-        <p style="text-align: right; margin-top: 20px;">训练用时：__________ 秒</p>
+        <p class="tip">说明：本训练单包含 8 个独立模块，每项训练单独成页，建议每天完成 1–2 项，每项限时训练。请家长 / 老师根据孩子情况调整难度。</p>
+        <ol style="font-size: 1.05rem; line-height: 1.9;">
+            <li>一、译码运算训练（视觉加工速度）</li>
+            <li>二、走迷宫训练（空间规划）</li>
+            <li>三、视觉分辨训练（共轴圆划消）</li>
+            <li>四、译码连线训练（视动整合）</li>
+            <li>五、空间译码训练（二维空间查表）</li>
+            <li>六、舒尔特方格（5×5 级）</li>
+            <li>七、斯特鲁普抗干扰训练（错色朗读）</li>
+            <li>八、视觉划消（bdpq 混淆）</li>
+        </ol>
     </div>
 
-    <!-- PAGE 2 -->
-    <div class="page page-break">
-        <div class="header"><h2>三、视觉分辨训练 (共轴圆划消)</h2></div>
-        <p>说明：找出右侧矩阵中所有与“目标图例”完全相同的图形并圈出来。</p>
+    <!-- SHEET 1 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>一、译码运算训练</h2><span class="tag">提升视觉加工速度</span></div>
+        <p class="tip">说明：参照密码本，将符号转换为数字并计算结果。</p>
+        <div id="decoding-legend" class="decoding-legend"></div>
+        <div id="decoding-questions" class="decoding-questions"></div>
+        <p class="use-line">训练用时：__________ 秒</p>
+    </div>
+
+    <!-- SHEET 2 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>二、走迷宫训练</h2><span class="tag">空间规划</span></div>
+        <p class="tip">说明：从起点走到终点，只能用铅笔描出唯一通路，注意绕开死胡同。</p>
+        <div style="text-align: center;"><canvas id="maze-canvas" width="450" height="450" style="border: 2px solid #000;"></canvas></div>
+        <p class="use-line">训练用时：__________ 秒</p>
+    </div>
+
+    <!-- SHEET 3 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>三、视觉分辨训练</h2><span class="tag">共轴圆划消</span></div>
+        <p class="tip">说明：找出右侧矩阵中所有与"目标图例"完全相同的图形并圈出来。</p>
         <div class="discrim-container">
             <div style="flex: 1; border: 2px solid #000; padding: 20px; text-align: center;">
-                <h3>目标图例</h3>
+                <h3 style="margin-top:0;">目标图例</h3>
                 <canvas id="discrim-target" width="100" height="100"></canvas>
             </div>
             <div id="discrim-grid" class="discrim-grid"></div>
         </div>
-        <p style="text-align: right; margin-top: 40px;">找到总数：__________ / 目标总数：<span id="discrim-total-count">?</span></p>
-
-        <div class="section" style="margin-top: 50px;">
-            <h2>四、译码连线训练 (视动整合)</h2>
-            <p>说明：参照对照表，将左侧的字母序列与右侧对应的数字组进行校验/连线。</p>
-            <div id="decoding-conn-legend" class="decoding-legend" style="margin-bottom: 20px;"></div>
-            <div id="decoding-conn-rows" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
-        </div>
-
-        <div class="page-break"></div>
-
-        <div class="section">
-            <h2>五、空间译码训练 (二维空间查表)</h2>
-            <p>说明：观察每个图形对应颜色所代表的数字或字母，在下表横线处按顺序填写。</p>
-            <div id="space-legend-print" style="margin-bottom: 20px;"></div>
-            <div id="space-rows-print" style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;"></div>
-        </div>
-
-        <div class="section" style="margin-top: 50px;">
-            <h2>六、舒尔特方格 (5x5 级)</h2>
-            <div id="schulte-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
-            <p style="text-align: right;">用时：__________ 秒</p>
-        </div>
+        <p class="use-line">找到总数：__________ / 目标总数：<span id="discrim-total-count">?</span></p>
     </div>
 
-    <!-- PAGE 3 -->
-    <div class="page page-break">
-        <div class="header"><h2>五、斯特鲁普抗干扰训练 (错色朗读)</h2></div>
-        <p>说明：**请大声读出文字的【颜色】**，忽略文字本身的含义。要求快速且准确。</p>
-        <table id="stroop-table" class="stroop-table"></table>
-        <p style="text-align: right; margin-top: 20px;">错误次数：__________ / 用时：__________ 秒</p>
+    <!-- SHEET 4 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>四、译码连线训练</h2><span class="tag">视动整合</span></div>
+        <p class="tip">说明：参照对照表，将左侧的字母序列转换为对应的数字组，写在右侧横线上。</p>
+        <div id="decoding-conn-legend" class="decoding-legend" style="margin-bottom: 20px;"></div>
+        <div id="decoding-conn-rows" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
+        <p class="use-line">完成题数：__________ / 12</p>
+    </div>
 
-        <div class="section" style="margin-top: 50px;">
-            <h2>六、视觉划消 (bdpq 混淆)</h2>
-            <p>说明：在 45 秒内圈出所有的 <strong style="font-size: 1.5rem;">q</strong>。</p>
-            <div id="cancel-grid" class="cancel-grid"></div>
-        </div>
+    <!-- SHEET 5 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>五、空间译码训练</h2><span class="tag">二维空间查表</span></div>
+        <p class="tip">说明：观察每个图形对应颜色所代表的数字或字母，在下表横线处按顺序填写。</p>
+        <div id="space-legend-print" style="margin-bottom: 20px;"></div>
+        <div id="space-rows-print" style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;"></div>
+    </div>
+
+    <!-- SHEET 6 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>六、舒尔特方格</h2><span class="tag">5×5 级 · 视觉搜索广度</span></div>
+        <p class="tip">说明：按 1→25 的顺序依次指读并点击数字，记录完成时间，越快代表视觉搜索越专注。</p>
+        <div id="schulte-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
+        <p class="use-line">用时：__________ 秒</p>
+    </div>
+
+    <!-- SHEET 7 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>七、斯特鲁普抗干扰训练</h2><span class="tag">错色朗读</span></div>
+        <p class="tip">说明：请大声读出文字的【颜色】，忽略文字本身的含义。要求快速且准确。</p>
+        <table id="stroop-table" class="stroop-table"></table>
+        <p class="use-line">错误次数：__________ / 用时：__________ 秒</p>
+    </div>
+
+    <!-- SHEET 8 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>八、视觉划消</h2><span class="tag">bdpq 混淆</span></div>
+        <p class="tip">说明：在 45 秒内圈出所有的 <strong style="font-size: 1.5rem;">q</strong>，其余字母不圈。</p>
+        <div id="cancel-grid" class="cancel-grid"></div>
+        <p class="use-line">圈出数量：__________ / 用时：__________ 秒</p>
     </div>
 
     <script>
@@ -225,7 +270,7 @@
 
         function generateMaze(id, size) {
             const cvs = document.getElementById(id); const ctx = cvs.getContext('2d'); const cs = cvs.width/size;
-            const grid = Array.from({length:size},()=>Array(size).fill(false)); 
+            const grid = Array.from({length:size},()=>Array(size).fill(false));
             const walls = { v: Array.from({length:size},()=>Array(size+1).fill(true)), h: Array.from({length:size+1},()=>Array(size).fill(true)) };
             function walk(x,y) { grid[y][x]=true; [[0,1],[0,-1],[1,0],[-1,0]].sort(()=>Math.random()-0.5).forEach(([dx,dy])=>{const nx=x+dx,ny=y+dy; if(nx>=0&&nx<size&&ny>=0&&ny<size&&!grid[ny][nx]){if(dx===1)walls.v[y][x+1]=false; if(dx===-1)walls.v[y][x]=false; if(dy===1)walls.h[y+1][x]=false; if(dy===-1)walls.h[y][x]=false; walk(nx,ny);}}); }
             walk(0,0); walls.v[0][0]=false; walls.v[size-1][size]=false; ctx.clearRect(0,0,cvs.width,cvs.height); ctx.lineWidth=1;
