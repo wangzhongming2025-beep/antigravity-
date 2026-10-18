@@ -29,6 +29,13 @@
         .cancel-grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 5px; font-family: "Courier New", monospace; font-size: 1.2rem; text-align: center; margin: 20px 0; }
         .digit-span-list { columns: 2; margin-top: 20px; list-style: none; padding: 0; font-size: 0.9rem; }
         .digit-span-list li { margin-bottom: 8px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        /* 查缺补漏 */
+        .gap-grid { max-width: 660px; margin: 20px auto; }
+        .gap-row { display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed #ddd; padding: 8px 0; }
+        .gap-row .digits { flex: 1; display: flex; align-items: baseline; justify-content: space-between; font-family: "Courier New", monospace; font-size: 1.5rem; font-weight: 600; letter-spacing: 2px; }
+        .gap-row .gap-slot { display: inline-block; width: 34px; border-bottom: 2px solid #000; }
+        .gap-row .gap-answer { font-size: 1.05rem; color: #555; white-space: nowrap; }
+        .gap-row .gap-answer b { display: inline-block; width: 34px; border-bottom: 1px solid #000; }
         /* Decoding */
         .decoding-legend { display: flex; justify-content: space-around; border: 2px solid #000; padding: 10px; margin: 20px 0; font-size: 1.5rem; }
         .decoding-questions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
@@ -76,10 +83,10 @@
     <!-- COVER 封面 -->
     <div class="sheet cover">
         <div class="sheet-title">
-            <div><h1>专注力综合训练单</h1><p style="margin:4px 0 0;">Phase 8: Advanced Cognitive Training · 共 8 项训练</p></div>
+            <div><h1>专注力综合训练单</h1><p style="margin:4px 0 0;">Phase 8: Advanced Cognitive Training · 共 9 项训练</p></div>
             <div class="info-row"><span>姓名: <span class="underline"></span></span><span>日期: <span class="underline"></span></span></div>
         </div>
-        <p class="tip">说明：本训练单包含 8 个独立模块，每项训练单独成页，建议每天完成 1–2 项，每项限时训练。请家长 / 老师根据孩子情况调整难度。</p>
+        <p class="tip">说明：本训练单包含 9 个独立模块，每项训练单独成页，建议每天完成 1–2 项，每项限时训练。请家长 / 老师根据孩子情况调整难度。</p>
         <ol style="font-size: 1.05rem; line-height: 1.9; text-align: left;">
             <li>一、译码运算训练（视觉加工速度）</li>
             <li>二、走迷宫训练（空间规划）</li>
@@ -89,6 +96,7 @@
             <li>六、舒尔特方格（5×5 级）</li>
             <li>七、斯特鲁普抗干扰训练（错色朗读）</li>
             <li>八、视觉划消（bdpq 混淆）</li>
+            <li>九、查缺补漏（防看错看漏）</li>
         </ol>
     </div>
 
@@ -206,6 +214,23 @@
         </div>
     </div>
 
+    <!-- SHEET 9 查缺补漏 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>九、查缺补漏</h2><span class="tag">眼球左右控制稳定</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★☆</span></div>
+        <p class="tip">说明：每一行都是 0–9 十个数字，但其中【藏起来了一个】。请从左到右逐个扫视，找出这一行缺少的数字，写在行末的横线上。要求：手指不点、不出声，只用眼睛左右扫视，训练「不看错、不看漏」。</p>
+        <div class="info-row" style="justify-content: center; margin-bottom: 6px;">
+            <span>时间： <span class="underline"></span> 分 <span class="underline"></span> 秒</span>
+            <span>错误： <span class="underline"></span></span>
+        </div>
+        <div id="gap-grid" class="gap-grid"></div>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>完成：<span class="blank"></span> / 14 行 / 用时 <span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
+    </div>
+
     <script>
         const THEMES = { symbols: ['△', '☆', '○', '□', '◇', '▽', '⬔', '⬓'] };
         const COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'black'];
@@ -317,6 +342,24 @@
             for(let i=0; i<200; i++) { const d = document.createElement('div'); d.textContent = ['b','d','p','q'][Math.floor(Math.random()*4)]; g.appendChild(d); }
         }
 
+        function generateGapFill() {
+            const g = document.getElementById('gap-grid'); g.innerHTML = '';
+            for(let r=0; r<14; r++) {
+                // 0-9 共10个数字，随机去掉1个 → 剩9个；再在随机位置插入一个空位
+                const missing = Math.floor(Math.random()*10);
+                const digits = Array.from({length:10}, (_,i)=>i).filter(n=>n!==missing)
+                    .sort(()=>Math.random()-0.5);
+                const gapPos = Math.floor(Math.random()*10); // 0-9 共10个槽位
+                let cells = '';
+                let di = 0;
+                for(let s=0; s<10; s++) {
+                    if(s===gapPos) cells += '<span class="gap-slot"></span>';
+                    else cells += `<span>${digits[di++]}</span>`;
+                }
+                g.innerHTML += `<div class="gap-row"><div class="digits">${cells}</div><span class="gap-answer">缺：<b></b></span></div>`;
+            }
+        }
+
         function generateMaze(id, size) {
             const cvs = document.getElementById(id); const ctx = cvs.getContext('2d'); const cs = cvs.width/size;
             const grid = Array.from({length:size},()=>Array(size).fill(false));
@@ -330,6 +373,7 @@
         function regenerateAll() {
             generateDecoding(); generateMaze('maze-canvas', 20); generateDiscrim();
             generateDecodingConn(); generateSpace(); generateSchulte('schulte-5', 5); generateStroop(); generateCancel();
+            generateGapFill();
         }
         window.onload = regenerateAll;
     </script>
