@@ -11,13 +11,17 @@
         .btn { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-primary { background: #007bff; color: #fff; }
         .btn-secondary { background: #6c757d; color: #fff; }
-        /* 每张训练单独立成页：屏幕堆叠预览，打印时每页一个完整内容 */
+        /* 每张训练单独立成页：屏幕堆叠预览，打印时每页一个完整内容，整体居中避免两侧溢出 */
         .sheet { max-width: 850px; margin: 0 auto 24px; border: 1px solid #eee; padding: 34px 40px; background: #fff; box-sizing: border-box; }
-        .sheet-title { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-end; }
+        /* 所有直接子元素统一限宽并居中，防止内容贴边/超出 */
+        .sheet > * { max-width: 720px; margin-left: auto; margin-right: auto; }
+        .sheet-title { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; }
         .sheet-title h1, .sheet-title h2 { color: #000; margin: 0; }
         .sheet-title h1 { font-size: 1.7rem; }
         .sheet-title h2 { font-size: 1.35rem; }
         .tag { font-size: 0.9rem; color: #555; background: #f0f0f5; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+        .submeta { margin: 8px auto 16px; font-size: 0.92rem; color: #555; }
+        .stars { color: #f5a623; letter-spacing: 2px; font-size: 1.05rem; }
         .info-row { display: flex; gap: 40px; font-weight: 500; }
         .underline { border-bottom: 1px solid #000; padding: 0 40px; }
         .schulte-grid { display: grid; border: 2px solid #000; width: 100%; max-width: 450px; margin: 20px auto; }
@@ -33,10 +37,13 @@
         .stroop-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .stroop-table td { border: 1px solid #eee; padding: 10px; text-align: center; font-size: 1.4rem; font-weight: 900; }
         /* Discrim */
-        .discrim-container { display: flex; gap: 30px; align-items: flex-start; margin-top: 20px; }
-        .discrim-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; flex: 3; }
-        p.tip { color: #555; font-size: 0.95rem; line-height: 1.6; }
-        .use-line { text-align: right; margin-top: 18px; font-weight: 500; }
+        .discrim-container { display: flex; gap: 30px; align-items: flex-start; margin-top: 20px; justify-content: center; }
+        .discrim-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; flex: 3; max-width: 560px; }
+        p.tip { color: #555; font-size: 0.95rem; line-height: 1.6; text-align: left; }
+        /* 底部统一信息栏：日期 / 时间(用时) / 成绩评价 */
+        .sheet-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 26px; padding-top: 12px; border-top: 1px dashed #ccc; font-size: 0.95rem; max-width: 720px; }
+        .sheet-foot .blank { border-bottom: 1px solid #000; padding: 0 28px; display: inline-block; }
+        .sheet-foot .eval { white-space: nowrap; }
         @media print {
             .no-print { display: none; }
             body { padding: 0; background: #fff; }
@@ -73,7 +80,7 @@
             <div class="info-row"><span>姓名: <span class="underline"></span></span><span>日期: <span class="underline"></span></span></div>
         </div>
         <p class="tip">说明：本训练单包含 8 个独立模块，每项训练单独成页，建议每天完成 1–2 项，每项限时训练。请家长 / 老师根据孩子情况调整难度。</p>
-        <ol style="font-size: 1.05rem; line-height: 1.9;">
+        <ol style="font-size: 1.05rem; line-height: 1.9; text-align: left;">
             <li>一、译码运算训练（视觉加工速度）</li>
             <li>二、走迷宫训练（空间规划）</li>
             <li>三、视觉分辨训练（共轴圆划消）</li>
@@ -88,23 +95,34 @@
     <!-- SHEET 1 -->
     <div class="sheet">
         <div class="sheet-title"><h2>一、译码运算训练</h2><span class="tag">提升视觉加工速度</span></div>
+        <div class="submeta">难度：<span class="stars">★★★☆☆</span></div>
         <p class="tip">说明：参照密码本，将符号转换为数字并计算结果。</p>
         <div id="decoding-legend" class="decoding-legend"></div>
         <div id="decoding-questions" class="decoding-questions"></div>
-        <p class="use-line">训练用时：__________ 秒</p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>用时：<span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 2 -->
     <div class="sheet">
         <div class="sheet-title"><h2>二、走迷宫训练</h2><span class="tag">空间规划</span></div>
+        <div class="submeta">难度：<span class="stars">★★★☆☆</span></div>
         <p class="tip">说明：从起点走到终点，只能用铅笔描出唯一通路，注意绕开死胡同。</p>
         <div style="text-align: center;"><canvas id="maze-canvas" width="450" height="450" style="border: 2px solid #000;"></canvas></div>
-        <p class="use-line">训练用时：__________ 秒</p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>用时：<span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 3 -->
     <div class="sheet">
         <div class="sheet-title"><h2>三、视觉分辨训练</h2><span class="tag">共轴圆划消</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★☆</span></div>
         <p class="tip">说明：找出右侧矩阵中所有与"目标图例"完全相同的图形并圈出来。</p>
         <div class="discrim-container">
             <div style="flex: 1; border: 2px solid #000; padding: 20px; text-align: center;">
@@ -113,48 +131,79 @@
             </div>
             <div id="discrim-grid" class="discrim-grid"></div>
         </div>
-        <p class="use-line">找到总数：__________ / 目标总数：<span id="discrim-total-count">?</span></p>
+        <p class="tip" style="text-align:right;">找到总数：__________ / 目标总数：<span id="discrim-total-count">?</span></p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>用时：<span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 4 -->
     <div class="sheet">
         <div class="sheet-title"><h2>四、译码连线训练</h2><span class="tag">视动整合</span></div>
+        <div class="submeta">难度：<span class="stars">★★★☆☆</span></div>
         <p class="tip">说明：参照对照表，将左侧的字母序列转换为对应的数字组，写在右侧横线上。</p>
         <div id="decoding-conn-legend" class="decoding-legend" style="margin-bottom: 20px;"></div>
         <div id="decoding-conn-rows" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
-        <p class="use-line">完成题数：__________ / 12</p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>完成：<span class="blank"></span> / 12 题</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 5 -->
     <div class="sheet">
         <div class="sheet-title"><h2>五、空间译码训练</h2><span class="tag">二维空间查表</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★☆</span></div>
         <p class="tip">说明：观察每个图形对应颜色所代表的数字或字母，在下表横线处按顺序填写。</p>
         <div id="space-legend-print" style="margin-bottom: 20px;"></div>
         <div id="space-rows-print" style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;"></div>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>用时：<span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 6 -->
     <div class="sheet">
         <div class="sheet-title"><h2>六、舒尔特方格</h2><span class="tag">5×5 级 · 视觉搜索广度</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★★</span></div>
         <p class="tip">说明：按 1→25 的顺序依次指读并点击数字，记录完成时间，越快代表视觉搜索越专注。</p>
         <div id="schulte-5" class="schulte-grid" style="grid-template-columns: repeat(5, 1fr);"></div>
-        <p class="use-line">用时：__________ 秒</p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>用时：<span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 7 -->
     <div class="sheet">
         <div class="sheet-title"><h2>七、斯特鲁普抗干扰训练</h2><span class="tag">错色朗读</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★★</span></div>
         <p class="tip">说明：请大声读出文字的【颜色】，忽略文字本身的含义。要求快速且准确。</p>
         <table id="stroop-table" class="stroop-table"></table>
-        <p class="use-line">错误次数：__________ / 用时：__________ 秒</p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>错误：<span class="blank"></span> 次 / 用时 <span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <!-- SHEET 8 -->
     <div class="sheet">
         <div class="sheet-title"><h2>八、视觉划消</h2><span class="tag">bdpq 混淆</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★☆</span></div>
         <p class="tip">说明：在 45 秒内圈出所有的 <strong style="font-size: 1.5rem;">q</strong>，其余字母不圈。</p>
         <div id="cancel-grid" class="cancel-grid"></div>
-        <p class="use-line">圈出数量：__________ / 用时：__________ 秒</p>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>圈出：<span class="blank"></span> 个 / 用时 <span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
     </div>
 
     <script>
