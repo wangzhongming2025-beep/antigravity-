@@ -39,6 +39,12 @@
         /* 视觉抗干扰 */
         .anti-grid { display: grid; grid-template-columns: repeat(19, 1fr); gap: 4px 2px; max-width: 680px; margin: 16px auto; font-family: "Courier New", monospace; font-size: 1.4rem; font-weight: 600; text-align: center; }
         .anti-target { font-size: 1.6rem; font-weight: 800; letter-spacing: 6px; border-bottom: 2px solid #000; padding: 0 10px; }
+        /* 译码运算进阶（形状×颜色） */
+        .cm-legend { max-width: 620px; margin: 16px auto; border-collapse: collapse; }
+        .cm-legend td, .cm-legend th { border: 1px solid #000; text-align: center; padding: 6px 4px; font-size: 1.15rem; }
+        .cm-probs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 18px; max-width: 680px; margin: 18px auto; }
+        .cm-q { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 8px 4px; font-size: 1.55rem; font-weight: 700; }
+        .cm-q .ans { display: inline-block; min-width: 52px; border-bottom: 1px solid #000; }
         /* Decoding */
         .decoding-legend { display: flex; justify-content: space-around; border: 2px solid #000; padding: 10px; margin: 20px 0; font-size: 1.5rem; }
         .decoding-questions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
@@ -87,10 +93,10 @@
     <!-- COVER 封面 -->
     <div class="sheet cover">
         <div class="sheet-title">
-            <div><h1>专注力综合训练单</h1><p style="margin:4px 0 0;">Phase 8: Advanced Cognitive Training · 共 10 项训练</p></div>
+            <div><h1>专注力综合训练单</h1><p style="margin:4px 0 0;">Phase 8: Advanced Cognitive Training · 共 11 项训练</p></div>
             <div class="info-row"><span>姓名: <span class="underline"></span></span><span>日期: <span class="underline"></span></span></div>
         </div>
-        <p class="tip">说明：本训练单包含 10 个独立模块，每项训练单独成页，建议每天完成 1–2 项，每项限时训练。请家长 / 老师根据孩子情况调整难度。</p>
+        <p class="tip">说明：本训练单包含 11 个独立模块，每项训练单独成页，建议每天完成 1–2 项，每项限时训练。请家长 / 老师根据孩子情况调整难度。</p>
         <ol style="font-size: 1.05rem; line-height: 1.9; text-align: left;">
             <li>一、译码运算训练（视觉加工速度）</li>
             <li>二、走迷宫训练（空间规划）</li>
@@ -102,6 +108,7 @@
             <li>八、视觉划消（bdpq 混淆）</li>
             <li>九、查缺补漏（防看错看漏）</li>
             <li>十、视觉抗干扰训练（找目标数串）</li>
+            <li>十一、译码运算进阶（形状×颜色查表）</li>
         </ol>
     </div>
 
@@ -245,6 +252,20 @@
         <div class="sheet-foot">
             <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
             <span>找到：<span class="blank"></span> 处（实际共 <b id="anti-count">?</b> 处）/ 用时 <span class="blank"></span> 秒</span>
+            <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
+        </div>
+    </div>
+
+    <!-- SHEET 11 译码运算进阶 -->
+    <div class="sheet">
+        <div class="sheet-title"><h2>十一、译码运算进阶</h2><span class="tag">形状×颜色 双维查表</span></div>
+        <div class="submeta">难度：<span class="stars">★★★★☆</span></div>
+        <p class="tip">说明：每个图形都有自己的颜色。先在密码表中找到【这个形状所在行】与【它的颜色所在列】交叉处的数字，把每个图形译成数字，再按符号计算结果，写在等号后的横线上。</p>
+        <div id="cm-legend-wrap"></div>
+        <div id="cm-probs" class="cm-probs"></div>
+        <div class="sheet-foot">
+            <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
+            <span>完成：<span class="blank"></span> / 24 题 / 用时 <span class="blank"></span> 秒</span>
             <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
         </div>
     </div>
@@ -402,6 +423,37 @@
             document.getElementById('anti-count').textContent = OCCUR;
         }
 
+        function generateCodeMath() {
+            // 形状×颜色 双维密码表：数字 = (颜色序号 + 形状序号) mod 8 + 1，与对标资料一致
+            const shapes = ['△', '☆', '○', '□'];
+            const cols = ['#ffd966', '#ea4335', '#93c47d', '#4a86e8', '#ff9900', '#b4a7d6', '#76a5af', '#674ea7'];
+            const digitOf = (si, ci) => ((si + ci) % 8) + 1;
+            // 1) 密码表
+            let h = '<table class="cm-legend"><tr><td style="border:none;"></td>';
+            cols.forEach(c => h += `<td style="background:${c}; width:34px; height:26px;"></td>`);
+            h += '</tr>';
+            shapes.forEach((s, si) => {
+                h += `<tr><td style="font-size:1.4rem;">${s}</td>`;
+                cols.forEach((c, ci) => h += `<td>${digitOf(si, ci)}</td>`);
+                h += '</tr>';
+            });
+            h += '</table>';
+            document.getElementById('cm-legend-wrap').innerHTML = h;
+            // 2) 24 题：每题 3 个彩色图形 + 加减混合
+            const probs = document.getElementById('cm-probs');
+            probs.innerHTML = '';
+            const ops = ['+', '+', '−'];
+            for(let i=0; i<24; i++) {
+                let q = '';
+                for(let t=0; t<3; t++) {
+                    const si = Math.floor(Math.random()*4), ci = Math.floor(Math.random()*8);
+                    q += (t>0 ? `<span style="margin:0 6px;">${ops[Math.floor(Math.random()*(t===2?3:2))]}</span>` : '') +
+                         `<span style="color:${cols[ci]};">${shapes[si]}</span>`;
+                }
+                probs.innerHTML += `<div class="cm-q"><span style="display:flex; align-items:center;">${q}</span><span>= <span class="ans"></span></span></div>`;
+            }
+        }
+
         function generateMaze(id, size) {
             const cvs = document.getElementById(id); const ctx = cvs.getContext('2d'); const cs = cvs.width/size;
             const grid = Array.from({length:size},()=>Array(size).fill(false));
@@ -415,7 +467,7 @@
         function regenerateAll() {
             generateDecoding(); generateMaze('maze-canvas', 20); generateDiscrim();
             generateDecodingConn(); generateSpace(); generateSchulte('schulte-5', 5); generateStroop(); generateCancel();
-            generateGapFill(); generateAnti();
+            generateGapFill(); generateAnti(); generateCodeMath();
         }
         window.onload = regenerateAll;
     </script>
