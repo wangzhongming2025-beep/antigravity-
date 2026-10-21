@@ -42,10 +42,10 @@
         .anti-grid { display: grid; grid-template-columns: repeat(19, 1fr); gap: 4px 2px; max-width: min(680px, 100%); margin: 16px auto; font-family: "Courier New", monospace; font-size: clamp(1rem, 3.6vw, 1.4rem); font-weight: 600; text-align: center; }
         .anti-target { font-size: 1.6rem; font-weight: 800; letter-spacing: 6px; border-bottom: 2px solid #000; padding: 0 10px; }
         /* 译码运算进阶（形状×颜色） */
-        .cm-legend { max-width: min(620px, 100%); margin: 16px auto; border-collapse: collapse; }
-        .cm-legend td, .cm-legend th { border: 1px solid #000; text-align: center; padding: 6px 4px; font-size: 1.15rem; }
-        .cm-probs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 18px; max-width: min(680px, 100%); margin: 18px auto; }
-        .cm-q { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 8px 4px; font-size: 1.55rem; font-weight: 700; }
+        .cm-legend { max-width: min(620px, 100%); margin: 14px auto; border-collapse: collapse; }
+        .cm-legend td, .cm-legend th { border: 1px solid #000; text-align: center; padding: 5px 3px; font-size: 1.05rem; }
+        .cm-probs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 14px; max-width: min(680px, 100%); margin: 16px auto; }
+        .cm-q { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 7px 4px; font-size: 1.35rem; font-weight: 700; }
         .cm-q .ans { display: inline-block; min-width: 52px; border-bottom: 1px solid #000; }
         /* 视觉路径记忆 */
         .pm-wrap { text-align: center; }
@@ -86,6 +86,9 @@
                      page-break-before: always; page-break-inside: avoid; break-before: page; break-inside: avoid; }
             .cover { page-break-before: auto; break-before: auto; }
             .cover ol { margin-top: 14px; }
+            p.tip { margin: 8px auto; padding: 8px 12px; }
+            .submeta { margin: 8px auto 12px; }
+            .sheet-foot { margin-top: 14px; }
         }
         /* 窄屏自适应：减列 + 字号收缩，避免溢出 */
         @media (max-width: 600px) {
@@ -292,7 +295,7 @@
         <div id="cm-probs" class="cm-probs"></div>
         <div class="sheet-foot">
             <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
-            <span>完成：<span class="blank"></span> / 24 题 / 用时 <span class="blank"></span> 秒</span>
+            <span>完成：<span class="blank"></span> / 15 题 / 用时 <span class="blank"></span> 秒</span>
             <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
         </div>
     </div>
@@ -400,21 +403,21 @@
                 ]
             };
             let h = '<table border="1" style="width:100%; border-collapse:collapse; text-align:center;"><tr><td style="width:12%"></td>';
-            config.colors.forEach(c => h += `<td style="background:${c}; height:30px;"></td>`);
+            config.colors.forEach(c => h += `<td style="background:${c}; height:24px;"></td>`);
             h += '</tr>';
             config.shapes.forEach((s, ri) => {
-                h += `<tr><td style="font-size:1.5rem; padding:10px;">${s}</td>`;
-                config.mapping[ri].forEach(v => h += `<td style="padding:10px; font-weight:bold;">${v}</td>`);
+                h += `<tr><td style="font-size:1.3rem; padding:5px;">${s}</td>`;
+                config.mapping[ri].forEach(v => h += `<td style="padding:5px; font-weight:bold;">${v}</td>`);
                 h += '</tr>';
             });
             h += '</table>';
             leg.innerHTML = h;
             rows.innerHTML = '';
-            for(let i=0; i<10; i++) {
+            for(let i=0; i<7; i++) {
                 const seq = Array.from({length:6}, () => ({ ri: Math.floor(Math.random()*4), ci: Math.floor(Math.random()*8) }));
-                let rHtml = '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding:10px;"><div style="display:flex; gap:15px; font-size:1.5rem;">';
+                let rHtml = '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding:6px;"><div style="display:flex; gap:12px; font-size:1.3rem;">';
                 seq.forEach(item => rHtml += `<span style="color:${config.colors[item.ci]}">${config.shapes[item.ri]}</span>`);
-                rHtml += '</div><div style="flex-grow:1; margin-left:40px; border-bottom:1px solid #000; height:20px;"></div></div>';
+                rHtml += '</div><div style="flex-grow:1; margin-left:24px; border-bottom:1px solid #000; height:20px;"></div></div>';
                 rows.innerHTML += rHtml;
             }
         }
@@ -488,11 +491,11 @@
             });
             h += '</table>';
             document.getElementById('cm-legend-wrap').innerHTML = h;
-            // 2) 24 题：每题 3 个彩色图形 + 加减混合
+            // 2) 15 题：每题 3 个彩色图形 + 加减混合
             const probs = document.getElementById('cm-probs');
             probs.innerHTML = '';
             const ops = ['+', '+', '−'];
-            for(let i=0; i<24; i++) {
+            for(let i=0; i<15; i++) {
                 let q = '';
                 for(let t=0; t<3; t++) {
                     const si = Math.floor(Math.random()*4), ci = Math.floor(Math.random()*8);
