@@ -504,7 +504,7 @@
         function generatePathMemory() {
             const cvs = document.getElementById('pm-canvas');
             const ctx = cvs.getContext('2d');
-            const N = 14, cs = cvs.width / N;
+            const N = 18, cs = cvs.width / N;
             const dirs = [[1,0],[0,-1],[-1,0],[0,1]];   // → ↑ ← ↓
             ctx.clearRect(0, 0, cvs.width, cvs.height);
             // 浅色网格
@@ -513,36 +513,44 @@
                 ctx.beginPath(); ctx.moveTo(i*cs, 0); ctx.lineTo(i*cs, cvs.height); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, i*cs); ctx.lineTo(cvs.width, i*cs); ctx.stroke();
             }
-            // 随机生成不自交的折线路径，只用于推导「走法指令」（不在图上画，留给孩子按指令画）
-            let x = 2 + Math.floor(Math.random()*3), y = 3 + Math.floor(Math.random()*8);
-            const startX = x, startY = y;
-            const visited = new Set([x + ',' + y]);
-            const segs = []; let lastDir = -1;
-            const maxLen = (px, py, d) => {
-                const [dx, dy] = dirs[d]; let m = 0;
-                for(let i = 1; i <= 4; i++) {
-                    const nx = px + dx*i, ny = py + dy*i;
-                    if(nx < 0 || nx >= N || ny < 0 || ny >= N || visited.has(nx + ',' + ny)) break;
-                    m = i;
-                }
-                return m;
-            };
-            for(let s = 0; s < 11; s++) {
-                const order = [0,1,2,3].sort(() => Math.random() - 0.5);
-                let done = false;
-                for(const d of order) {
-                    if(d === (lastDir + 2) % 4) continue;           // 不许立即回头
-                    const m = maxLen(x, y, d);
-                    if(m > 0) {
-                        const [dx, dy] = dirs[d];
-                        const len = 1 + Math.floor(Math.random() * m);   // 1~可行最大
+            // 随机生成折线路径并推导「走法指令」：保证 ≥32 段（底部 ≥4 行 ×8 列），每次刷新都不同
+            const genWalk = () => {
+                for(let attempt = 0; attempt < 80; attempt++) {
+                    let x = 2 + Math.floor(Math.random()*3), y = 3 + Math.floor(Math.random()*8);
+                    const sx = x, sy = y;
+                    const visited = new Set([x + ',' + y]);
+                    const segs = []; let lastDir = -1;
+                    while(segs.length < 40) {
+                        const order = [0,1,2,3].sort(() => Math.random() - 0.5);
+                        const cands = [];
+                        for(const d of order) {
+                            if(d === (lastDir + 2) % 4) continue;            // 不立即回头
+                            const [dx, dy] = dirs[d]; let m = 0;
+                            for(let i = 1; i <= 4; i++) {
+                                const nx = x + dx*i, ny = y + dy*i;
+                                if(nx < 0 || nx >= N || ny < 0 || ny >= N) break;
+                                m = i;
+                            }
+                            if(m === 0) continue;
+                            let cross = false;
+                            for(let i = 1; i <= m; i++) { if(visited.has((x+dx*i) + ',' + (y+dy*i))) { cross = true; break; } }
+                            cands.push({ d, m, cross });
+                        }
+                        if(!cands.length) break;
+                        const nc = cands.filter(c => !c.cross);
+                        const pool = nc.length ? nc : cands;                 // 优先不交叉，必要时允许
+                        const pick = pool[Math.floor(Math.random() * pool.length)];
+                        const [dx, dy] = dirs[pick.d];
+                        const len = 1 + Math.floor(Math.random() * pick.m);  // 1~可行最大
                         for(let i = 1; i <= len; i++) visited.add((x + dx*i) + ',' + (y + dy*i));
-                        x += dx * len; y += dy * len;
-                        segs.push({ d, len }); lastDir = d; done = true; break;
+                        x += dx * len; y += dy * len; segs.push({ d: pick.d, len }); lastDir = pick.d;
+                        if(segs.length >= 32) break;
                     }
+                    if(segs.length >= 32) return { segs, sx, sy };
                 }
-                if(!done) break;
-            }
+                return { segs, sx: 2, sy: 3 };
+            };
+            const { segs, sx: startX, sy: startY } = genWalk();
             // 只画起点红点（路径留给孩子按指令画）
             ctx.fillStyle = '#d33';
             ctx.beginPath(); ctx.arc((startX + 0.5) * cs, (startY + 0.5) * cs, 6, 0, 7); ctx.fill();
