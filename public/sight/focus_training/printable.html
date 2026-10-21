@@ -304,20 +304,15 @@
     <div class="sheet">
         <div class="sheet-title"><h2>十二、视觉路径记忆</h2><span class="tag">视觉短时记忆 · 手眼协调</span></div>
         <div class="submeta">难度：<span class="stars">★★★★★</span></div>
-        <p class="tip">说明：网格里有一个红色起点，从它出发有一条折线路径（箭头是终点）。请先用【眼睛】从起点开始把整条路走一遍——不许用手指、不许用笔描；记住走法后，按顺序在下方表格里写出每一段的「格数 + 方向」，例如向右走 2 格就写 <b>2→</b>，向上走 3 格就写 <b>3↑</b>。写完再数一数：路径一共几段、总共走了几步。</p>
+        <p class="tip">说明：上方网格里有<b>一个红色起点</b>。下方表格里是按顺序给出的「走法指令」，例如 <b>2→</b> 表示从起点向右走 2 格，<b>3↑</b> 表示向上走 3 格，<b>1←</b> 表示向左走 1 格。请<b>用笔</b>从红点开始，严格按指令一段一段把路线画出来，连成一条完整的路径。</p>
         <div class="pm-wrap">
             <canvas id="pm-canvas" width="440" height="440"></canvas>
-            <div class="pm-legend">方向：→ 右　↑ 上　← 左　↓ 下　｜　路径共 ______ 段，共 ______ 步</div>
+            <div class="pm-legend">方向：→ 右　↑ 上　← 左　↓ 下　｜　走法指令：</div>
+            <table class="pm-table" id="pm-table"></table>
         </div>
-        <table class="pm-table">
-            <tr><td class="rowmark">①</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="rowmark">②</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="rowmark">③</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            <tr><td class="rowmark">④</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        </table>
         <div class="sheet-foot">
             <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
-            <span>写出：<span class="blank"></span> 段（实际共 <b id="pm-count">?</b> 段）/ 用时 <span class="blank"></span> 秒</span>
+            <span>画出：<span class="blank"></span> 段（指令共 <b id="pm-count">?</b> 段）/ 用时 <span class="blank"></span> 秒</span>
             <span class="eval">成绩评价：□优 □良 □中 □待提升</span>
         </div>
     </div>
@@ -518,7 +513,7 @@
                 ctx.beginPath(); ctx.moveTo(i*cs, 0); ctx.lineTo(i*cs, cvs.height); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, i*cs); ctx.lineTo(cvs.width, i*cs); ctx.stroke();
             }
-            // 随机生成不自交的折线路径（9段，每段1~4格）
+            // 随机生成不自交的折线路径，只用于推导「走法指令」（不在图上画，留给孩子按指令画）
             let x = 2 + Math.floor(Math.random()*3), y = 3 + Math.floor(Math.random()*8);
             const startX = x, startY = y;
             const visited = new Set([x + ',' + y]);
@@ -532,7 +527,7 @@
                 }
                 return m;
             };
-            for(let s = 0; s < 9; s++) {
+            for(let s = 0; s < 11; s++) {
                 const order = [0,1,2,3].sort(() => Math.random() - 0.5);
                 let done = false;
                 for(const d of order) {
@@ -548,25 +543,20 @@
                 }
                 if(!done) break;
             }
-            // 画路径
-            ctx.strokeStyle = '#111'; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            ctx.beginPath();
-            let cx = (startX + 0.5) * cs, cy = (startY + 0.5) * cs;
-            ctx.moveTo(cx, cy);
-            segs.forEach(({ d, len }) => { cx += dirs[d][0] * len * cs; cy += dirs[d][1] * len * cs; ctx.lineTo(cx, cy); });
-            ctx.stroke();
-            // 起点红点
+            // 只画起点红点（路径留给孩子按指令画）
             ctx.fillStyle = '#d33';
-            ctx.beginPath(); ctx.arc((startX + 0.5) * cs, (startY + 0.5) * cs, 5.5, 0, 7); ctx.fill();
-            // 终点箭头
-            if(segs.length) {
-                const ang = Math.atan2(dirs[segs[segs.length-1].d][1], dirs[segs[segs.length-1].d][0]);
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.moveTo(cx + Math.cos(ang) * 9, cy + Math.sin(ang) * 9);
-                ctx.lineTo(cx + Math.cos(ang + 2.6) * 8, cy + Math.sin(ang + 2.6) * 8);
-                ctx.lineTo(cx + Math.cos(ang - 2.6) * 8, cy + Math.sin(ang - 2.6) * 8);
-                ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.arc((startX + 0.5) * cs, (startY + 0.5) * cs, 6, 0, 7); ctx.fill();
+            // 构建走法指令并填入底部表格（每 8 个换一行）
+            const ARROW = ['→', '↑', '←', '↓'];
+            const codes = segs.map(s => s.len + ARROW[s.d]);
+            const marks = ['①','②','③','④','⑤','⑥'];
+            const tbl = document.getElementById('pm-table'); tbl.innerHTML = '';
+            for(let r = 0; r < codes.length; r += 8) {
+                const chunk = codes.slice(r, r + 8);
+                let tr = '<tr><td class="rowmark">' + (marks[r/8] || '') + '</td>';
+                for(let c = 0; c < 8; c++) tr += '<td>' + (chunk[c] || '') + '</td>';
+                tr += '</tr>';
+                tbl.innerHTML += tr;
             }
             document.getElementById('pm-count').textContent = segs.length;
         }
