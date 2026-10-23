@@ -92,6 +92,7 @@
         @media print {
             .no-print { display: none; }
             body { padding: 0; background: #fff; }
+            *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .sheet { border: none; padding: 0; margin: 0; width: 100%; max-width: none; box-sizing: border-box; box-shadow: none !important; border-radius: 0;
                      page-break-before: always; page-break-inside: avoid; break-before: page; break-inside: avoid; }
             .cover { page-break-before: auto; break-before: auto; }
@@ -498,7 +499,7 @@
             const digitOf = (si, ci) => ((si + ci) % 8) + 1;
             // 1) 密码表
             let h = '<table class="cm-legend"><tr><td style="border:none;"></td>';
-            cols.forEach(c => h += `<td style="background:${c}; width:34px; height:26px;"></td>`);
+            cols.forEach(c => h += `<td style="background:${c}; width:34px; height:26px;"><span style="color:${c};">■</span></td>`);
             h += '</tr>';
             shapes.forEach((s, si) => {
                 h += `<tr><td style="font-size:1.4rem;">${s}</td>`;
