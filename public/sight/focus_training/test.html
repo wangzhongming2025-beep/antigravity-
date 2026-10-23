@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>专注力测评 · 测训闭环 | VisionGuard AI</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 24px 14px 60px;
+    background: radial-gradient(1200px 600px at 50% -10%, #0b1f3a 0%, #05070a 60%);
+    color: #e4e4e7;
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .brand { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #38bdf8; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  h1 { font-size: 22px; text-align: center; margin: 0 0 4px; color: #f4f4f5; }
+  .sub { text-align: center; color: #9ca3af; font-size: 13px; margin: 0 0 22px; }
+  .card { background: #0b0f15; border: 1px solid #1f2937; border-radius: 16px; padding: 22px 20px; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  label { font-size: 13px; color: #9ca3af; display: block; margin: 14px 0 6px; }
+  select, input[type=text] {
+    width: 100%; padding: 11px 13px; font-size: 15px; background: #05070a;
+    border: 1px solid #27303d; border-radius: 10px; color: #f4f4f5; outline: none;
+  }
+  select:focus, input:focus { border-color: #38bdf8; }
+  button {
+    padding: 12px 18px; font-size: 15px; font-weight: 600; border: none; border-radius: 10px;
+    cursor: pointer; transition: opacity .15s, transform .05s; background: #38bdf8; color: #05070a;
+  }
+  button:hover { opacity: .92; }
+  button:active { transform: translateY(1px); }
+  button.ghost { background: #111827; color: #cbd5e1; border: 1px solid #27303d; }
+  button.full { width: 100%; margin-top: 18px; }
+  .progress { height: 8px; background: #111827; border-radius: 99px; overflow: hidden; margin: 4px 0 18px; }
+  .progress > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#38bdf8,#22d3ee); transition: width .25s; }
+  .t-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .t-name { font-size: 16px; font-weight: 700; color: #f4f4f5; }
+  .t-no { font-size: 13px; color: #38bdf8; font-weight: 700; }
+  .t-inst { color: #cbd5e1; font-size: 14px; margin: 6px 0 16px; line-height: 1.6; }
+  .opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .opt {
+    padding: 14px 12px; font-size: 15px; background: #0b1220; border: 1px solid #27303d;
+    border-radius: 12px; color: #e4e4e7; cursor: pointer; text-align: center; transition: all .12s;
+  }
+  .opt:hover { border-color: #38bdf8; }
+  .opt.right { border-color: #22c55e; background: #052e1a; color: #bbf7d0; }
+  .opt.wrong { border-color: #ef4444; background: #2a0d0d; color: #fecaca; }
+  .opt.dim { opacity: .5; pointer-events: none; }
+  .type-in { display: flex; gap: 10px; }
+  .type-in input { flex: 1; text-transform: none; letter-spacing: 2px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0 4px; }
+  .legend span { background: #0b1220; border: 1px solid #27303d; border-radius: 8px; padding: 5px 9px; font-size: 13px; color: #cbd5e1; }
+  .grid { display: grid; gap: 6px; margin: 12px auto; justify-content: center; }
+  .cell {
+    width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; background: #0b1220; border: 1px solid #27303d; border-radius: 10px;
+    color: #e4e4e7; cursor: pointer; user-select: none; transition: all .1s;
+  }
+  .cell.done { background: #052e1a; border-color: #22c55e; color: #bbf7d0; }
+  .cell.bad { background: #2a0d0d; border-color: #ef4444; }
+  .cell.hot { border-color: #38bdf8; }
+  .cell.circled { position: relative; }
+  .cell.circled::after { content: ""; position: absolute; inset: 4px; border: 3px solid #f59e0b; border-radius: 50%; pointer-events: none; }
+  .memory-path { background: #1e3a5f !important; }
+  .result-index { font-size: 64px; font-weight: 800; text-align: center; color: #38bdf8; line-height: 1; margin: 6px 0; }
+  .result-stars { text-align: center; font-size: 26px; letter-spacing: 4px; margin-bottom: 8px; }
+  .result-tag { text-align: center; color: #9ca3af; font-size: 14px; margin-bottom: 16px; }
+  .breakdown { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin: 10px 0; }
+  .bk { display: flex; justify-content: space-between; font-size: 13px; background: #0b1220; border: 1px solid #1f2937; border-radius: 8px; padding: 7px 10px; }
+  .bk b { color: #f4f4f5; }
+  .bk .s { color: #38bdf8; font-weight: 700; }
+  .summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 14px 0; text-align: center; }
+  .summary div { background: #0b1220; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 6px; }
+  .summary .v { font-size: 24px; font-weight: 800; color: #f4f4f5; }
+  .summary .k { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .delta-up { color: #22c55e; } .delta-down { color: #ef4444; } .delta-flat { color: #9ca3af; }
+  .chart-wrap { background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; padding: 12px; margin: 10px 0; overflow-x: auto; }
+  table.hist { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  table.hist th, table.hist td { padding: 7px 8px; border-bottom: 1px solid #1f2937; text-align: left; }
+  table.hist th { color: #9ca3af; font-weight: 600; }
+  .note { font-size: 12px; color: #6b7280; margin-top: 10px; line-height: 1.6; }
+  .hidden { display: none !important; }
+  .center { text-align: center; }
+  .pill { display:inline-block; font-size:12px; padding:3px 9px; border-radius:99px; background:#0b1220; border:1px solid #27303d; color:#9ca3af; margin-left:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">VisionGuard AI · 专注力训练</div>
+  <h1>专注力测评 · 测训闭环</h1>
+  <p class="sub">先测基线 → 训练一段时间 → 再测一次，看进步曲线</p>
+
+  <!-- 设置面板 -->
+  <div class="card" id="setup">
+    <label>年龄档</label>
+    <select id="tier">
+      <option value="3-6岁">3-6 岁</option>
+      <option value="6-12岁" selected>6-12 岁</option>
+      <option value="12-18岁">12-18 岁</option>
+      <option value="18岁以上">18 岁以上</option>
+    </select>
+    <label>训练者昵称（家庭/多娃区分，跨设备同昵称可同步）</label>
+    <input type="text" id="nick" placeholder="例如：小明 / 姐姐" maxlength="20" />
+    <div class="row" style="margin-top:18px;">
+      <button id="startBtn" style="flex:1;">开始测评（约 3 分钟 · 12 项）</button>
+      <button id="progBtn" class="ghost">查看进步</button>
+    </div>
+    <p class="note">12 项对应训练体系：译码运算 / 走迷宫 / 视觉分辨 / 译码连线 / 空间译码 / 舒尔特 / 斯特鲁普 / 视觉划消 / 查缺补漏 / 视觉抗干扰 / 译码运算进阶 / 视觉路径记忆。成绩默认存本机，登录状态下自动同步云端。</p>
+  </div>
+
+  <!-- 测评面板 -->
+  <div class="card hidden" id="test">
+    <div class="t-head"><span class="t-name" id="tName"></span><span class="t-no" id="tNo"></span></div>
+    <div class="progress"><i id="bar"></i></div>
+    <div id="tBody"></div>
+  </div>
+
+  <!-- 结果面板 -->
+  <div class="card hidden" id="result">
+    <div class="result-index" id="rIndex">0</div>
+    <div class="result-stars" id="rStars"></div>
+    <div class="result-tag" id="rTag"></div>
+    <div class="breakdown" id="rBreak"></div>
+    <div class="row">
+      <button id="againBtn" style="flex:1;">再测一次</button>
+      <button id="seeProgBtn" class="ghost">看进步曲线</button>
+    </div>
+  </div>
+
+  <!-- 进步面板 -->
+  <div class="card hidden" id="progress">
+    <div class="t-head"><span class="t-name">进步曲线</span><span class="t-no" id="pCount"></span></div>
+    <div class="summary" id="pSummary"></div>
+    <div class="chart-wrap"><div id="chart"></div></div>
+    <table class="hist" id="histTable"></table>
+    <div class="row" style="margin-top:14px;">
+      <button id="backBtn" style="flex:1;">返回首页</button>
+      <button id="doTestBtn" class="ghost">去测评</button>
+    </div>
+    <p class="note" id="srcNote"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, html){ var e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  function rint(n){ return Math.floor(Math.random()*n); }
+  function pick(arr){ return arr[rint(arr.length)]; }
+  function nowStr(){ var d=new Date(); function p(x){return (x<10?'0':'')+x;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+
+  // ---------- 打分 ----------
+  function scoreBin(correct, ms, par){ par=par||4500; if(!correct) return 0; var r=Math.min(ms,par)/par; return Math.round(55+45*(1-r)); }
+  function scoreTime(ms, fast, slow){ fast=fast||9000; slow=slow||45000; var s=Math.round(100-(ms-fast)/(slow-fast)*60); return Math.max(40,Math.min(100,s)); }
+
+  // ---------- 通用任务：选择 ----------
+  function choiceTask(host, opt){
+    return new Promise(function(resolve){
+      if(!opt.append) host.innerHTML='';
+      if(opt.legend) host.appendChild(legendEl(opt.legend));
+      host.appendChild(el('div','t-inst',opt.instruction));
+      var row=el('div','opts'); host.appendChild(row);
+      var start=performance.now();
+      shuffle(opt.options).forEach(function(o){
+        var b=el('div','opt',o.label);
+        b.onclick=function(){
+          var ms=performance.now()-start;
+          var correct=(o.label===opt.options[opt.correct].label);
+          Array.prototype.forEach.call(row.children,function(c){ c.classList.add('dim'); });
+          b.classList.remove('dim');
+          b.classList.add(correct?'right':'wrong');
+          setTimeout(function(){ resolve({score:scoreBin(correct,ms,opt.par), ms:ms, correct:correct}); }, correct?250:550);
+        };
+        row.appendChild(b);
+      });
+    });
+  }
+  function legendEl(items){ var d=el('div','legend'); items.forEach(function(t){ d.appendChild(el('span',null,t)); }); return d; }
+
+  // ---------- 通用任务：输入 ----------
+  function typeTask(host, opt){
+    return new Promise(function(resolve){
+      host.innerHTML='';
+      if(opt.legend) host.appendChild(legendEl(opt.legend));
+      host.appendChild(el('div','t-inst',opt.instruction));
+      var wrap=el('div','type-in'); var inp=el('input'); inp.type='text'; inp.placeholder=opt.placeholder||'输入答案'; inp.autocomplete='off';
+      var btn=el('button',null,'提交');
+      wrap.appendChild(inp); wrap.appendChild(btn); host.appendChild(wrap); inp.focus();
+      var done=false;
+      function submit(){
+        if(done) return; done=true;
+        var ms=performance.now()-start;
+        var val=inp.value.trim().replace(/\s+/g,'');
+        var correct=(val===opt.correct);
+        inp.disabled=true; btn.disabled=true;
+        setTimeout(function(){ resolve({score:scoreBin(correct,ms,opt.par), ms:ms, correct:correct}); }, correct?200:400);
+      }
+      var start=performance.now();
+      btn.onclick=submit; inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+    });
+  }
+
+  // ---------- 舒尔特（点击序列） ----------
+  function schulteTask(host){
+    return new Promise(function(resolve){
+      host.innerHTML='';
+      host.appendChild(el('div','t-inst','舒尔特方格：按 <b>1 → '+12+'</b> 的顺序依次点击。看你能多快走完。'));
+      var n=12, cols=4, rows=3;
+      var grid=el('div','grid'); grid.style.gridTemplateColumns='repeat('+cols+',56px)';
+      var nums=shuffle(Array.from({length:n},function(_,i){return i+1;}));
+      var cells=[];
+      nums.forEach(function(v){
+        var c=el('div','cell',String(v)); c.dataset.v=v;
+        c.onclick=function(){
+          if(expected===v){ c.classList.add('done'); expected++; if(expected>n) finish(); }
+          else { c.classList.add('bad'); setTimeout(function(){c.classList.remove('bad');},300); }
+        };
+        cells.push(c); grid.appendChild(c);
+      });
+      host.appendChild(grid);
+      var expected=1; var start=performance.now();
+      function finish(){ var ms=performance.now()-start; resolve({score:scoreTime(ms,9000,45000), ms:ms, correct:true}); }
+    });
+  }
+
+  // ---------- 斯特鲁普（4 轮） ----------
+  var COLORS=[['红','#ef4444'],['绿','#22c55e'],['蓝','#3b82f6'],['黄','#eab308']];
+  function stroopTask(host){
+    return new Promise(function(resolve){
+      host.innerHTML='';
+      host.appendChild(el('div','t-inst','斯特鲁普：说出<b>字的颜色</b>（不是字义）。共 4 题。'));
+      var round=0, correct=0; var start=performance.now();
+      function one(){
+        host.querySelectorAll('.opts,.t-inst2,.t-word').forEach(function(n){ n.remove(); });
+        if(round>=4){ var ms=performance.now()-start; resolve({score:Math.round(correct/4*100), ms:ms, correct:correct===4}); return; }
+        round++;
+        var word=pick(COLORS), ink=pick(COLORS);
+        var tip=el('div','t-inst t-inst2', '第 '+round+'/4 题：这个字是<b>什么颜色</b>？');
+        host.appendChild(tip);
+        var row=el('div','opts');
+        shuffle(COLORS).forEach(function(c){
+          var b=el('div','opt', c[0]); b.style.color=c[1];
+          b.onclick=function(){
+            var ok=(c[0]===ink[0]); if(ok) correct++;
+            Array.prototype.forEach.call(row.children,function(x){x.classList.add('dim');});
+            b.classList.remove('dim'); b.classList.add(ok?'right':'wrong');
+            setTimeout(one, 420);
+          };
+          row.appendChild(b);
+        });
+        host.appendChild(row);
+        var w=el('div','t-word'); w.style.textAlign='center'; w.style.fontSize='40px'; w.style.fontWeight='800'; w.style.margin='14px 0'; w.style.color=ink[1]; w.textContent=word[0];
+        host.insertBefore(w, tip.nextSibling);
+      }
+      one();
+    });
+  }
+
+  // ---------- 视觉路径记忆 ----------
+  function memoryTask(host){
+    return new Promise(function(resolve){
+      host.innerHTML='';
+      var N=5;
+      var grid=el('div','grid'); grid.style.gridTemplateColumns='repeat('+N+',46px)';
+      var cells=[];
+      for(var i=0;i<N*N;i++){ var c=el('div','cell',''); cells.push(c); grid.appendChild(c); }
+      host.appendChild(grid);
+      // 随机游走
+      var path=[], x=rint(N), y=rint(N); path.push(y*N+x);
+      var dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+      for(var s=0;s<4;s++){ var d=pick(dirs); var nx=x+d[0], ny=y+d[1]; if(nx<0||nx>=N||ny<0||ny>=N){ s--; continue; } x=nx;y=ny; path.push(y*N+x); }
+      path.forEach(function(idx){ cells[idx].classList.add('memory-path'); });
+      host.appendChild(el('div','t-inst','记住高亮路线，2.5 秒后消失，选出<b>终点</b>在哪格。'));
+      setTimeout(function(){
+        path.forEach(function(idx){ cells[idx].classList.remove('memory-path'); });
+        var endIdx=path[path.length-1];
+        var opts=shuffle([endIdx, rint(N*N), rint(N*N), rint(N*N)]).slice(0,4);
+        if(opts.indexOf(endIdx)<0) opts[0]=endIdx;
+        opts=shuffle(opts);
+        var row=el('div','opts');
+        opts.forEach(function(idx){
+          var b=el('div','opt','第 '+ (Math.floor(idx/N)+1) +' 行 第 '+ (idx%N+1) +' 列');
+          b.onclick=function(){
+            var correct=(idx===endIdx);
+            Array.prototype.forEach.call(row.children,function(x){x.classList.add('dim');});
+            b.classList.remove('dim'); b.classList.add(correct?'right':'wrong');
+            setTimeout(function(){ resolve({score:scoreBin(correct, 0, 4500), ms:0, correct:correct}); }, correct?250:550);
+          };
+          row.appendChild(b);
+        });
+        host.appendChild(row);
+      }, 2500);
+    });
+  }
+
+  // ---------- 12 项任务定义 ----------
+  var LETTERS=['A','B','C','D','E','F','G','H','I'];
+  var LMAP={}; LETTERS.forEach(function(L,i){ LMAP[L]=i+1; });
+  var TASKS=[
+    { name:'译码运算', run:function(h){ var seq=Array.from({length:3},function(){return pick(LETTERS);});
+        var ans=seq.map(function(L){return LMAP[L];}).join(' ');
+        return typeTask(h,{ legend:LETTERS.map(function(L){return L+'='+LMAP[L];}), instruction:'把字母序列译成数字（空格分隔）：<b>'+seq.join(' ')+'</b>', placeholder:'如 2 1 3', correct:ans, par:7000 }); } },
+    { name:'走迷宫', run:function(h){ var opts=[{label:'左上'},{label:'左下'},{label:'右上'},{label:'右下'}];
+        return choiceTask(h,{ instruction:'小迷宫里起点 S 在左上、终点 E 在右下。终点在迷宫的哪个方位？', options:opts, correct:3, par:5000 }); } },
+    { name:'视觉分辨', run:function(h){ var odd=rint(4); var opts=[];
+        for(var i=0;i<4;i++){ opts.push({label: i===odd?'■':'●'}); }
+        return choiceTask(h,{ instruction:'四个图形里，哪个与其余三个<b>不一样</b>？', options:opts, correct:odd, par:4500 }); } },
+    { name:'译码连线', run:function(h){ var L=pick(LETTERS); var ans=LMAP[L];
+        var opts=[{label:String(ans)}]; while(opts.length<4){ var v=rint(9)+1; if(v!==ans && !opts.some(function(o){return o.label===String(v);})) opts.push({label:String(v)}); }
+        return choiceTask(h,{ legend:LETTERS.map(function(L){return L+'='+LMAP[L];}), instruction:'字母 <b>'+L+'</b> 对应哪个数字？', options:opts, correct:0, par:4500 }); } },
+    { name:'空间译码', run:function(h){ var r=rint(3)+1, c=rint(3)+1; var ans=(r-1)*3+(c-1);
+        var opts=[]; for(var i=0;i<9;i++){ if(i===ans) opts.push({label:'第'+r+'行第'+(c)+'列'}); else opts.push({label:'第'+(rint(3)+1)+'行第'+(rint(3)+1)+'列'}); }
+        return choiceTask(h,{ instruction:'空间密码：行从上到下、列从左到右。代码「第 '+r+' 行 第 '+c+' 列」指向哪一格？', options:opts, correct:0, par:5500 }); } },
+    { name:'舒尔特方格', run:function(h){ return schulteTask(h); } },
+    { name:'斯特鲁普', run:function(h){ return stroopTask(h); } },
+    { name:'视觉划消', run:function(h){ var s=''; var chars=['b','p','d','q']; var target=rint(4)+2; var cnt=0;
+        for(var i=0;i<24;i++){ var ch=pick(chars); if(ch==='b') cnt++; s+=ch; }
+        while(cnt<target){ s=s.slice(0,rint(s.length))+'b'+s.slice(rint(s.length)); cnt++; }
+        return typeTask(h,{ instruction:'数一数下面这串字母里有几个 <b>b</b>，输入数字：<br><br><span style="font-size:18px;letter-spacing:3px;word-break:break-all;">'+s+'</span>', placeholder:'如 5', correct:String(cnt), par:12000 }); } },
+    { name:'查缺补漏', run:function(h){ var step=rint(3)+2; var miss=rint(3)+1; var seq=[]; for(var i=0;i<5;i++){ if(i===miss) seq.push('__'); else seq.push(String((i)*step)); }
+        var ans=String(miss*step);
+        var opts=[{label:ans}]; while(opts.length<4){ var v=String(rint(20)); if(!opts.some(function(o){return o.label===v;})) opts.push({label:v}); }
+        return choiceTask(h,{ instruction:'找规律填空缺：<b>'+seq.join(' ， ')+'</b>', options:opts, correct:0, par:6000 }); } },
+    { name:'视觉抗干扰', run:function(h){ var N=5; var grid=el('div','grid'); grid.style.gridTemplateColumns='repeat('+N+',44px)';
+        var cells=[]; var target=rint(N*N); var targetVal=rint(9)+1;
+        for(var i=0;i<N*N;i++){ var c=el('div','cell', String(rint(9)+1)); if(i===target){ c.textContent=targetVal; c.classList.add('circled'); } cells.push(c); grid.appendChild(c); }
+        h.appendChild(grid);
+        var opts=[{label:String(targetVal)}]; while(opts.length<4){ var v=rint(9)+1; if(!opts.some(function(o){return o.label===String(v);})) opts.push({label:String(v)}); }
+        return choiceTask(h,{ append:true, instruction:'网格里被<b>橙色圆圈</b>圈住的数字是几？', options:opts, correct:0, par:5000 }); } },
+    { name:'译码运算进阶', run:function(h){ var cmap={'红':7,'蓝':4,'黄':9}; var smap={'方':3,'圆':6,'三角':1};
+        var color=pick(Object.keys(cmap)), shape=pick(Object.keys(smap)); var ans=String(cmap[color])+String(smap[shape]);
+        var opts=[{label:ans}]; while(opts.length<4){ var v=String(rint(9))+String(rint(9)); if(v.length===2 && !opts.some(function(o){return o.label===v;})) opts.push({label:v}); }
+        return choiceTask(h,{ legend:['颜色: 红=7 蓝=4 黄=9','形状: 方=3 圆=6 三角=1'], instruction:'<span style="color:'+(color==='红'?'#ef4444':color==='蓝'?'#3b82f6':'#eab308')+';font-weight:800;">'+color+'</span><b>'+shape+'</b> 的代码是几位数字？', options:opts, correct:0, par:5500 }); } },
+    { name:'视觉路径记忆', run:function(h){ return memoryTask(h); } }
+  ];
+
+  // ---------- 引擎 ----------
+  var state={ tier:'6-12岁', nick:'default', scores:{}, totalMs:0 };
+  function show(id){ ['setup','test','result','progress'].forEach(function(p){ $(p).classList.add('hidden'); }); if(id) $(id).classList.remove('hidden'); }
+
+  async function runTest(){
+    state.scores={}; state.totalMs=0;
+    show('test');
+    for(var i=0;i<TASKS.length;i++){
+      $('tName').textContent=(i+1)+'. '+TASKS[i].name;
+      $('tNo').textContent='第 '+(i+1)+' / '+TASKS.length+' 项';
+      $('bar').style.width=Math.round(i/TASKS.length*100)+'%';
+      $('tBody').innerHTML='';
+      var r=await TASKS[i].run($('tBody'));
+      state.scores['t'+(i+1)]=r.score; state.totalMs+=r.ms;
+    }
+    $('bar').style.width='100%';
+    var vals=Object.keys(state.scores).map(function(k){return state.scores[k];});
+    var index=Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length);
+    renderResult(index);
+    show('result');
+  }
+
+  function stars(idx){ var n=Math.round(idx/20); n=Math.max(1,Math.min(5,n)); return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+  function tagOf(idx){ if(idx>=85) return '专注力优秀，保持训练节奏'; if(idx>=70) return '良好，有提升空间'; if(idx>=55) return '中等，建议规律训练'; return '偏弱，需要系统训练'; }
+
+  function renderResult(index){
+    $('rIndex').textContent=index;
+    $('rStars').textContent=stars(index);
+    $('rTag').textContent=tagOf(index)+'（年龄档：'+state.tier+'）';
+    var bk=$('rBreak'); bk.innerHTML='';
+    TASKS.forEach(function(t,i){ var s=state.scores['t'+(i+1)];
+      var row=el('div','bk'); row.appendChild(el('b',null,(i+1)+'. '+t.name));
+      row.appendChild(el('span','s',s+' 分')); bk.appendChild(row);
+    });
+    var rec={ ts:Date.now(), date:nowStr(), ageTier:state.tier, nick:state.nick, index:index, scores:state.scores, durationSec:Math.round(state.totalMs/1000) };
+    saveRecord(rec);
+  }
+
+  // ---------- 存储 ----------
+  function lsKey(nick){ return 'focus_test_v1_'+(nick||'default'); }
+  function localSave(rec){ try{ var k=lsKey(rec.nick); var arr=JSON.parse(localStorage.getItem(k)||'[]'); arr.push(rec); localStorage.setItem(k, JSON.stringify(arr.slice(-100))); }catch(e){} }
+  function localLoad(nick){ try{ return JSON.parse(localStorage.getItem(lsKey(nick))||'[]'); }catch(e){ return []; } }
+  async function cloudSave(rec){ try{ var r=await fetch('/api/sight/focus_test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); return (await r.json()).ok===true; }catch(e){ return false; } }
+  async function cloudLoad(nick){ try{ var r=await fetch('/api/sight/focus_test?nick='+encodeURIComponent(nick)); var j=await r.json(); if(j&&j.ok&&Array.isArray(j.records)) return j.records; return null; }catch(e){ return null; } }
+  function saveRecord(rec){ localSave(rec); cloudSave(rec); }
+  async function loadHistory(nick){
+    var c=await cloudLoad(nick);
+    if(c && c.length>=0 && c!==null){ if(c.length===0){ var l=localLoad(nick); return {records:l, src: l.length?'local':'empty'}; } return {records:c, src:'cloud'}; }
+    return {records:localLoad(nick), src:'local'};
+  }
+
+  // ---------- 进步视图 ----------
+  function renderProgress(){
+    show('progress');
+    var nick=$('nick').value.trim()||'default'; state.nick=nick;
+    loadHistory(nick).then(function(res){
+      var recs=res.records.slice().sort(function(a,b){return a.ts-b.ts;});
+      $('pCount').textContent= recs.length? ('共 '+recs.length+' 次') : '';
+      var sum=$('pSummary'); sum.innerHTML='';
+      if(recs.length===0){
+        sum.innerHTML='<div><div class="v">—</div><div class="k">暂无记录</div></div><div><div class="v">—</div><div class="k">快去测一次</div></div><div><div class="v">—</div><div class="k">建立基线</div></div>';
+        $('chart').innerHTML='<p class="center" style="color:#6b7280;padding:20px;">还没有测评记录，先完成一次测评吧。</p>';
+        $('histTable').innerHTML=''; $('srcNote').textContent=''; return;
+      }
+      var first=recs[0].index, last=recs[recs.length-1].index, best=Math.max.apply(null,recs.map(function(r){return r.index;}));
+      var delta=last-first;
+      function cell(v,k,cls){ return '<div><div class="v '+(cls||'')+'">'+v+'</div><div class="k">'+k+'</div></div>'; }
+      sum.innerHTML = cell(first,'首次') + cell(last+(delta>0?' ▲':delta<0?' ▼':''),'最新', delta>0?'delta-up':delta<0?'delta-down':'delta-flat') + cell(best,'最佳');
+      drawChart(recs);
+      var rows='<tr><th>#</th><th>时间</th><th>年龄档</th><th>指数</th></tr>';
+      recs.forEach(function(r,i){ rows+='<tr><td>'+(i+1)+'</td><td>'+r.date+'</td><td>'+r.ageTier+'</td><td>'+r.index+'</td></tr>'; });
+      $('histTable').innerHTML=rows;
+      $('srcNote').textContent = res.src==='cloud' ? '数据来源：云端同步（登录态）' : '数据来源：本机浏览器本地存储（清除缓存或更换设备不保留）';
+    });
+  }
+
+  function drawChart(recs){
+    var W=640,H=260,pad=38;
+    var n=recs.length; var maxV=100, minV=0;
+    var xs=function(i){ return pad + i*(W-2*pad)/(Math.max(1,n-1)); };
+    var ys=function(v){ return H-pad - (v-minV)/(maxV-minV)*(H-2*pad); };
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:560px;">';
+    // 网格 + Y 轴
+    [0,25,50,75,100].forEach(function(v){ var y=ys(v); svg+='<line x1="'+pad+'" y1="'+y+'" x2="'+(W-pad)+'" y2="'+y+'" stroke="#1f2937"/>'; svg+='<text x="'+(pad-8)+'" y="'+(y+4)+'" fill="#6b7280" font-size="11" text-anchor="end">'+v+'</text>'; });
+    // 折线
+    var pts=recs.map(function(r,i){ return xs(i)+','+ys(r.index); }).join(' ');
+    svg+='<polyline points="'+pts+'" fill="none" stroke="#38bdf8" stroke-width="3"/>';
+    recs.forEach(function(r,i){ var x=xs(i),y=ys(r.index);
+      svg+='<circle cx="'+x+'" cy="'+y+'" r="5" fill="#38bdf8" stroke="#05070a" stroke-width="2"/>';
+      svg+='<text x="'+x+'" y="'+(y-12)+'" fill="#e4e4e7" font-size="12" text-anchor="middle">'+r.index+'</text>';
+      var d=r.date.split(' ')[0].slice(5);
+      if(n<=12) svg+='<text x="'+x+'" y="'+(H-pad+18)+'" fill="#6b7280" font-size="10" text-anchor="middle">'+d+'</text>';
+    });
+    svg+='</svg>';
+    $('chart').innerHTML=svg;
+  }
+
+  // ---------- UI 绑定 ----------
+  $('startBtn').onclick=function(){ state.tier=$('tier').value; state.nick=($('nick').value.trim()||'default'); runTest(); };
+  $('againBtn').onclick=function(){ runTest(); };
+  $('progBtn').onclick=function(){ renderProgress(); };
+  $('seeProgBtn').onclick=function(){ renderProgress(); };
+  $('backBtn').onclick=function(){ show('setup'); };
+  $('doTestBtn').onclick=function(){ state.tier=$('tier').value; state.nick=($('nick').value.trim()||'default'); runTest(); };
+})();
+</script>
+</body>
+</html>
