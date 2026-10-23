@@ -105,7 +105,7 @@
         @media (max-width: 600px) {
             .cm-probs { grid-template-columns: repeat(2, 1fr); gap: 10px 12px; }
             .decoding-questions { grid-template-columns: 1fr; }
-            #decoding-conn-rows { grid-template-columns: 1fr; }
+            #decoding-conn-rows { flex-direction: column; align-items: stretch; }
             .cm-q { font-size: clamp(1rem, 4vw, 1.55rem); }
             .no-print { font-size: 0.85rem; }
         }
@@ -206,7 +206,7 @@
         <div class="submeta">难度：<span class="stars">★★★☆☆</span></div>
         <p class="tip">说明：参照上方对照表，把<b>左侧</b>每个字母序列解码成数字，从绿点画一条线连到<b>右侧</b>对应的红色数字组（右侧顺序已打乱）。</p>
         <div id="decoding-conn-legend" class="decoding-legend" style="margin-bottom: 20px;"></div>
-        <div id="decoding-conn-rows" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
+        <div id="decoding-conn-rows"></div>
         <div class="sheet-foot">
             <span>日期：<span class="blank"></span>年<span class="blank"></span>月<span class="blank"></span>日</span>
             <span>完成：<span class="blank"></span> / 12 题</span>
