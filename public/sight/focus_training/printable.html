@@ -61,8 +61,11 @@
         /* 译码连线：左题右答打乱 + 中间连线空格 */
         #decoding-conn-rows { display: flex; align-items: stretch; margin-top: 12px; }
         .dc-col { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-        .dc-gap { flex: 0 0 54px; border-left: 2px dashed #c9c9d2; border-right: 2px dashed #c9c9d2; margin: 0 6px; }
-        .dc-item { display: flex; align-items: center; padding: 5px 10px; border: 1px solid #e3e3ea; border-radius: 6px; background: #fff; font-size: 1.05rem; letter-spacing: 3px; font-weight: 700; min-height: 22px; }
+        .dc-gap { flex: 0 0 56px; border-left: 2px dashed #c9c9d2; border-right: 2px dashed #c9c9d2; margin: 0 6px; position: relative; }
+        .dc-gap::after { content: "连\A线"; white-space: pre; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #b9b9c4; font-size: 0.82rem; line-height: 1.25; letter-spacing: 1px; text-align: center; }
+        .dc-item { position: relative; display: flex; align-items: center; padding: 5px 10px; border: 1px solid #e3e3ea; border-radius: 6px; background: #fff; font-size: 1.05rem; letter-spacing: 3px; font-weight: 700; min-height: 22px; }
+        .dc-col:first-child .dc-item::after { content: ""; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%; background: #2e7d5b; }
+        .dc-col:last-child .dc-item::before { content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%; background: #c0392b; }
         .dc-no { color: #2e7d5b; font-weight: 800; margin-right: 8px; letter-spacing: 0; font-size: 0.95rem; }
         .dc-target { justify-content: flex-start; letter-spacing: 3px; }
         /* Stroop */
@@ -200,7 +203,7 @@
     <div class="sheet">
         <div class="sheet-title"><h2>四、译码连线训练</h2><span class="tag">视动整合</span></div>
         <div class="submeta">难度：<span class="stars">★★★☆☆</span></div>
-        <p class="tip">说明：参照上方对照表，把<b>左侧</b>每个字母序列解码成数字，在<b>右侧</b>找到对应的数字组，用笔画线连起来（右侧顺序已打乱）。</p>
+        <p class="tip">说明：参照上方对照表，把<b>左侧</b>每个字母序列解码成数字，从绿点画一条线连到<b>右侧</b>对应的红色数字组（右侧顺序已打乱）。</p>
         <div id="decoding-conn-legend" class="decoding-legend" style="margin-bottom: 20px;"></div>
         <div id="decoding-conn-rows" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;"></div>
         <div class="sheet-foot">
